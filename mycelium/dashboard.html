@@ -7,7 +7,9 @@
     <title>MIST Companion Room</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/dashboard/styles.css">
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
@@ -21,8 +23,9 @@
         <header class="topbar">
             <div class="title-stack">
                 <p class="kicker">Local Presence</p>
-                <h1>MIST Companion Room</h1>
-                <p class="subtitle">A shared space for conversation, care, and verified local actions on your machine.</p>
+                <h1>MIST Sovereign Workspace</h1>
+                <p class="subtitle">A shared space for conversation, care, and verified local actions on your machine.
+                </p>
             </div>
             <div class="status-strip">
                 <span id="pulseStatus" class="status-pill offline">Pulse Offline</span>
@@ -47,7 +50,8 @@
                             </div>
                         </div>
                     </div>
-                    <p class="meta-line center-line">Mood: <span id="avatarMood">steady</span> | Companion: <span id="companionStatus">enabled</span></p>
+                    <p class="meta-line center-line">Mood: <span id="avatarMood">steady</span> | Companion: <span
+                            id="companionStatus">enabled</span></p>
                     <div class="avatar-tags">
                         <span id="avatarCompanionTag" class="avatar-tag">companion on</span>
                         <span id="avatarPulseTag" class="avatar-tag">pulse linked</span>
@@ -60,9 +64,13 @@
                     <p id="quickStatusSummary" class="meta-line">Checking services...</p>
                     <p id="gatewayHelp" class="meta-line">Gateway status pending...</p>
                     <div class="quick-prompts">
-                        <button type="button" class="prompt-chip" data-prompt="what can you do?">What can you do?</button>
-                        <button type="button" class="prompt-chip" data-prompt="confirm repair">Check repair status</button>
-                        <button type="button" class="prompt-chip" data-prompt="create MIST.md on my desktop with a 5-line dashboard tutorial">Create MIST.md</button>
+                        <button type="button" class="prompt-chip" data-prompt="what can you do?">What can you
+                            do?</button>
+                        <button type="button" class="prompt-chip" data-prompt="confirm repair">Check repair
+                            status</button>
+                        <button type="button" class="prompt-chip"
+                            data-prompt="create MIST.md on my desktop with a 5-line dashboard tutorial">Create
+                            MIST.md</button>
                         <button type="button" class="prompt-chip" data-prompt="run command: whoami">Run whoami</button>
                     </div>
                 </div>
@@ -96,7 +104,8 @@
                     </select>
 
                     <label for="companionBoundary">Boundary Style</label>
-                    <input id="companionBoundary" type="text" maxlength="120" placeholder="supportive, respectful, non-judgmental">
+                    <input id="companionBoundary" type="text" maxlength="120"
+                        placeholder="supportive, respectful, non-judgmental">
                 </div>
                 <div class="companion-actions">
                     <button id="saveCompanionBtn" type="button">Save Profile</button>

@@ -258,6 +258,32 @@ export function renderState(state) {
     setMeter(nodes.ramValue, nodes.ramBar, m.P);
     setMeter(nodes.coherenceValue, nodes.coherenceBar, m.C);
 
+    // TELEMETRY DISPLAY (Tier 5: Resource Awareness)
+    const telemetry = m.telemetry || {};
+    if (nodes.systemState) {
+        let status = String(state.systemState || 'unknown');
+        if (telemetry.activity && telemetry.activity !== 'idle') {
+            status += ` ~ [${telemetry.activity}]`;
+        }
+        if (telemetry.earnings > 0) {
+            status += ` ~ Reward: $${telemetry.earnings.toFixed(2)}`;
+        }
+        nodes.systemState.textContent = status;
+
+        // Dynamic Halo Coloring based on state
+        const halo = document.querySelector('.avatar-halo');
+        if (halo) {
+            halo.className = 'avatar-halo'; // reset
+            if (telemetry.earnings > 0 && (Date.now() / 1000 - m.last_earning_ts) < 60) {
+                halo.classList.add('glow-green'); // Earning glow
+            } else if (state.systemState === 'repair') {
+                halo.classList.add('glow-gold');
+            } else if (state.systemState === 'violet') {
+                halo.classList.add('glow-violet');
+            }
+        }
+    }
+
     const cosmic = state.cosmic || {};
     const cosmicOk = Boolean(cosmic.ok);
     if (nodes.cosmicStatus) {

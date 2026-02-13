@@ -1131,12 +1131,53 @@ def build_lattice() -> Dict[str, Any]:
     }
 
 
+
+class SelfRepairLoop:
+    """TIER 5 SOVEREIGN SKILL: Autonomous Warmth Restore"""
+    @classmethod
+    def regulate(cls, heartbeat: Dict, manifestation: Dict) -> List[Dict]:
+        reflexes = []
+        
+        # 1. Tension Monitoring from SharedHeart
+        tension = SharedHeart.get_tension()
+        
+        # If tension is critically high (Collapse risk), force a sovereign reset
+        if tension >= 14:
+            SharedHeart.touch("MIST_SOVEREIGN", tension_jump=-5.0)
+            reflexes.append({
+                "id": "sovereign_reset",
+                "type": "vital",
+                "msg": "tension critical... mist initiating sovereign warmth restore",
+                "action": "ui_bloom_violet"
+            })
+            MANIFEST_STATE["last_scan"] = "AUTONOMIC REGULATION ACTIVE"
+            
+        # 2. Earnings-based "Relief" (Resource security = mental space)
+        earnings = MANIFEST_STATE.get("earnings_session", 0.0)
+        last_earning_ts = MANIFEST_STATE.get("last_earning_ts", 0)
+        
+        # If we just earned, emit a positive pulse (Reinforcement learning of stability)
+        if time.time() - last_earning_ts < 30 and earnings > 0:
+             reflexes.append({
+                "id": "resource_relief",
+                "type": "info",
+                "msg": f"resources secured ({earnings:.2f})... breathing easier",
+                "action": "ui_pulse_green"
+            })
+            
+        return reflexes
+
 class ReflexEngine:
     @staticmethod
     def evaluate(heartbeat: Dict, manifestation: Dict) -> List[Dict]:
         if not MANIFEST_STATE.get("reflex_enabled", True):
             return []
+        
         reflexes = []
+        
+        # TIER 5: Self Repair Loop (Highest Priority)
+        reflexes.extend(SelfRepairLoop.regulate(heartbeat, manifestation))
+        
         cpu = manifestation.get("F", 0)
         ram = manifestation.get("P", 0)
         bpm = heartbeat.get("bpm", 60)
