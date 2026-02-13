@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-02-06",
+  "concept": "bioluminescent mycelium network",
+  "nodes": [
+    {
+      "id": "DASHBOARD",
+      "role": "interface",
+      "type": "web",
+      "path": "mycelium/dashboard_v2.html",
+      "emits": [
+        "render",
+        "ui"
+      ]
+    },
+    {
+      "id": "MIST",
+      "role": "core",
+      "type": "pulse",
+      "path": "mycelium",
+      "port": 8765,
+      "emits": [
+        "lattice_update",
+        "manifest",
+        "glow"
+      ]
+    },
+    {
+      "id": "GATEWAY",
+      "role": "bridge",
+      "type": "ws",
+      "path": "moltbot",
+      "port": 18789,
+      "emits": [
+        "chat",
+        "thought"
+      ]
+    },
+    {
+      "id": "APP",
+      "role": "front",
+      "type": "expo",
+      "path": "app",
+      "emits": [
+        "ui",
+        "commands"
+      ]
+    },
+    {
+      "id": "API",
+      "role": "hyphae",
+      "type": "trpc",
+      "path": "server",
+      "port": 3000,
+      "emits": [
+        "auth",
+        "data"
+      ]
+    },
+    {
+      "id": "SPORES",
+      "role": "export",
+      "type": "archive",
+      "path": "archived",
+      "emits": [
+        "memory_export"
+      ]
+    }
+  ],
+  "hyphae": [
+    {
+      "from": "APP",
+      "to": "API",
+      "channel": "http",
+      "path": "/api/trpc"
+    },
+    {
+      "from": "DASHBOARD",
+      "to": "MIST",
+      "channel": "ws",
+      "port": 8765
+    },
+    {
+      "from": "DASHBOARD",
+      "to": "GATEWAY",
+      "channel": "ws",
+      "port": 18789
+    }
+  ],
+  "glow": {
+    "signals": [
+      "bpm",
+      "cpu",
+      "ram",
+      "intensity",
+      "persona"
+    ],
+    "palette": {
+      "calm": "#57e3c3",
+      "warm": "#ff7eb6",
+      "violet": "#bc13fe",
+      "repair": "#f2b357",
+      "surrender": "#4d4dff",
+      "neutral": "#00f3ff",
+      "void": "#6b6b7a"
+    }
+  }
+}

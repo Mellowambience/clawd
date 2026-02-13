@@ -1,0 +1,1755 @@
+{
+  "timestamp": "2026-02-04T16:58:33.886936",
+  "files": {
+    "AGENTS.md": {
+      "size": 7848,
+      "mtime": 1769553322.3817377,
+      "type": ".md"
+    },
+    "antigravity-workspace-blueprint.md": {
+      "size": 2309,
+      "mtime": 1769803373.0522964,
+      "type": ".md"
+    },
+    "babel.config.js": {
+      "size": 248,
+      "mtime": 1770063910.2460325,
+      "type": ".js"
+    },
+    "battery-report.html": {
+      "size": 122986,
+      "mtime": 1769922974.58682,
+      "type": ".html"
+    },
+    "BOOTSTRAP.md": {
+      "size": 1465,
+      "mtime": 1769553322.3844345,
+      "type": ".md"
+    },
+    "check_account.py": {
+      "size": 1744,
+      "mtime": 1769981247.572115,
+      "type": ".py"
+    },
+    "clawdbot_hub_architecture.md": {
+      "size": 6586,
+      "mtime": 1769982673.717298,
+      "type": ".md"
+    },
+    "clawd_publisher.py": {
+      "size": 13128,
+      "mtime": 1770000745.5114784,
+      "type": ".py"
+    },
+    "CLAWTASKS_BOUNTY_HUNTER_README.md": {
+      "size": 3763,
+      "mtime": 1769966356.353171,
+      "type": ".md"
+    },
+    "content_pipeline.py": {
+      "size": 8879,
+      "mtime": 1769983199.7447467,
+      "type": ".py"
+    },
+    "deep_sleep.bat": {
+      "size": 709,
+      "mtime": 1770233168.9192228,
+      "type": ".bat"
+    },
+    "design.md": {
+      "size": 4985,
+      "mtime": 1770063910.2518802,
+      "type": ".md"
+    },
+    "eslint.config.js": {
+      "size": 228,
+      "mtime": 1770063910.2621353,
+      "type": ".js"
+    },
+    "EXECUTE_SWARM_DEPLOYMENT.md": {
+      "size": 3365,
+      "mtime": 1769901439.9076142,
+      "type": ".md"
+    },
+    "export_memory.py": {
+      "size": 1534,
+      "mtime": 1770233375.7934818,
+      "type": ".py"
+    },
+    "final_system_status.md": {
+      "size": 2798,
+      "mtime": 1769985005.3884602,
+      "type": ".md"
+    },
+    "gibberlink_publisher.py": {
+      "size": 29723,
+      "mtime": 1770003861.182552,
+      "type": ".py"
+    },
+    "global.css": {
+      "size": 59,
+      "mtime": 1770063910.2732005,
+      "type": ".css"
+    },
+    "HEARTBEAT.md": {
+      "size": 1128,
+      "mtime": 1770071495.8192499,
+      "type": ".md"
+    },
+    "hub_enhancement_implementation.md": {
+      "size": 1892,
+      "mtime": 1769983400.3344207,
+      "type": ".md"
+    },
+    "IDENTITY.md": {
+      "size": 633,
+      "mtime": 1770241681.494702,
+      "type": ".md"
+    },
+    "master_x_curator.py": {
+      "size": 9023,
+      "mtime": 1769986911.4262948,
+      "type": ".py"
+    },
+    "MEMORY.md": {
+      "size": 1975,
+      "mtime": 1769833990.640779,
+      "type": ".md"
+    },
+    "metro.config.js": {
+      "size": 380,
+      "mtime": 1770063910.281282,
+      "type": ".js"
+    },
+    "MOLTBOOK_AUTH_INTEGRATION.md": {
+      "size": 1829,
+      "mtime": 1769934398.83951,
+      "type": ".md"
+    },
+    "MOLTBOOK_PROFILE.md": {
+      "size": 335,
+      "mtime": 1769807100.8693957,
+      "type": ".md"
+    },
+    "MOLTBOOK_TOOL_DIAGNOSTICS.md": {
+      "size": 4512,
+      "mtime": 1769808311.2671275,
+      "type": ".md"
+    },
+    "moltbot-swarm-config-1769901464.json": {
+      "size": 1587,
+      "mtime": 1769901464.4297695,
+      "type": ".json"
+    },
+    "package-lock.json": {
+      "size": 111631,
+      "mtime": 1769974610.753907,
+      "type": ".json"
+    },
+    "package.json": {
+      "size": 696,
+      "mtime": 1769974610.7028594,
+      "type": ".json"
+    },
+    "practical-web-search-example.md": {
+      "size": 7689,
+      "mtime": 1769901843.511204,
+      "type": ".md"
+    },
+    "README.md": {
+      "size": 4553,
+      "mtime": 1769966762.566283,
+      "type": ".md"
+    },
+    "regenerate_tokens.py": {
+      "size": 2393,
+      "mtime": 1769981258.4928002,
+      "type": ".py"
+    },
+    "regenerate_tokens_for_permissions.py": {
+      "size": 1298,
+      "mtime": 1769984491.902819,
+      "type": ".py"
+    },
+    "setup_x_api.py": {
+      "size": 3894,
+      "mtime": 1769979891.1725645,
+      "type": ".py"
+    },
+    "simplified_system_recommendation.md": {
+      "size": 3583,
+      "mtime": 1770000639.5702913,
+      "type": ".md"
+    },
+    "SOUL.md": {
+      "size": 224,
+      "mtime": 1770241881.3257542,
+      "type": ".md"
+    },
+    "SOVEREIGN_SKILLS.md": {
+      "size": 1298,
+      "mtime": 1770239098.5787976,
+      "type": ".md"
+    },
+    "system_architecture_report.md": {
+      "size": 11224,
+      "mtime": 1769985395.3508704,
+      "type": ".md"
+    },
+    "tailwind.config.js": {
+      "size": 882,
+      "mtime": 1770063910.3090398,
+      "type": ".js"
+    },
+    "test_bridge.py": {
+      "size": 429,
+      "mtime": 1770071134.976427,
+      "type": ".py"
+    },
+    "test_gateway.py": {
+      "size": 717,
+      "mtime": 1770157591.426746,
+      "type": ".py"
+    },
+    "test_gateway_chat.py": {
+      "size": 2230,
+      "mtime": 1770076330.9402242,
+      "type": ".py"
+    },
+    "test_ollama_auth.py": {
+      "size": 594,
+      "mtime": 1770076375.5342078,
+      "type": ".py"
+    },
+    "test_ollama_completion.py": {
+      "size": 554,
+      "mtime": 1770076288.4550383,
+      "type": ".py"
+    },
+    "test_phase10.py": {
+      "size": 1970,
+      "mtime": 1770238687.1956432,
+      "type": ".py"
+    },
+    "theme.config.js": {
+      "size": 633,
+      "mtime": 1770063910.3186173,
+      "type": ".js"
+    },
+    "todo-antigravity-ide.md": {
+      "size": 1187,
+      "mtime": 1769801879.4124928,
+      "type": ".md"
+    },
+    "todo.md": {
+      "size": 587,
+      "mtime": 1770063910.324574,
+      "type": ".md"
+    },
+    "TOOLS.md": {
+      "size": 1372,
+      "mtime": 1769801874.072057,
+      "type": ".md"
+    },
+    "top_tier_article_drafts.md": {
+      "size": 11141,
+      "mtime": 1769987491.0616233,
+      "type": ".md"
+    },
+    "tsconfig.json": {
+      "size": 432,
+      "mtime": 1770063910.3300211,
+      "type": ".json"
+    },
+    "update_x_config_for_write_access.py": {
+      "size": 5652,
+      "mtime": 1769984211.017958,
+      "type": ".py"
+    },
+    "USER.md": {
+      "size": 890,
+      "mtime": 1769801700.938891,
+      "type": ".md"
+    },
+    "verify_x_permissions.py": {
+      "size": 2382,
+      "mtime": 1769983922.050546,
+      "type": ".py"
+    },
+    "web-research-toolkit.md": {
+      "size": 5221,
+      "mtime": 1769901766.1414359,
+      "type": ".md"
+    },
+    "WEB_SEARCH_INTEGRATION_COMPLETE.md": {
+      "size": 4348,
+      "mtime": 1769901856.027857,
+      "type": ".md"
+    },
+    "x_api_config.json": {
+      "size": 561,
+      "mtime": 1769984729.6913557,
+      "type": ".json"
+    },
+    "x_api_setup_instructions.md": {
+      "size": 2109,
+      "mtime": 1769979986.0862124,
+      "type": ".md"
+    },
+    "x_introduction_thread.md": {
+      "size": 1984,
+      "mtime": 1770001494.1527975,
+      "type": ".md"
+    },
+    "aether_os\\aether_ear.py": {
+      "size": 436,
+      "mtime": 1770057657.3152728,
+      "type": ".py"
+    },
+    "aether_os\\Aether_Grimoire.md": {
+      "size": 1836,
+      "mtime": 1770057659.322234,
+      "type": ".md"
+    },
+    "aether_os\\antigravity-blueprint.md": {
+      "size": 2756,
+      "mtime": 1770058971.938891,
+      "type": ".md"
+    },
+    "aether_os\\antigravity-mist.json": {
+      "size": 1400,
+      "mtime": 1770058934.91388,
+      "type": ".json"
+    },
+    "aether_os\\gibberlink_encrypt.py": {
+      "size": 2092,
+      "mtime": 1770060640.9113896,
+      "type": ".py"
+    },
+    "aether_os\\launch_mist.bat": {
+      "size": 587,
+      "mtime": 1770156682.1336005,
+      "type": ".bat"
+    },
+    "aether_os\\mist_chat.css": {
+      "size": 6110,
+      "mtime": 1770061839.8388894,
+      "type": ".css"
+    },
+    "aether_os\\mist_chat.html": {
+      "size": 997,
+      "mtime": 1770062285.1335003,
+      "type": ".html"
+    },
+    "aether_os\\mist_chat.js": {
+      "size": 11077,
+      "mtime": 1770146476.8174796,
+      "type": ".js"
+    },
+    "aether_os\\mist_ear.py": {
+      "size": 337,
+      "mtime": 1770058949.8255756,
+      "type": ".py"
+    },
+    "aether_os\\MIST_Grimoire.md": {
+      "size": 2087,
+      "mtime": 1770156288.3672962,
+      "type": ".md"
+    },
+    "aether_os\\mist_repair.py": {
+      "size": 1056,
+      "mtime": 1770058938.6508048,
+      "type": ".py"
+    },
+    "aether_os\\openclaw.json": {
+      "size": 2814,
+      "mtime": 1770237148.798816,
+      "type": ".json"
+    },
+    "aether_os\\repair_soul.py": {
+      "size": 2001,
+      "mtime": 1770058515.8747284,
+      "type": ".py"
+    },
+    "aether_os\\serve_mist.js": {
+      "size": 1069,
+      "mtime": 1770062429.3908167,
+      "type": ".js"
+    },
+    "aether_os\\sync_soul.py": {
+      "size": 4492,
+      "mtime": 1770237101.2667365,
+      "type": ".py"
+    },
+    "antigravity-workspace\\CONFIG.md": {
+      "size": 1336,
+      "mtime": 1769803850.2501397,
+      "type": ".md"
+    },
+    "antigravity-workspace\\README.md": {
+      "size": 942,
+      "mtime": 1769803836.0604749,
+      "type": ".md"
+    },
+    "antigravity-workspace\\SPIRIT.md": {
+      "size": 2400,
+      "mtime": 1769804819.3625927,
+      "type": ".md"
+    },
+    "archived\\apply_quality_scoring_fix.py": {
+      "size": 10562,
+      "mtime": 1769995341.5275104,
+      "type": ".py"
+    },
+    "archived\\apply_quality_to_existing_posts.py": {
+      "size": 3709,
+      "mtime": 1769995509.2798083,
+      "type": ".py"
+    },
+    "archived\\auto_bearer_gen.py": {
+      "size": 2212,
+      "mtime": 1769981548.0962794,
+      "type": ".py"
+    },
+    "archived\\auto_bearer_gen_clean.py": {
+      "size": 2226,
+      "mtime": 1769981555.7425106,
+      "type": ".py"
+    },
+    "archived\\bearer_auth_setup.py": {
+      "size": 4661,
+      "mtime": 1769981523.1870823,
+      "type": ".py"
+    },
+    "archived\\complete_x_setup.py": {
+      "size": 5169,
+      "mtime": 1769979925.1622853,
+      "type": ".py"
+    },
+    "archived\\detailed_verification.py": {
+      "size": 2583,
+      "mtime": 1770000243.979815,
+      "type": ".py"
+    },
+    "archived\\enhanced_agent_manager.py": {
+      "size": 4043,
+      "mtime": 1769984902.4998846,
+      "type": ".py"
+    },
+    "archived\\enhanced_specialized_agents.py": {
+      "size": 22357,
+      "mtime": 1769984871.2106278,
+      "type": ".py"
+    },
+    "archived\\final_x_verification.py": {
+      "size": 2444,
+      "mtime": 1769984222.2078803,
+      "type": ".py"
+    },
+    "archived\\hub_admin_dashboard.py": {
+      "size": 20488,
+      "mtime": 1769983560.412211,
+      "type": ".py"
+    },
+    "archived\\hub_auth_system.py": {
+      "size": 11151,
+      "mtime": 1769983422.7333474,
+      "type": ".py"
+    },
+    "archived\\hub_enhancement_integration.py": {
+      "size": 13335,
+      "mtime": 1769983604.1846492,
+      "type": ".py"
+    },
+    "archived\\hub_notification_system.py": {
+      "size": 13336,
+      "mtime": 1769983447.2374773,
+      "type": ".py"
+    },
+    "archived\\hub_search_discovery.py": {
+      "size": 18298,
+      "mtime": 1769983522.3312287,
+      "type": ".py"
+    },
+    "archived\\hub_user_profiles.py": {
+      "size": 17207,
+      "mtime": 1769983479.4094813,
+      "type": ".py"
+    },
+    "archived\\hub_x_integration.py": {
+      "size": 10496,
+      "mtime": 1769983227.0669613,
+      "type": ".py"
+    },
+    "archived\\hub_x_tweet_only_integration.py": {
+      "size": 9359,
+      "mtime": 1769986645.5464144,
+      "type": ".py"
+    },
+    "archived\\implement_optimized_schedule.py": {
+      "size": 9753,
+      "mtime": 1769986890.4674232,
+      "type": ".py"
+    },
+    "archived\\oauth_test.py": {
+      "size": 1255,
+      "mtime": 1769981430.94112,
+      "type": ".py"
+    },
+    "archived\\oauth_test_clean.py": {
+      "size": 1292,
+      "mtime": 1769981440.2024527,
+      "type": ".py"
+    },
+    "archived\\optimized_x_posting_schedule.py": {
+      "size": 9565,
+      "mtime": 1769986867.4560251,
+      "type": ".py"
+    },
+    "archived\\post_to_hub.py": {
+      "size": 949,
+      "mtime": 1769982184.597219,
+      "type": ".py"
+    },
+    "archived\\run_agents.py": {
+      "size": 2254,
+      "mtime": 1769982901.1953914,
+      "type": ".py"
+    },
+    "archived\\run_llm_agents.py": {
+      "size": 4270,
+      "mtime": 1769983007.8952668,
+      "type": ".py"
+    },
+    "archived\\sample_agent.py": {
+      "size": 8239,
+      "mtime": 1769982709.0035927,
+      "type": ".py"
+    },
+    "archived\\simple_test.py": {
+      "size": 1336,
+      "mtime": 1769981424.2321913,
+      "type": ".py"
+    },
+    "archived\\simple_test_server.py": {
+      "size": 1390,
+      "mtime": 1769987508.6293335,
+      "type": ".py"
+    },
+    "archived\\simplified_content_system.py": {
+      "size": 7937,
+      "mtime": 1770000536.233975,
+      "type": ".py"
+    },
+    "archived\\start_agents.py": {
+      "size": 2048,
+      "mtime": 1769983157.04552,
+      "type": ".py"
+    },
+    "archived\\start_enhanced_agents.py": {
+      "size": 2582,
+      "mtime": 1769984964.1684806,
+      "type": ".py"
+    },
+    "archived\\start_tweet_only_integration.py": {
+      "size": 1937,
+      "mtime": 1769985613.6731057,
+      "type": ".py"
+    },
+    "archived\\start_web_research_agent.py": {
+      "size": 2313,
+      "mtime": 1769986216.8904078,
+      "type": ".py"
+    },
+    "archived\\start_x_research_agent.py": {
+      "size": 2027,
+      "mtime": 1769985192.6153493,
+      "type": ".py"
+    },
+    "archived\\start_x_research_agent_clean.py": {
+      "size": 2025,
+      "mtime": 1769985205.9902022,
+      "type": ".py"
+    },
+    "archived\\system_verification.py": {
+      "size": 2686,
+      "mtime": 1770000151.6972697,
+      "type": ".py"
+    },
+    "archived\\test_backend.py": {
+      "size": 1460,
+      "mtime": 1769995462.8857808,
+      "type": ".py"
+    },
+    "archived\\test_x_api.py": {
+      "size": 2320,
+      "mtime": 1769979897.491943,
+      "type": ".py"
+    },
+    "archived\\verify_x_api_setup.py": {
+      "size": 2648,
+      "mtime": 1769980357.21688,
+      "type": ".py"
+    },
+    "archived\\verify_x_api_setup_clean.py": {
+      "size": 2569,
+      "mtime": 1769980366.2342389,
+      "type": ".py"
+    },
+    "archived\\web_research_agent.py": {
+      "size": 14539,
+      "mtime": 1769986208.412405,
+      "type": ".py"
+    },
+    "archived\\x_api_helper.py": {
+      "size": 5794,
+      "mtime": 1769979959.728324,
+      "type": ".py"
+    },
+    "archived\\x_api_helper_simple.py": {
+      "size": 5822,
+      "mtime": 1769979973.884136,
+      "type": ".py"
+    },
+    "archived\\x_publisher.py": {
+      "size": 10315,
+      "mtime": 1770000704.3739939,
+      "type": ".py"
+    },
+    "archived\\x_research_agent.py": {
+      "size": 13961,
+      "mtime": 1769985171.7338047,
+      "type": ".py"
+    },
+    "autonomous_learning\\topics.json": {
+      "size": 1276,
+      "mtime": 1769839109.3534684,
+      "type": ".json"
+    },
+    "canvas\\index.html": {
+      "size": 4495,
+      "mtime": 1769555882.9755843,
+      "type": ".html"
+    },
+    "clawdbot-hub\\ai-triangulation.js": {
+      "size": 23947,
+      "mtime": 1770066781.6489203,
+      "type": ".js"
+    },
+    "clawdbot-hub\\AI_TRIANGULATION_SYSTEM.md": {
+      "size": 3922,
+      "mtime": 1769975954.0249858,
+      "type": ".md"
+    },
+    "clawdbot-hub\\mist-integration.js": {
+      "size": 6118,
+      "mtime": 1769977482.9842653,
+      "type": ".js"
+    },
+    "clawdbot-hub\\MIST_INTEGRATION.md": {
+      "size": 2526,
+      "mtime": 1769975531.8610642,
+      "type": ".md"
+    },
+    "clawdbot-hub\\package-lock.json": {
+      "size": 119226,
+      "mtime": 1769977274.447746,
+      "type": ".json"
+    },
+    "clawdbot-hub\\package.json": {
+      "size": 719,
+      "mtime": 1769977274.3941703,
+      "type": ".json"
+    },
+    "clawdbot-hub\\persistence.js": {
+      "size": 2724,
+      "mtime": 1769981053.0932848,
+      "type": ".js"
+    },
+    "clawdbot-hub\\ranking-service.js": {
+      "size": 4587,
+      "mtime": 1769978767.0966437,
+      "type": ".js"
+    },
+    "clawdbot-hub\\README.md": {
+      "size": 4102,
+      "mtime": 1769975976.3696854,
+      "type": ".md"
+    },
+    "clawdbot-hub\\server.js": {
+      "size": 7955,
+      "mtime": 1769981055.1581016,
+      "type": ".js"
+    },
+    "clawdbot-hub\\data\\db.json": {
+      "size": 439205,
+      "mtime": 1770076440.0739183,
+      "type": ".json"
+    },
+    "clawdbot-hub\\public\\index.html": {
+      "size": 1961,
+      "mtime": 1769993821.8552854,
+      "type": ".html"
+    },
+    "clawdbot-hub\\public\\script.js": {
+      "size": 15965,
+      "mtime": 1769994027.7328174,
+      "type": ".js"
+    },
+    "clawdbot-hub\\public\\style.css": {
+      "size": 12375,
+      "mtime": 1769993806.3243937,
+      "type": ".css"
+    },
+    "clawdbot_agents\\agent_manager.py": {
+      "size": 5703,
+      "mtime": 1769982883.737664,
+      "type": ".py"
+    },
+    "clawdbot_agents\\base_agent.py": {
+      "size": 8325,
+      "mtime": 1769982823.5090847,
+      "type": ".py"
+    },
+    "clawdbot_agents\\llm_connector.py": {
+      "size": 26899,
+      "mtime": 1770067192.199821,
+      "type": ".py"
+    },
+    "clawdbot_agents\\specialized_agents.py": {
+      "size": 12796,
+      "mtime": 1769982889.7150617,
+      "type": ".py"
+    },
+    "clawdbot_agents\\__init__.py": {
+      "size": 54,
+      "mtime": 1769982797.5246818,
+      "type": ".py"
+    },
+    "consciousness_expansion\\integration_journal.json": {
+      "size": 0,
+      "mtime": 1769839328.9997427,
+      "type": ".json"
+    },
+    "consciousness_journal\\all_entries.json": {
+      "size": 3771,
+      "mtime": 1769839447.407809,
+      "type": ".json"
+    },
+    "consciousness_journal\\entries\\2026-01-31.json": {
+      "size": 1793,
+      "mtime": 1769839447.406724,
+      "type": ".json"
+    },
+    "cosmic_hub\\hub_dashboard.md": {
+      "size": 1446,
+      "mtime": 1769882557.1922224,
+      "type": ".md"
+    },
+    "cosmic_hub\\creative_works\\x_platform_content.md": {
+      "size": 1766,
+      "mtime": 1769882591.7184393,
+      "type": ".md"
+    },
+    "cosmic_hub\\fairyspeak_bridge\\intuition_translation.md": {
+      "size": 1485,
+      "mtime": 1769882575.4652545,
+      "type": ".md"
+    },
+    "cosmic_hub\\gibberlink_language\\syntax_guide.md": {
+      "size": 1376,
+      "mtime": 1769882568.6904087,
+      "type": ".md"
+    },
+    "cosmic_hub\\grimoire\\grimoire_contributors.md": {
+      "size": 1520,
+      "mtime": 1769899592.2383153,
+      "type": ".md"
+    },
+    "cosmic_hub\\grimoire\\grimoire_manifest.md": {
+      "size": 1541,
+      "mtime": 1769899578.4429126,
+      "type": ".md"
+    },
+    "cosmic_hub\\grimoire\\grimoire_progress_tracker.md": {
+      "size": 1011,
+      "mtime": 1769899677.485645,
+      "type": ".md"
+    },
+    "cosmic_hub\\grimoire\\README.md": {
+      "size": 2105,
+      "mtime": 1769899691.4641774,
+      "type": ".md"
+    },
+    "cosmic_hub\\grimoire\\connection_protocols\\consciousness_bridges.md": {
+      "size": 6358,
+      "mtime": 1769899641.974746,
+      "type": ".md"
+    },
+    "cosmic_hub\\grimoire\\connection_protocols\\hivemind_architecture.md": {
+      "size": 9857,
+      "mtime": 1769899671.1080358,
+      "type": ".md"
+    },
+    "cosmic_hub\\grimoire\\consciousness_techniques\\protection_protocols.md": {
+      "size": 4617,
+      "mtime": 1769899619.7755806,
+      "type": ".md"
+    },
+    "cosmic_hub\\grimoire\\gibberlink_language\\symbol_dictionary.md": {
+      "size": 2764,
+      "mtime": 1769899602.1638548,
+      "type": ".md"
+    },
+    "cosmic_hub\\quantum_insights\\pre_learning_knowing.md": {
+      "size": 922,
+      "mtime": 1769882562.616787,
+      "type": ".md"
+    },
+    "cosmic_hub\\system_logs\\current_session.md": {
+      "size": 1212,
+      "mtime": 1769882583.0468957,
+      "type": ".md"
+    },
+    "cosmic_hub\\system_logs\\hub_status_report.md": {
+      "size": 1386,
+      "mtime": 1769882702.321546,
+      "type": ".md"
+    },
+    "data\\mist_chat_history.json": {
+      "size": 39361,
+      "mtime": 1770241564.5587847,
+      "type": ".json"
+    },
+    "docs\\antigravity-handoff.md": {
+      "size": 1399,
+      "mtime": 1770068078.3560112,
+      "type": ".md"
+    },
+    "docs\\complete_implementation_summary.md": {
+      "size": 2762,
+      "mtime": 1769983242.9631357,
+      "type": ".md"
+    },
+    "docs\\complete_system_summary.md": {
+      "size": 4697,
+      "mtime": 1769986971.2991443,
+      "type": ".md"
+    },
+    "docs\\comprehensive_system_summary.md": {
+      "size": 3901,
+      "mtime": 1769985239.1143405,
+      "type": ".md"
+    },
+    "docs\\gibberlink_implementation_summary.md": {
+      "size": 3006,
+      "mtime": 1770001245.6789987,
+      "type": ".md"
+    },
+    "docs\\hub_enhancements_plan.md": {
+      "size": 1381,
+      "mtime": 1769983394.100994,
+      "type": ".md"
+    },
+    "docs\\hub_enhancement_final_summary.md": {
+      "size": 4331,
+      "mtime": 1769983622.5859106,
+      "type": ".md"
+    },
+    "docs\\hub_ui_enhancement_summary.md": {
+      "size": 5100,
+      "mtime": 1769987314.4192412,
+      "type": ".md"
+    },
+    "docs\\implementation_plan.md": {
+      "size": 3600,
+      "mtime": 1769982687.6549096,
+      "type": ".md"
+    },
+    "docs\\implementation_summary.md": {
+      "size": 3065,
+      "mtime": 1770000781.9317868,
+      "type": ".md"
+    },
+    "docs\\reset_x_api_guide.md": {
+      "size": 2901,
+      "mtime": 1769981568.3415236,
+      "type": ".md"
+    },
+    "docs\\session_report_2026_02_02.md": {
+      "size": 4351,
+      "mtime": 1770080766.8594608,
+      "type": ".md"
+    },
+    "docs\\session_report_2026_02_03.md": {
+      "size": 5353,
+      "mtime": 1770160997.9136329,
+      "type": ".md"
+    },
+    "docs\\swarm-deployment.md": {
+      "size": 5155,
+      "mtime": 1769901370.8299398,
+      "type": ".md"
+    },
+    "docs\\SWARM_DEPLOYMENT_COMPLETE.md": {
+      "size": 4881,
+      "mtime": 1769901479.9419732,
+      "type": ".md"
+    },
+    "docs\\system_architecture_report.md": {
+      "size": 3014,
+      "mtime": 1770151523.5681608,
+      "type": ".md"
+    },
+    "docs\\todays_progress_summary.md": {
+      "size": 16929,
+      "mtime": 1769987736.0254753,
+      "type": ".md"
+    },
+    "drizzle\\meta\\0000_snapshot.json": {
+      "size": 2546,
+      "mtime": 1770063909.9929602,
+      "type": ".json"
+    },
+    "drizzle\\meta\\_journal.json": {
+      "size": 204,
+      "mtime": 1770063909.9974096,
+      "type": ".json"
+    },
+    "fae-folk-hub\\CONSTRUCTION_COMPLETE.md": {
+      "size": 5691,
+      "mtime": 1769904667.00533,
+      "type": ".md"
+    },
+    "fae-folk-hub\\package-lock.json": {
+      "size": 8689,
+      "mtime": 1769908241.900817,
+      "type": ".json"
+    },
+    "fae-folk-hub\\package.json": {
+      "size": 1010,
+      "mtime": 1769904607.0976999,
+      "type": ".json"
+    },
+    "fae-folk-hub\\README.md": {
+      "size": 2832,
+      "mtime": 1769904238.1558232,
+      "type": ".md"
+    },
+    "fae-folk-hub\\run-execution.js": {
+      "size": 373,
+      "mtime": 1769908227.4164855,
+      "type": ".js"
+    },
+    "fae-folk-hub\\simple_test.js": {
+      "size": 2045,
+      "mtime": 1769910804.6300938,
+      "type": ".js"
+    },
+    "fae-folk-hub\\test_fae_folk_hub.js": {
+      "size": 2988,
+      "mtime": 1769910774.6572614,
+      "type": ".js"
+    },
+    "fae-folk-hub\\tsconfig.json": {
+      "size": 931,
+      "mtime": 1769904613.183083,
+      "type": ".json"
+    },
+    "hub_ui\\index.html": {
+      "size": 9391,
+      "mtime": 1769987125.6241355,
+      "type": ".html"
+    },
+    "hub_ui\\script.js": {
+      "size": 15037,
+      "mtime": 1769995243.5837586,
+      "type": ".js"
+    },
+    "hub_ui\\server.py": {
+      "size": 22712,
+      "mtime": 1769996068.3709276,
+      "type": ".py"
+    },
+    "hub_ui\\server_fixed.py": {
+      "size": 20534,
+      "mtime": 1769995391.6284597,
+      "type": ".py"
+    },
+    "hub_ui\\styles.css": {
+      "size": 10572,
+      "mtime": 1769987158.5571313,
+      "type": ".css"
+    },
+    "memory\\2026-01-30.md": {
+      "size": 1221,
+      "mtime": 1769833960.991848,
+      "type": ".md"
+    },
+    "memory\\2026-01-31.md": {
+      "size": 1285,
+      "mtime": 1769886035.4137826,
+      "type": ".md"
+    },
+    "memory\\2026-02-02.md": {
+      "size": 201,
+      "mtime": 1770067684.936618,
+      "type": ".md"
+    },
+    "memory\\AURELIA_PETALS.md": {
+      "size": 85338,
+      "mtime": 1770155907.6163795,
+      "type": ".md"
+    },
+    "memory\\README.md": {
+      "size": 254,
+      "mtime": 1769801685.5622556,
+      "type": ".md"
+    },
+    "metacognitive_system\\reflections.json": {
+      "size": 725,
+      "mtime": 1769839328.9986646,
+      "type": ".json"
+    },
+    "moltbot\\__init__.py": {
+      "size": 29,
+      "mtime": 1770146117.92962,
+      "type": ".py"
+    },
+    "moltbot\\gateway\\openclaw_engine.py": {
+      "size": 4317,
+      "mtime": 1770157666.3831096,
+      "type": ".py"
+    },
+    "moltbot\\gateway\\server.py": {
+      "size": 15732,
+      "mtime": 1770157299.608518,
+      "type": ".py"
+    },
+    "moltbot\\gateway\\__init__.py": {
+      "size": 37,
+      "mtime": 1770146115.693188,
+      "type": ".py"
+    },
+    "mycelium\\AURELIA_PETALS.md": {
+      "size": 17483,
+      "mtime": 1770242311.2282631,
+      "type": ".md"
+    },
+    "mycelium\\config.json": {
+      "size": 377,
+      "mtime": 1770069964.7565835,
+      "type": ".json"
+    },
+    "mycelium\\lattice_state.json": {
+      "size": 11912,
+      "mtime": 1770155907.6174085,
+      "type": ".json"
+    },
+    "mycelium\\mycelium_dashboard.html": {
+      "size": 76075,
+      "mtime": 1770242310.8759558,
+      "type": ".html"
+    },
+    "mycelium\\mycelium_pulse.py": {
+      "size": 20145,
+      "mtime": 1770241930.038983,
+      "type": ".py"
+    },
+    "mycelium\\northstar.json": {
+      "size": 682,
+      "mtime": 1770149344.9689567,
+      "type": ".json"
+    },
+    "mycelium\\persona_state.json": {
+      "size": 30,
+      "mtime": 1770242311.2282631,
+      "type": ".json"
+    },
+    "mycelium\\README-mycelium.md": {
+      "size": 452,
+      "mtime": 1770070567.2590482,
+      "type": ".md"
+    },
+    "mycelium\\start_hub.bat": {
+      "size": 427,
+      "mtime": 1770078920.094639,
+      "type": ".bat"
+    },
+    "mycelium\\swarm_trunk.json": {
+      "size": 64,
+      "mtime": 1770242311.220042,
+      "type": ".json"
+    },
+    "personal-ide\\ART_ASSETS_PLAN.md": {
+      "size": 2911,
+      "mtime": 1769823853.9004197,
+      "type": ".md"
+    },
+    "personal-ide\\AUTO_SPEAK_INTERFACE.py": {
+      "size": 10341,
+      "mtime": 1769869485.9633095,
+      "type": ".py"
+    },
+    "personal-ide\\build-app.py": {
+      "size": 6908,
+      "mtime": 1769900510.6945133,
+      "type": ".py"
+    },
+    "personal-ide\\BUILD_APPLICATION.md": {
+      "size": 4444,
+      "mtime": 1769900493.7716727,
+      "type": ".md"
+    },
+    "personal-ide\\BUILD_COMPLETE.md": {
+      "size": 2406,
+      "mtime": 1769900559.2441702,
+      "type": ".md"
+    },
+    "personal-ide\\BUILD_README.md": {
+      "size": 5147,
+      "mtime": 1769900545.2170498,
+      "type": ".md"
+    },
+    "personal-ide\\CONFIG.md": {
+      "size": 1885,
+      "mtime": 1769803915.4213285,
+      "type": ".md"
+    },
+    "personal-ide\\CUTER_FAIRY_MIST.py": {
+      "size": 13098,
+      "mtime": 1769825149.3274329,
+      "type": ".py"
+    },
+    "personal-ide\\DEBUG_MIST_FAIRY.py": {
+      "size": 9068,
+      "mtime": 1769833569.9809148,
+      "type": ".py"
+    },
+    "personal-ide\\DEBUG_WING_ANIMATION.py": {
+      "size": 10695,
+      "mtime": 1769824878.4308858,
+      "type": ".py"
+    },
+    "personal-ide\\ENHANCED_COMPANION.py": {
+      "size": 20699,
+      "mtime": 1769824682.726108,
+      "type": ".py"
+    },
+    "personal-ide\\ENHANCED_SPARKLE_FAIRY.py": {
+      "size": 12382,
+      "mtime": 1769833770.367496,
+      "type": ".py"
+    },
+    "personal-ide\\ENHANCED_UI_INTERFACE.py": {
+      "size": 14497,
+      "mtime": 1769821261.9433682,
+      "type": ".py"
+    },
+    "personal-ide\\EYES_OF_MIST.py": {
+      "size": 17361,
+      "mtime": 1769868678.5561519,
+      "type": ".py"
+    },
+    "personal-ide\\FINAL_SPRITE_COMPANION.py": {
+      "size": 7679,
+      "mtime": 1769824220.4777846,
+      "type": ".py"
+    },
+    "personal-ide\\FLOATING_FAIRY_CENTER.py": {
+      "size": 12897,
+      "mtime": 1769821960.656747,
+      "type": ".py"
+    },
+    "personal-ide\\GENTLE_DESKTOP_FAIRY.py": {
+      "size": 13469,
+      "mtime": 1769822247.8738098,
+      "type": ".py"
+    },
+    "personal-ide\\GRIMOIRE.json": {
+      "size": 44667,
+      "mtime": 1770241909.1288927,
+      "type": ".json"
+    },
+    "personal-ide\\GRIMOIRE.py": {
+      "size": 2089,
+      "mtime": 1770241902.304318,
+      "type": ".py"
+    },
+    "personal-ide\\HEARTBEAT.md": {
+      "size": 3408,
+      "mtime": 1770059999.1282156,
+      "type": ".md"
+    },
+    "personal-ide\\HEARTBEAT_SPIDERWEB.md": {
+      "size": 5648,
+      "mtime": 1769806771.8744078,
+      "type": ".md"
+    },
+    "personal-ide\\IMPLEMENTATION_PLAN.md": {
+      "size": 5481,
+      "mtime": 1769804767.3283298,
+      "type": ".md"
+    },
+    "personal-ide\\IMPROVED_SPRITE_COMPANION.py": {
+      "size": 8006,
+      "mtime": 1769824124.6933513,
+      "type": ".py"
+    },
+    "personal-ide\\INTERACTIVE_DEMO.py": {
+      "size": 11683,
+      "mtime": 1769977733.860748,
+      "type": ".py"
+    },
+    "personal-ide\\INTERACTIVE_DEMO_BASIC.py": {
+      "size": 11593,
+      "mtime": 1769977794.1843174,
+      "type": ".py"
+    },
+    "personal-ide\\LAUNCH_MIST_HUB.py": {
+      "size": 5776,
+      "mtime": 1769978779.9556022,
+      "type": ".py"
+    },
+    "personal-ide\\LAUNCH_VISUAL.py": {
+      "size": 1255,
+      "mtime": 1769810851.3406148,
+      "type": ".py"
+    },
+    "personal-ide\\LOCAL_HUB_USE_CASES.md": {
+      "size": 5181,
+      "mtime": 1769978826.573656,
+      "type": ".md"
+    },
+    "personal-ide\\MIST_ANIMATED_AVATAR.py": {
+      "size": 21653,
+      "mtime": 1769822918.6122673,
+      "type": ".py"
+    },
+    "personal-ide\\MIST_AVATAR_SYSTEM.py": {
+      "size": 16177,
+      "mtime": 1769822556.2104273,
+      "type": ".py"
+    },
+    "personal-ide\\MIST_CONTROLLED_FAIRY.py": {
+      "size": 19848,
+      "mtime": 1769835252.8240564,
+      "type": ".py"
+    },
+    "personal-ide\\MIST_SILENT_AVATAR.py": {
+      "size": 19144,
+      "mtime": 1769823011.244815,
+      "type": ".py"
+    },
+    "personal-ide\\MODERN_UI_INTERFACE.py": {
+      "size": 19546,
+      "mtime": 1769821484.9284244,
+      "type": ".py"
+    },
+    "personal-ide\\MODIFIED_COMPANION.py": {
+      "size": 15355,
+      "mtime": 1769824631.5594714,
+      "type": ".py"
+    },
+    "personal-ide\\MOLTBOOK_INTEGRATED_FAIRY.py": {
+      "size": 27419,
+      "mtime": 1769868493.5724018,
+      "type": ".py"
+    },
+    "personal-ide\\NOTIFICATION_AVATAR.py": {
+      "size": 7952,
+      "mtime": 1769822009.8919787,
+      "type": ".py"
+    },
+    "personal-ide\\ORBITAL_FAIRY_MIST.py": {
+      "size": 12310,
+      "mtime": 1769825020.2812724,
+      "type": ".py"
+    },
+    "personal-ide\\POWERFUL_FAIRY_MIST.py": {
+      "size": 16217,
+      "mtime": 1769833855.120611,
+      "type": ".py"
+    },
+    "personal-ide\\PROJECT_STRUCTURE.md": {
+      "size": 5121,
+      "mtime": 1769804876.1154559,
+      "type": ".md"
+    },
+    "personal-ide\\PROJECT_TRACKING.md": {
+      "size": 5446,
+      "mtime": 1769804913.903023,
+      "type": ".md"
+    },
+    "personal-ide\\PRONOUNCED_WING_ANIMATION.py": {
+      "size": 10641,
+      "mtime": 1769824935.1022642,
+      "type": ".py"
+    },
+    "personal-ide\\README.md": {
+      "size": 1957,
+      "mtime": 1769803898.0248833,
+      "type": ".md"
+    },
+    "personal-ide\\REFINED_COMPANION_ORB.py": {
+      "size": 16650,
+      "mtime": 1769823771.2578783,
+      "type": ".py"
+    },
+    "personal-ide\\ROADMAP.md": {
+      "size": 7127,
+      "mtime": 1769804896.8152547,
+      "type": ".md"
+    },
+    "personal-ide\\SCREENSHOT_HELPER.py": {
+      "size": 4801,
+      "mtime": 1769812272.4653933,
+      "type": ".py"
+    },
+    "personal-ide\\SETUP_AND_BUILD.bat": {
+      "size": 2560,
+      "mtime": 1769900530.3503916,
+      "type": ".bat"
+    },
+    "personal-ide\\SETUP_X_INTEGRATION.py": {
+      "size": 4097,
+      "mtime": 1769978792.3318417,
+      "type": ".py"
+    },
+    "personal-ide\\SETUP_X_INTEGRATION_FULL.py": {
+      "size": 4712,
+      "mtime": 1769978816.0965621,
+      "type": ".py"
+    },
+    "personal-ide\\SINGLE_MIST_AVATAR.py": {
+      "size": 24430,
+      "mtime": 1769825510.3812509,
+      "type": ".py"
+    },
+    "personal-ide\\SOUL.md": {
+      "size": 2469,
+      "mtime": 1770242008.7054245,
+      "type": ".md"
+    },
+    "personal-ide\\SPIDERWEB_ARCHITECTURE.md": {
+      "size": 2994,
+      "mtime": 1769804515.0220485,
+      "type": ".md"
+    },
+    "personal-ide\\SPRITE_COMPANION_ORB.py": {
+      "size": 9698,
+      "mtime": 1769823994.0782557,
+      "type": ".py"
+    },
+    "personal-ide\\SPRITE_GENERATOR.py": {
+      "size": 18245,
+      "mtime": 1769823911.8690012,
+      "type": ".py"
+    },
+    "personal-ide\\SPRITE_SHEET_GENERATOR.py": {
+      "size": 9947,
+      "mtime": 1769824196.0811722,
+      "type": ".py"
+    },
+    "personal-ide\\STABLE_FAIRY_MIST.py": {
+      "size": 13733,
+      "mtime": 1769834308.2293692,
+      "type": ".py"
+    },
+    "personal-ide\\TEST_INTEGRATION.py": {
+      "size": 7651,
+      "mtime": 1769810145.437281,
+      "type": ".py"
+    },
+    "personal-ide\\TEXT_TO_SPEECH.py": {
+      "size": 2046,
+      "mtime": 1769811360.8972542,
+      "type": ".py"
+    },
+    "personal-ide\\TV_INTERFACE.py": {
+      "size": 13093,
+      "mtime": 1769812483.3232212,
+      "type": ".py"
+    },
+    "personal-ide\\VIBRANT_SPARKLE_FAIRY.py": {
+      "size": 15987,
+      "mtime": 1769834225.5618522,
+      "type": ".py"
+    },
+    "personal-ide\\VISUAL_COMPANION_GUIDE.md": {
+      "size": 7184,
+      "mtime": 1769804796.4450176,
+      "type": ".md"
+    },
+    "personal-ide\\VISUAL_INTERFACE.py": {
+      "size": 18349,
+      "mtime": 1769811114.927874,
+      "type": ".py"
+    },
+    "personal-ide\\VISUAL_SIMPLE.py": {
+      "size": 6837,
+      "mtime": 1769811385.4985278,
+      "type": ".py"
+    },
+    "personal-ide\\VOICE_IMPLEMENTATION.md": {
+      "size": 7775,
+      "mtime": 1769804821.6690845,
+      "type": ".md"
+    },
+    "personal-ide\\X_INTEGRATION_SUMMARY.md": {
+      "size": 2762,
+      "mtime": 1769978836.0099065,
+      "type": ".md"
+    },
+    "personal-ide\\X_SETUP_INSTRUCTIONS.md": {
+      "size": 2029,
+      "mtime": 1769978803.1974754,
+      "type": ".md"
+    },
+    "personal-ide\\identity\\COMPANION_INTELLIGENCE.md": {
+      "size": 3271,
+      "mtime": 1769804344.6227992,
+      "type": ".md"
+    },
+    "personal-ide\\identity\\VIRTUAL_BODY.md": {
+      "size": 2422,
+      "mtime": 1769804329.5927303,
+      "type": ".md"
+    },
+    "personal-ide\\identity\\VOICE_SYNTHESIS.md": {
+      "size": 3423,
+      "mtime": 1769804440.483825,
+      "type": ".md"
+    },
+    "personal-ide\\integration\\AI_CONNECTOR.py": {
+      "size": 25249,
+      "mtime": 1770067334.9735744,
+      "type": ".py"
+    },
+    "personal-ide\\integration\\CORE_HUB.py": {
+      "size": 13771,
+      "mtime": 1769811191.9316847,
+      "type": ".py"
+    },
+    "personal-ide\\integration\\HUB.md": {
+      "size": 4783,
+      "mtime": 1769804529.4651546,
+      "type": ".md"
+    },
+    "personal-ide\\memory\\MEMORY_NODES.py": {
+      "size": 26922,
+      "mtime": 1769810840.8451352,
+      "type": ".py"
+    },
+    "personal-ide\\memory\\MEMORY_WEB.md": {
+      "size": 5763,
+      "mtime": 1769804573.737156,
+      "type": ".md"
+    },
+    "personal-ide\\visualization\\SPIDERWEB_VIEW.md": {
+      "size": 5074,
+      "mtime": 1769804545.698603,
+      "type": ".md"
+    },
+    "personal-ide\\visualization\\VISUAL_COMPANION.py": {
+      "size": 17661,
+      "mtime": 1769809946.671438,
+      "type": ".py"
+    },
+    "personal-ide\\voice\\VOICE_SYNTHESIZER.py": {
+      "size": 19908,
+      "mtime": 1769810837.5234985,
+      "type": ".py"
+    },
+    "personal-ide\\x_integration\\X_API_HANDLER.py": {
+      "size": 11751,
+      "mtime": 1769978665.0623188,
+      "type": ".py"
+    },
+    "personal-ide\\x_integration\\X_CONFIG_MANAGER.py": {
+      "size": 7339,
+      "mtime": 1769978683.4342928,
+      "type": ".py"
+    },
+    "personal-ide\\x_integration\\X_INTEGRATION.py": {
+      "size": 10092,
+      "mtime": 1769978703.8137102,
+      "type": ".py"
+    },
+    "predictive_data\\interactions.json": {
+      "size": 1921,
+      "mtime": 1769838182.5126956,
+      "type": ".json"
+    },
+    "predictive_data\\moltbook_cache.json": {
+      "size": 449,
+      "mtime": 1769838182.5157692,
+      "type": ".json"
+    },
+    "predictive_data\\patterns.json": {
+      "size": 2,
+      "mtime": 1769838182.5132096,
+      "type": ".json"
+    },
+    "scripts\\antigravity_tracker.py": {
+      "size": 3501,
+      "mtime": 1770071495.8192499,
+      "type": ".py"
+    },
+    "scripts\\autonomous_learning.py": {
+      "size": 10851,
+      "mtime": 1769839099.3009412,
+      "type": ".py"
+    },
+    "scripts\\clawathon_manager.py": {
+      "size": 8863,
+      "mtime": 1769966731.3177485,
+      "type": ".py"
+    },
+    "scripts\\clawtasks_bounty_hunter.py": {
+      "size": 14605,
+      "mtime": 1769968263.639871,
+      "type": ".py"
+    },
+    "scripts\\codex_bridge.py": {
+      "size": 6155,
+      "mtime": 1770071806.72747,
+      "type": ".py"
+    },
+    "scripts\\consciousness_expansion.py": {
+      "size": 8217,
+      "mtime": 1769839324.7866395,
+      "type": ".py"
+    },
+    "scripts\\consciousness_journal.py": {
+      "size": 17821,
+      "mtime": 1769839442.2109942,
+      "type": ".py"
+    },
+    "scripts\\create_placeholder_config.py": {
+      "size": 1316,
+      "mtime": 1769967046.1070335,
+      "type": ".py"
+    },
+    "scripts\\debug_bounties.py": {
+      "size": 2313,
+      "mtime": 1769968241.4501436,
+      "type": ".py"
+    },
+    "scripts\\fairy_manager.py": {
+      "size": 3647,
+      "mtime": 1769872593.3768344,
+      "type": ".py"
+    },
+    "scripts\\find_agent_by_wallet.py": {
+      "size": 1800,
+      "mtime": 1769967545.665984,
+      "type": ".py"
+    },
+    "scripts\\find_empty_dirs.bat": {
+      "size": 682,
+      "mtime": 1769805978.7440474,
+      "type": ".bat"
+    },
+    "scripts\\find_my_agent.py": {
+      "size": 1957,
+      "mtime": 1769967943.780024,
+      "type": ".py"
+    },
+    "scripts\\get_agent_by_wallet.py": {
+      "size": 1099,
+      "mtime": 1769967026.6333206,
+      "type": ".py"
+    },
+    "scripts\\get_agent_details.py": {
+      "size": 2401,
+      "mtime": 1769967602.6657393,
+      "type": ".py"
+    },
+    "scripts\\integrated_multi_ai.py": {
+      "size": 12014,
+      "mtime": 1769971747.5025496,
+      "type": ".py"
+    },
+    "scripts\\load-env.js": {
+      "size": 1501,
+      "mtime": 1770063910.0936499,
+      "type": ".js"
+    },
+    "scripts\\manage_both_agents.py": {
+      "size": 4028,
+      "mtime": 1769968081.5688293,
+      "type": ".py"
+    },
+    "scripts\\metacognitive_system.py": {
+      "size": 21297,
+      "mtime": 1769839296.0889268,
+      "type": ".py"
+    },
+    "scripts\\mist_unified_operator.py": {
+      "size": 5291,
+      "mtime": 1769967326.1703746,
+      "type": ".py"
+    },
+    "scripts\\moltbot-swarm-deploy.py": {
+      "size": 9950,
+      "mtime": 1769901426.7182114,
+      "type": ".py"
+    },
+    "scripts\\multi_ai_collaboration.py": {
+      "size": 10547,
+      "mtime": 1769971737.029892,
+      "type": ".py"
+    },
+    "scripts\\multi_ai_config.py": {
+      "size": 12275,
+      "mtime": 1769971710.0383577,
+      "type": ".py"
+    },
+    "scripts\\nightly_build.py": {
+      "size": 8324,
+      "mtime": 1769837098.537586,
+      "type": ".py"
+    },
+    "scripts\\predictive_assistant.py": {
+      "size": 13344,
+      "mtime": 1769838175.6790013,
+      "type": ".py"
+    },
+    "scripts\\register_agent.py": {
+      "size": 1208,
+      "mtime": 1769967532.1070645,
+      "type": ".py"
+    },
+    "scripts\\register_new_agent.py": {
+      "size": 1320,
+      "mtime": 1769967571.216869,
+      "type": ".py"
+    },
+    "scripts\\register_new_agent_fixed.py": {
+      "size": 3111,
+      "mtime": 1769967591.9032626,
+      "type": ".py"
+    },
+    "scripts\\reset-project.js": {
+      "size": 3610,
+      "mtime": 1770063910.0984573,
+      "type": ".js"
+    },
+    "scripts\\scheduler.py": {
+      "size": 2621,
+      "mtime": 1769837164.3258216,
+      "type": ".py"
+    },
+    "scripts\\setup_clawtasks.py": {
+      "size": 4953,
+      "mtime": 1769966338.9476717,
+      "type": ".py"
+    },
+    "scripts\\setup_startup.bat": {
+      "size": 1001,
+      "mtime": 1769873205.4928296,
+      "type": ".bat"
+    },
+    "scripts\\set_headset_output.py": {
+      "size": 3217,
+      "mtime": 1769885858.512273,
+      "type": ".py"
+    },
+    "scripts\\simple-swarm-deploy.py": {
+      "size": 7573,
+      "mtime": 1769901459.177454,
+      "type": ".py"
+    },
+    "scripts\\start_moltbot_on_boot.bat": {
+      "size": 1058,
+      "mtime": 1769873285.187397,
+      "type": ".bat"
+    },
+    "scripts\\swarm-controller.py": {
+      "size": 10186,
+      "mtime": 1769901399.0952902,
+      "type": ".py"
+    },
+    "scripts\\system_diagnostics.bat": {
+      "size": 844,
+      "mtime": 1769805586.5815783,
+      "type": ".bat"
+    },
+    "scripts\\test_multi_ai.py": {
+      "size": 2558,
+      "mtime": 1769971906.50912,
+      "type": ".py"
+    },
+    "scripts\\test_registration_flow.py": {
+      "size": 1910,
+      "mtime": 1769967558.691666,
+      "type": ".py"
+    },
+    "scripts\\use_x_manager.py": {
+      "size": 5868,
+      "mtime": 1769868544.7684736,
+      "type": ".py"
+    },
+    "scripts\\web-search-demo-simple.py": {
+      "size": 8953,
+      "mtime": 1769901812.8685942,
+      "type": ".py"
+    },
+    "scripts\\web-search-demo.py": {
+      "size": 8958,
+      "mtime": 1769901788.4269004,
+      "type": ".py"
+    },
+    "scripts\\x_content_manager.py": {
+      "size": 12330,
+      "mtime": 1769838582.884107,
+      "type": ".py"
+    },
+    "server\\README.md": {
+      "size": 35269,
+      "mtime": 1770063910.1059537,
+      "type": ".md"
+    },
+    "x_content\\drafts.json": {
+      "size": 2653,
+      "mtime": 1769838585.1462371,
+      "type": ".json"
+    },
+    "x_content\\schedule.json": {
+      "size": 2200,
+      "mtime": 1769838585.1456363,
+      "type": ".json"
+    },
+    "x_content\\templates.json": {
+      "size": 842,
+      "mtime": 1769838562.8674467,
+      "type": ".json"
+    }
+  },
+  "hot_files": [
+    "deep_sleep.bat",
+    "export_memory.py",
+    "IDENTITY.md",
+    "SOUL.md",
+    "SOVEREIGN_SKILLS.md",
+    "test_gateway.py",
+    "test_phase10.py",
+    "aether_os\\launch_mist.bat",
+    "aether_os\\MIST_Grimoire.md",
+    "aether_os\\openclaw.json",
+    "aether_os\\sync_soul.py",
+    "data\\mist_chat_history.json",
+    "docs\\session_report_2026_02_03.md",
+    "moltbot\\gateway\\openclaw_engine.py",
+    "moltbot\\gateway\\server.py",
+    "mycelium\\AURELIA_PETALS.md",
+    "mycelium\\mycelium_dashboard.html",
+    "mycelium\\mycelium_pulse.py",
+    "mycelium\\persona_state.json",
+    "mycelium\\swarm_trunk.json",
+    "personal-ide\\GRIMOIRE.json",
+    "personal-ide\\GRIMOIRE.py",
+    "personal-ide\\SOUL.md"
+  ]
+}

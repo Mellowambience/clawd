@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIST Companion Room</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/dashboard/styles.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+
+<body>
+    <div class="sky-glow sky-glow-a"></div>
+    <div class="sky-glow sky-glow-b"></div>
+    <div class="grain-layer"></div>
+
+    <div class="shell">
+        <header class="topbar">
+            <div class="title-stack">
+                <p class="kicker">Local Presence</p>
+                <h1>MIST Companion Room</h1>
+                <p class="subtitle">A shared space for conversation, care, and verified local actions on your machine.</p>
+            </div>
+            <div class="status-strip">
+                <span id="pulseStatus" class="status-pill offline">Pulse Offline</span>
+                <span id="gatewayStatus" class="status-pill offline">Gateway Offline</span>
+                <span id="lastUpdate" class="status-pill neutral">Updated: never</span>
+            </div>
+        </header>
+
+        <main class="dashboard">
+            <section class="card companion-stage span-two" aria-labelledby="companionTitle">
+                <div class="avatar-column">
+                    <div id="avatarFrame" class="avatar-frame" data-mood="steady">
+                        <div class="avatar-aura"></div>
+                        <div class="avatar-spark avatar-spark-a"></div>
+                        <div class="avatar-spark avatar-spark-b"></div>
+                        <div class="avatar-ring"></div>
+                        <div class="avatar-core">
+                            <div class="avatar-face">
+                                <span class="avatar-eye avatar-eye-left"></span>
+                                <span class="avatar-eye avatar-eye-right"></span>
+                                <span class="avatar-mouth"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="meta-line center-line">Mood: <span id="avatarMood">steady</span> | Companion: <span id="companionStatus">enabled</span></p>
+                    <div class="avatar-tags">
+                        <span id="avatarCompanionTag" class="avatar-tag">companion on</span>
+                        <span id="avatarPulseTag" class="avatar-tag">pulse linked</span>
+                        <span id="avatarGatewayTag" class="avatar-tag">gateway linked</span>
+                    </div>
+                </div>
+                <div class="companion-copy">
+                    <h2 id="companionTitle">Presence</h2>
+                    <p id="companionGreeting" class="lead-line">MIST is here and listening.</p>
+                    <p id="quickStatusSummary" class="meta-line">Checking services...</p>
+                    <p id="gatewayHelp" class="meta-line">Gateway status pending...</p>
+                    <div class="quick-prompts">
+                        <button type="button" class="prompt-chip" data-prompt="what can you do?">What can you do?</button>
+                        <button type="button" class="prompt-chip" data-prompt="confirm repair">Check repair status</button>
+                        <button type="button" class="prompt-chip" data-prompt="create MIST.md on my desktop with a 5-line dashboard tutorial">Create MIST.md</button>
+                        <button type="button" class="prompt-chip" data-prompt="run command: whoami">Run whoami</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card span-two chat-card" aria-labelledby="chatTitle">
+                <h2 id="chatTitle">Talk with MIST</h2>
+                <p class="meta-line">Natural conversation is welcome. For local execution, use explicit commands.</p>
+                <div class="chat-row">
+                    <input id="gatewayInput" type="text" autocomplete="off"
+                        placeholder="Say what you need. Example: create MIST.md on my desktop with a 5-line dashboard tutorial">
+                    <button id="sendGatewayBtn" type="button">Send</button>
+                    <button id="pollManifestBtn" type="button">Poll Manifest</button>
+                    <button id="reconnectGatewayBtn" type="button">Reconnect</button>
+                </div>
+                <ul id="gatewayMessages" class="list"></ul>
+            </section>
+
+            <section class="card bond-card" aria-labelledby="bondTitle">
+                <h2 id="bondTitle">Bond Settings</h2>
+                <p class="meta-line">Shape how MIST speaks and holds boundaries with you.</p>
+                <div class="companion-controls">
+                    <label for="companionName">Your Name</label>
+                    <input id="companionName" type="text" maxlength="40" placeholder="How should MIST address you?">
+
+                    <label for="companionTone">Companion Tone</label>
+                    <select id="companionTone">
+                        <option value="gentle">Gentle</option>
+                        <option value="protective">Protective</option>
+                        <option value="direct">Direct</option>
+                    </select>
+
+                    <label for="companionBoundary">Boundary Style</label>
+                    <input id="companionBoundary" type="text" maxlength="120" placeholder="supportive, respectful, non-judgmental">
+                </div>
+                <div class="companion-actions">
+                    <button id="saveCompanionBtn" type="button">Save Profile</button>
+                    <button id="toggleCompanionBtn" type="button">Disable Companion</button>
+                </div>
+            </section>
+
+            <section class="card trust-card" aria-labelledby="trustTitle">
+                <h2 id="trustTitle">Trust Signals</h2>
+                <p class="meta-line">Guardrail blocks in recent history: <span id="guardrailCount">0</span></p>
+                <ul id="guardrailEvents" class="list"></ul>
+            </section>
+
+            <section class="card telemetry-card span-two" aria-labelledby="telemetryTitle">
+                <h2 id="telemetryTitle">Behind The Scenes</h2>
+                <p class="meta-line">Operational diagnostics are tucked here when you need deep visibility.</p>
+                <details class="telemetry-details">
+                    <summary>Show advanced telemetry</summary>
+                    <div class="telemetry-grid">
+                        <div class="telemetry-group">
+                            <p class="meta-line">State: <span id="systemState">unknown</span></p>
+                            <p class="meta-line">Maintenance: <span id="maintenanceState">off</span></p>
+
+                            <div class="meter">
+                                <div class="meter-label">
+                                    <span>CPU</span>
+                                    <span id="cpuValue">0%</span>
+                                </div>
+                                <div class="meter-track">
+                                    <div id="cpuBar" class="meter-fill"></div>
+                                </div>
+                            </div>
+
+                            <div class="meter">
+                                <div class="meter-label">
+                                    <span>RAM</span>
+                                    <span id="ramValue">0%</span>
+                                </div>
+                                <div class="meter-track">
+                                    <div id="ramBar" class="meter-fill"></div>
+                                </div>
+                            </div>
+
+                            <div class="meter">
+                                <div class="meter-label">
+                                    <span>Coherence</span>
+                                    <span id="coherenceValue">0%</span>
+                                </div>
+                                <div class="meter-track">
+                                    <div id="coherenceBar" class="meter-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="cosmicCard" class="telemetry-group">
+                            <h3 class="subhead">Cosmic Uplink</h3>
+                            <p class="meta-line">Status: <span id="cosmicStatus">offline</span></p>
+                            <p class="meta-line">Aspects: <span id="cosmicAspects">0</span></p>
+                            <p id="cosmicError" class="error-line"></p>
+                            <ul id="cosmicAspectList" class="list"></ul>
+                        </div>
+                    </div>
+                    <div class="telemetry-grid secondary-grid">
+                        <div class="telemetry-group">
+                            <h3 class="subhead">Node Pulse</h3>
+                            <ul id="nodesList" class="list"></ul>
+                        </div>
+                        <div class="telemetry-group">
+                            <h3 class="subhead">Reflex Stream</h3>
+                            <ul id="reflexList" class="list"></ul>
+                        </div>
+                    </div>
+                </details>
+            </section>
+
+            <section class="card span-two logs-card" aria-labelledby="eventTitle">
+                <h2 id="eventTitle">System Journal</h2>
+                <ul id="eventLog" class="list"></ul>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="/static/dashboard/main.js?v=20260213d"></script>
+</body>
+
+</html>

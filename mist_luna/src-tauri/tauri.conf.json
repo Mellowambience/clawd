@@ -1,0 +1,61 @@
+{
+    "build": {
+        "beforeDevCommand": "",
+        "beforeBuildCommand": "",
+        "devPath": "../src",
+        "distDir": "../src",
+        "withGlobalTauri": true
+    },
+    "package": {
+        "productName": "MistLuna",
+        "version": "0.1.0"
+    },
+    "tauri": {
+        "systemTray": {
+            "iconPath": "icons/icon.png",
+            "iconAsTemplate": true
+        },
+        "allowlist": {
+            "all": true
+        },
+        "bundle": {
+            "active": true,
+            "category": "DeveloperTool",
+            "copyright": "",
+            "externalBin": [],
+            "icon": [
+                "icons/32x32.png",
+                "icons/128x128.png",
+                "icons/128x128@2x.png",
+                "icons/icon.icns",
+                "icons/icon.ico"
+            ],
+            "identifier": "com.mist.luna",
+            "longDescription": "",
+            "resources": [],
+            "shortDescription": ""
+        },
+        "security": {
+            "csp": null
+        },
+        "windows": [
+            {
+                "label": "MistLuna",
+                "title": "Mist // Lunar Companion",
+                "width": 420,
+                "height": 680,
+                "transparent": true,
+                "decorations": false,
+                "titleBarStyle": "Transparent",
+                "hiddenTitle": true,
+                "alwaysOnTop": true,
+                "resizable": false,
+                "skipTaskbar": true,
+                "center": false,
+                "fullscreen": false,
+                "visible": false,
+                "maximized": false
+            }
+        ]
+    }
+}

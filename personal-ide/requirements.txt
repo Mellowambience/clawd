@@ -1,0 +1,21 @@
+# MIST Visual Interface Dependencies
+# Core libraries for the visual companion application
+
+# GUI and Graphics
+Pillow>=9.0.0
+pygame>=2.1.0
+tkinter
+
+# Async and Networking
+aiohttp>=3.8.0
+websockets>=10.0
+
+# Core Python Libraries (usually included with Python)
+# - tkinter (GUI)
+# - asyncio
+# - threading
+# - time
+# - math
+# - json
+# - os
+# - sys

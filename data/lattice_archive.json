@@ -1,0 +1,11 @@
+{
+  "created": 1770671052.475104,
+  "volatility_events": 0,
+  "flat_streaks": 89,
+  "dominant_trend": "flat",
+  "trend_history": {
+    "stable": 104,
+    "flat": 1059,
+    "drifting": 148
+  }
+}

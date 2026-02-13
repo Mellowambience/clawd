@@ -1,0 +1,10 @@
+{
+    "model": "mistral:latest",
+    "messages": [
+        {
+            "role": "user",
+            "content": "hi"
+        }
+    ],
+    "stream": false
+}

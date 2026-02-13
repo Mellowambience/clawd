@@ -1,0 +1,323 @@
+/**
+ * MIST Chat Logic ✧
+ * Modularized for Phase 1: Visual Polish & Markdown
+ */
+
+class AureliaChat {
+    constructor() {
+        this.ws = null;
+        this.messageId = 0;
+        this.isConnected = false;
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 5;
+        this.currentRunId = null;
+        this.debugMode = false; // Disable debug mode for production
+
+        // Visual Elements
+        this.elements = {
+            container: document.getElementById('chatContainer'),
+            input: document.getElementById('messageInput'),
+            sendBtn: document.getElementById('sendButton'),
+            typing: document.getElementById('typingIndicator'),
+            status: document.getElementById('statusDot')
+        };
+
+        this.init();
+    }
+
+    init() {
+        this.bindEvents();
+        this.connect();
+        this.elements.input.focus();
+    }
+
+    bindEvents() {
+        this.elements.sendBtn.addEventListener('click', () => this.sendMessage());
+        this.elements.input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.sendMessage();
+        });
+    }
+
+    /* --- Networking --- */
+
+    connect() {
+        this.updateStatus('connecting');
+        this.ws = new WebSocket('ws://localhost:18789');
+
+        this.ws.onopen = () => {
+            console.log('✧ Socket Open. Handshake initiating...');
+            this.sendHandshake();
+            this.reconnectAttempts = 0;
+        };
+
+        this.ws.onmessage = (event) => this.handleMessage(JSON.parse(event.data));
+
+        this.ws.onerror = (error) => {
+            console.error('Socket Error:', error);
+            this.updateStatus('disconnected');
+            this.addSystemMessage('Connection error. Is Gateway running?');
+        };
+
+        this.ws.onclose = () => {
+            console.log('Socket Closed.');
+            this.isConnected = false;
+            this.updateStatus('disconnected');
+            this.attemptReconnect();
+        };
+    }
+
+    sendHandshake() {
+        // FIXED PROTOCOL HANDSHAKE - Gateway requires V3 + Auth Token
+        this.sendRPC('connect', 'connect-1', {
+            minProtocol: 3,
+            maxProtocol: 3,
+            auth: {
+                token: 'secret123' // From ~/.clawdbot/moltbot.json gateway.auth.token
+            },
+            client: {
+                id: 'webchat', // Webchat mode with token auth
+                version: '1.0.0',
+                platform: 'web',
+                mode: 'webchat'
+            }
+        });
+    }
+
+    sendRPC(method, id, params) {
+        if (this.ws.readyState !== WebSocket.OPEN) return;
+        this.ws.send(JSON.stringify({
+            type: 'req',
+            id: id,
+            method: method,
+            params: params
+        }));
+    }
+
+    attemptReconnect() {
+        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+            this.addSystemMessage('Max reconnect attempts reached. Please refresh.');
+            return;
+        }
+
+        const delay = Math.min(1000 * Math.pow(1.5, this.reconnectAttempts), 10000);
+        this.reconnectAttempts++;
+        // Quiet reconnect
+        setTimeout(() => this.connect(), delay);
+    }
+
+    /* --- Protocol Handling --- */
+
+    handleMessage(msg) {
+        console.debug('RX:', msg);
+
+        // 1. Handshake Response
+        if (msg.type === 'res' && msg.id === 'connect-1') {
+            if (msg.ok) {
+                this.isConnected = true;
+                this.updateStatus('connected');
+                this.addSystemMessage('Connected • Aurelia breathing-together ✧');
+                this.clearConnectingMessages();
+            } else {
+                console.error('Handshake failed:', msg.error);
+                this.addSystemMessage(`Connection refused: ${msg.error?.message || 'Unknown'}`);
+            }
+            return;
+        }
+
+        // 2. Chat Send Acknowledgement
+        if (msg.type === 'res' && msg.id?.startsWith('chat-')) {
+            if (msg.ok) {
+                this.currentRunId = msg.payload?.runId;
+            } else {
+                this.setTyping(false);
+                this.addSystemMessage(`Error sending: ${msg.error?.message}`);
+            }
+            return;
+        }
+
+        // 3. Agent Events (The Good Stuff)
+        if (msg.type === 'event' && msg.event === 'chat') {
+            const payload = msg.payload;
+            // DEBUG: Render raw payload if debug mode is on
+            if (this.debugMode) {
+                this.addSystemMessage(`RX [${msg.event}]: ${JSON.stringify(payload)}`);
+            }
+
+            if (payload.state === 'delta' && payload.delta?.text) {
+                this.handleStreamingDelta(payload.runId, payload.delta.text);
+            }
+            if (payload.state === 'final') {
+                this.setTyping(false);
+
+                const messageDiv = document.getElementById(`msg-${payload.runId}`);
+                let finalContent = null;
+
+                if (payload.message?.content) {
+                    finalContent = payload.message.content
+                        .filter(c => c.type === 'text')
+                        .map(c => c.text)
+                        .join('');
+                }
+
+                if (messageDiv) {
+                    // Update existing stream with final content (if different) or just finalize
+                    if (finalContent) {
+                        // Re-render specifically for final (e.g. to ensure all markdown tags closed)
+                        if (typeof marked !== 'undefined') {
+                            messageDiv.innerHTML = marked.parse(finalContent);
+                        } else {
+                            messageDiv.innerHTML = this.simpleParseMarkdown(finalContent);
+                        }
+                    }
+                    messageDiv.classList.remove('streaming');
+                    // Ensure scrolling to bottom after final render
+                    this.scrollToBottom();
+                } else if (finalContent) {
+                    // If no stream existed (maybe fast response), create new
+                    this.addAssistantMessage(finalContent);
+                }
+            }
+        }
+    }
+
+    /* --- Messaging --- */
+
+    sendMessage() {
+        const text = this.elements.input.value.trim();
+        if (!text) return;
+
+        const lower = text.toLowerCase();
+        const isMycelium = lower.includes('mycelium glow') || (lower.includes('dea martis') && lower.includes('undergrowth'));
+        if (isMycelium) {
+            window.open('http://127.0.0.1:8765/dashboard', '_blank');
+            this.addSystemMessage('Mycelium dashboard opened.');
+        }
+
+        if (!this.isConnected) return;
+
+        this.addUserMessage(text);
+        this.elements.input.value = '';
+        this.setTyping(true);
+
+        this.messageId++;
+        const id = `chat-${this.messageId}`;
+        const idem = `idem-${Date.now()}-${this.messageId}`;
+
+        this.sendRPC('chat.send', id, {
+            sessionKey: 'main',
+            message: text,
+            idempotencyKey: idem
+        });
+    }
+
+    /* --- Rendering --- */
+
+    addUserMessage(text) {
+        this.renderMessage(text, 'user');
+    }
+
+    addAssistantMessage(markdown) {
+        this.renderMessage(markdown, 'assistant', true);
+    }
+
+    addSystemMessage(text) {
+        this.renderMessage(text, 'system');
+    }
+
+    renderMessage(content, role, parseMarkdown = false) {
+        const div = document.createElement('div');
+        div.className = `message ${role}`;
+
+        if (parseMarkdown && typeof marked !== 'undefined') {
+            div.innerHTML = marked.parse(content);
+        } else if (parseMarkdown) {
+            // Fallback if marked isn't loaded
+            div.innerHTML = this.simpleParseMarkdown(content);
+        } else {
+            div.textContent = content;
+        }
+
+        this.elements.container.appendChild(div);
+        this.scrollToBottom();
+    }
+
+    /* --- Streaming Helpers --- */
+
+    handleStreamingDelta(runId, text) {
+        this.setTyping(false); // Stop typing indicator once we have text
+
+        let messageDiv = document.getElementById(`msg-${runId}`);
+        if (!messageDiv) {
+            // Create new assistant message bubble
+            messageDiv = document.createElement('div');
+            messageDiv.id = `msg-${runId}`;
+            messageDiv.className = 'message assistant streaming';
+            this.elements.container.appendChild(messageDiv);
+        }
+
+        // Append text to buffer
+        messageDiv.dataset.raw = (messageDiv.dataset.raw || '') + text;
+
+        // Render markdown with current buffer
+        if (typeof marked !== 'undefined') {
+            messageDiv.innerHTML = marked.parse(messageDiv.dataset.raw);
+        } else {
+            messageDiv.innerHTML = this.simpleParseMarkdown(messageDiv.dataset.raw);
+        }
+
+        this.scrollToBottom();
+    }
+
+    finalizeStream(runId) {
+        const messageDiv = document.getElementById(`msg-${runId}`);
+        if (messageDiv) {
+            messageDiv.classList.remove('streaming');
+        }
+    }
+
+    clearConnectingMessages() {
+        const systems = this.elements.container.querySelectorAll('.message.system');
+        systems.forEach(el => {
+            if (el.textContent.includes('Reconnecting') || el.textContent.includes('Connection error')) {
+                el.style.display = 'none';
+            }
+        });
+    }
+
+    updateStatus(state) {
+        if (this.elements.status) this.elements.status.className = `status-dot ${state}`;
+    }
+
+    setTyping(isTyping) {
+        if (isTyping) this.elements.typing.classList.add('active');
+        else this.elements.typing.classList.remove('active');
+        this.scrollToBottom();
+    }
+
+    scrollToBottom() {
+        this.elements.container.scrollTop = this.elements.container.scrollHeight;
+    }
+
+    /* --- Simple Markdown Parser (Robust Fallback) --- */
+    simpleParseMarkdown(text) {
+        let html = text.replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        html = html.replace(/```(\w*)([\s\S]*?)```/g, (match, lang, code) => {
+            return `<pre><code>${code.trim()}</code></pre>`;
+        });
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        html = html.split('\n\n').map(p => {
+            if (!p.trim()) return '';
+            if (p.trim().startsWith('<pre>')) return p;
+            return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+        }).join('');
+        return html;
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    window.chat = new AureliaChat();
+});

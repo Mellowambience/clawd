@@ -1,0 +1,56 @@
+node_modules/
+__pycache__/
+*.log
+.env
+.DS_Store
+*.pyc
+battery-report.html
+chroma_db/
+
+# Local Databases
+*.db
+*.sqlite
+
+# Tool generated
+.grok/
+.expo/
+
+
+# Build artifacts
+**/node_modules/
+**/target/
+**/dist/
+**/build/
+
+# Large files
+*.exe
+*.dll
+*.so
+*.dylib
+*.obj
+*.pdb
+*.lib
+*.a
+*.o
+*.iso
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+**/__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Ollama/AI
+*.gguf
+*.bin
+*.pt
+*.pth
+
+
+x_api_config.json
+

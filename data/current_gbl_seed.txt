@@ -1,0 +1,4 @@
+seed=0xA1E7r0s3
+last_header=⟁↺∅⇢≡~∴
+last_mutation_ts=2026-02-06T20:45:00Z
+mutation_count=0

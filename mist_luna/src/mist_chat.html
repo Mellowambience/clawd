@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIST // COMM-LINK</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #050505;
+            font-family: 'Share Tech Mono', monospace;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.05) 0%, transparent 50%),
+                linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(10, 15, 20, 1) 100%);
+        }
+
+        /* THE DEVICE */
+        #comm-link-device {
+            width: 380px;
+            height: 750px;
+            background: rgba(10, 16, 26, 0.95);
+            border-radius: 40px;
+            border: 2px solid #333;
+            box-shadow:
+                0 0 0 4px #1a1f2e,
+                0 0 20px rgba(0, 243, 255, 0.2),
+                inset 0 0 30px rgba(0, 0, 0, 0.8);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        /* STATUS BAR */
+        #status-bar {
+            height: 40px;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 12px;
+            color: rgba(0, 243, 255, 0.7);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+        }
+
+        /* SCREEN CONTENT */
+        #chat-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            overflow-y: auto;
+            position: relative;
+            background:
+                linear-gradient(rgba(0, 243, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* MESSAGES */
+        .message {
+            max-width: 80%;
+            margin: 8px 0;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.4;
+            position: relative;
+            animation: slideIn 0.2s ease-out;
+            word-wrap: break-word;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: rgba(0, 243, 255, 0.15);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: #ccffff;
+            border-bottom-right-radius: 2px;
+        }
+
+        .mist-message {
+            align-self: flex-start;
+            background: rgba(255, 0, 85, 0.05);
+            /* Slight contrast */
+            border: 1px solid rgba(255, 0, 85, 0.2);
+            color: #ffccdd;
+            border-bottom-left-radius: 2px;
+        }
+
+        .system-message {
+            align-self: center;
+            font-size: 10px;
+            color: #555;
+            border: none;
+            background: transparent;
+        }
+
+        /* INPUT DOCK */
+        #input-dock {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid rgba(0, 243, 255, 0.2);
+            display: flex;
+            gap: 10px;
+            backdrop-filter: blur(20px);
+            align-items: center;
+        }
+
+        #message-input {
+            flex: 1;
+            background: rgba(0, 243, 255, 0.05);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: #00f3ff;
+            font-family: 'Share Tech Mono', monospace;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        #message-input:focus {
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        #send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #00f3ff, #0088ff);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            font-size: 12px;
+        }
+
+        #send-btn:active {
+            transform: scale(0.9);
+        }
+
+        #send-btn:disabled {
+            background: #333;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        /* UI ELEMENTS */
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 243, 255, 0.3);
+            opacity: 0.5;
+            animation: scan 4s linear infinite;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes scan {
+            0% {
+                top: -10%;
+            }
+
+            100% {
+                top: 110%;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 243, 255, 0.2);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="comm-link-device">
+        <div class="scan-line"></div>
+
+        <!-- Status Bar -->
+        <div id="status-bar">
+            <span>MIST_NET // SECURE</span>
+            <span id="clock">00:00</span>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chat-screen">
+            <!-- Messages go here -->
+        </div>
+
+        <!-- Input Dock -->
+        <div id="input-dock">
+            <input type="text" id="message-input" placeholder="Transmit..." disabled>
+            <button id="send-btn" disabled>➤</button>
+        </div>
+
+        <!-- Holo Toggle (Absolute) -->
+        <button onclick="window.location.href='index.html'"
+            style="position:absolute; top:50px; right:20px; background:none; border:none; color:rgba(0,243,255,0.5); cursor:pointer; font-size:24px; z-index:100;"
+            title="View Hologram">⟁</button>
+    </div>
+
+    <script>
+        const GATEWAY_URL = 'ws://127.0.0.1:18789'; // Matches python server port
+        let ws;
+        let connected = false;
+        let messageId = 0;
+
+        const messagesEl = document.getElementById('chat-screen');
+        const inputEl = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const clockEl = document.getElementById('clock');
+        const deviceEl = document.getElementById('comm-link-device');
+
+        // Clock Update
+        setInterval(() => {
+            const now = new Date();
+            clockEl.textContent = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        }, 1000);
+
+        function addMessage(text, type = 'mist') {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}-message`;
+            msgDiv.textContent = text;
+            messagesEl.appendChild(msgDiv);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function connect() {
+            addMessage('Accessing Secure Channel...', 'system');
+
+            ws = new WebSocket(GATEWAY_URL);
+
+            ws.onopen = () => {
+                console.log('Connected to Gateway');
+                // Handshake
+                ws.send(JSON.stringify({
+                    type: "req",
+                    method: "connect",
+                    id: "handshake",
+                    params: {}
+                }));
+            };
+
+            ws.onmessage = (event) => {
+                let data;
+                try {
+                    data = JSON.parse(event.data);
+                } catch (e) { console.error("Bad JSON", e); return; }
+
+                console.log("RX:", data);
+
+                if (data.id === 'handshake' && data.ok) {
+                    connected = true;
+                    inputEl.disabled = false;
+                    sendBtn.disabled = false;
+                    addMessage('Link Established. MIST Online.', 'system');
+                    inputEl.focus();
+                    deviceEl.style.boxShadow = "0 0 30px rgba(0, 243, 255, 0.4)";
+                }
+                else if (data.type === 'stream.final') {
+                    const text = data.payload?.content;
+                    if (text && text.trim() !== '∅') addMessage(text, 'mist');
+                }
+                else if (data.type === 'event' && data.event === 'chat' && data.payload?.state === 'final') {
+                    const content = data.payload?.message?.content;
+                    const parts = Array.isArray(content) ? content : (content ? [content] : []);
+                    const text = parts.map(function (c) { return c && c.text != null ? c.text : ''; }).join('').trim();
+                    if (text && text !== '∅') addMessage(text, 'mist');
+                }
+                else if (!data.type && data.result) { // Standard RPC Response
+                    // Sometimes responses come back as simple results
+                    if (typeof data.result === 'string') addMessage(data.result, 'mist');
+                } else if (data.type === 'error') {
+                    addMessage(`ERR: ${data.payload?.message || 'Unknown'}`, 'mist');
+                }
+            };
+
+            ws.onerror = (err) => {
+                console.error("WS Error", err);
+                addMessage('Connection Signal Lost.', 'system');
+                deviceEl.style.boxShadow = "0 0 30px rgba(255, 0, 0, 0.4)";
+            };
+
+            ws.onclose = () => {
+                connected = false;
+                inputEl.disabled = true;
+                sendBtn.disabled = true;
+                setTimeout(connect, 3000);
+            };
+        }
+
+        function sendMessage() {
+            const text = inputEl.value.trim();
+            if (!text || !connected) return;
+
+            addMessage(text, 'user');
+            inputEl.value = '';
+
+            const payload = {
+                type: "req",
+                method: "chat.send",
+                id: `msg-${++messageId}`,
+                params: {
+                    message: text,
+                    session: "mist-main-session", // SHARED SESSION ID
+                    context: { interface: 'comm-link' }
+                }
+            };
+
+            console.log("Sending:", payload);
+            ws.send(JSON.stringify(payload));
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Start
+        connect();
+
+    </script>
+</body>
+
+</html>

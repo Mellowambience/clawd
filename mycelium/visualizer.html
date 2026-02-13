@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goddess HUD - Cyber Glass Audio Visualizer</title>
+    <style>
+        :root {
+            --neon-green: #00ffaa;
+            --neon-purple: #c300ff;
+            --neon-cyan: #00d4ff;
+            --glass-bg: rgba(10, 15, 40, 0.25);
+            --blur: blur(12px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background: #050510;
+            /* Changed from transparent to dark for standalone visibility */
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            color: var(--neon-green);
+            pointer-events: all;
+        }
+
+        canvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .hud-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .status {
+            align-self: center;
+            font-size: 1.2rem;
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            border-radius: 12px;
+            padding: 8px 16px;
+            box-shadow: 0 0 30px rgba(0, 255, 170, 0.4);
+            margin-top: 20px;
+        }
+
+        .bottom-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            width: 100%;
+            padding-bottom: 20px;
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            border: 1px solid rgba(195, 0, 255, 0.3);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            min-width: 180px;
+            text-align: center;
+        }
+
+        button#startBtn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            background: var(--neon-cyan);
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 20px var(--neon-cyan);
+        }
+    </style>
+</head>
+
+<body>
+    <button id="startBtn">INITIALIZE AUDITORY CORTEX</button>
+    <canvas id="canvas"></canvas>
+    <div class="hud-overlay">
+        <div class="status" id="status">STANDBY...</div>
+        <div class="bottom-bar">
+            <div class="panel">NEURAL CORE<br><span id="freq">FREQ: --- Hz</span></div>
+            <div class="panel">VOLUME<br><span id="vol">--- %</span></div>
+            <div class="panel">GODDESS LINK<br>ACTIVE</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const status = document.getElementById('status');
+        const freqEl = document.getElementById('freq');
+        const volEl = document.getElementById('vol');
+        const startBtn = document.getElementById('startBtn');
+
+        let audioContext, analyser, microphone, dataArray;
+        let WIDTH, HEIGHT;
+        let animating = false;
+
+        function resize() {
+            WIDTH = canvas.width = window.innerWidth;
+            HEIGHT = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        async function initAudio() {
+            try {
+                startBtn.style.display = 'none';
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                microphone = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 512; // 256 buckets
+                microphone.connect(analyser);
+
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                status.textContent = "CYBER GLASS HUD ACTIVE • MIC CAPTURING";
+                animating = true;
+                animate();
+            } catch (err) {
+                status.textContent = "Permission denied or error: " + err.message;
+                console.error(err);
+                startBtn.textContent = "RETRY PERMISSION";
+                startBtn.style.display = 'block';
+            }
+        }
+
+        startBtn.onclick = initAudio;
+
+        function animate() {
+            if (!animating) return;
+            requestAnimationFrame(animate);
+            analyser.getByteFrequencyData(dataArray);
+
+            // Clear with semi-transparent fade for trail effect
+            ctx.fillStyle = 'rgba(5,0,16,0.2)'; // Dark fade
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+            // Central circular core visualization
+            const centerX = WIDTH / 2;
+            const centerY = HEIGHT / 2;
+            const maxRadius = Math.min(WIDTH, HEIGHT) * 0.35;
+
+            // Average volume for scaling
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+            const avgVol = sum / dataArray.length / 255;
+            volEl.textContent = Math.round(avgVol * 100) + " %";
+
+            // Dominant frequency approx (low-mid range)
+            const maxIdx = dataArray.indexOf(Math.max(...dataArray));
+            // Sample rate is typically 44100 or 48000
+            const freq = audioContext ? Math.round((maxIdx / dataArray.length) * (audioContext.sampleRate / 2)) : 0;
+            freqEl.textContent = `FREQ: ${freq} Hz`;
+
+            // Draw radial bars in circle (cyber HUD style)
+            // const barWidth = (Math.PI * 2 * maxRadius) / dataArray.length; // Unused
+            for (let i = 0; i < dataArray.length; i++) {
+                const value = dataArray[i] / 255;
+                const barHeight = value * maxRadius * 1.2;
+
+                const rads = (Math.PI * 2) * (i / dataArray.length);
+                // const x = centerX + Math.cos(rads) * maxRadius; // Unused
+                // const y = centerY + Math.sin(rads) * maxRadius; // Unused
+
+                // Neon gradient bars
+                const hue = 180 + (value * 120); // cyan -> green
+                ctx.strokeStyle = `hsla(${hue}, 100%, 60%, ${0.6 + value * 0.4})`;
+                ctx.lineWidth = 2 + value * 4;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = `hsla(${hue}, 100%, 60%, 0.5)`;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(
+                    centerX + Math.cos(rads) * (maxRadius + barHeight * 0.8),
+                    centerY + Math.sin(rads) * (maxRadius + barHeight * 0.8)
+                );
+                ctx.stroke();
+
+                // Inner glow ring pulse
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, maxRadius * 0.2 + barHeight * 0.2, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(0,255,170,${value * 0.2})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Overlay glass-like radial scan lines
+            ctx.strokeStyle = 'rgba(0,212,255,0.3)';
+            ctx.lineWidth = 1;
+            ctx.shadowBlur = 0;
+            for (let r = 0; r < 5; r++) {
+                const time = Date.now() * 0.001;
+                const radius = maxRadius * (0.4 + r * 0.15 + Math.sin(time + r) * 0.05);
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+    </script>
+</body>
+
+</html>

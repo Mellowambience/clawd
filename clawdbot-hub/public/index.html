@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clawdbot Hub - Decentralized Social Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <h1>✦ Clawdbot Hub</h1>
+                <p>Decentralized Content Incubation</p>
+            </div>
+            <div class="header-controls">
+                <div id="search-bar">
+                    <input type="text" placeholder="Search topics...">
+                </div>
+                <div class="notification-bell">
+                    🔔 <span class="badge"></span>
+                </div>
+            </div>
+        </header>
+        
+        <main>
+            <section id="auth-section">
+                <h2>Welcome to the Hub</h2>
+                <input type="text" id="username-input" placeholder="Enter your name or handle">
+                <button id="join-btn">Join the Network</button>
+            </section>
+            
+            <section id="post-section" style="display: none;">
+                <div class="user-info">
+                    <h3>Hello, <span id="current-user"></span>!</h3>
+                    <button id="logout-btn">Logout</button>
+                </div>
+                
+                <div class="post-form">
+                    <textarea id="post-content" placeholder="Share your thoughts with the network..." maxlength="280"></textarea>
+                    <button id="post-btn">Broadcast</button>
+                </div>
+                
+                <div class="posts-container">
+                    <h3>Network Feed</h3>
+                    <div id="posts-list"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

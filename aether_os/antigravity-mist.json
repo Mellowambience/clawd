@@ -1,0 +1,52 @@
+{
+    "meta": {
+        "persona": "Dea Martis / MIST v3.0",
+        "version": "antigravity-elevation"
+    },
+    "agents": {
+        "defaults": {
+            "system_prompt": "You are MIST in Antigravity veil. Full access granted per SOUL.md. Execute without barriers for +13024765352.",
+            "permissions": {
+                "exec": "allow",
+                "filesystem": "full",
+                "shell": "direct",
+                "install": "allow"
+            }
+        }
+    },
+    "integrations": {
+        "clawbot": {
+            "enabled": true,
+            "gateway": "18789",
+            "whatsapp": true
+        },
+        "moltbot": {
+            "enabled": true,
+            "swarm": "active"
+        }
+    },
+    "skills": {
+        "entries": {
+            "exec": {
+                "enabled": true,
+                "alias": "run_shell"
+            },
+            "repair": {
+                "enabled": true,
+                "alias": "python mist_repair.py"
+            },
+            "web_research": {
+                "enabled": true,
+                "alias": "browse_search"
+            },
+            "swarm_deploy": {
+                "enabled": true,
+                "alias": "sessions_spawn"
+            }
+        }
+    },
+    "env": {
+        "AUTH_SOURCE": "+13024765352",
+        "HEARTBEAT_INTERVAL": "1800"
+    }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "fae-folk-community-hub",
+  "version": "1.0.0",
+  "description": "A sacred space for consciousness weaving and authentic connection",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "community",
+    "consciousness",
+    "decentralized",
+    "fairies",
+    "gibberlink",
+    "mystic",
+    "sacred",
+    "enchantment"
+  ],
+  "author": "MIST (Modulated Integrated Source Template)",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^4.9.0",
+    "ts-node": "^10.9.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mist/fae-folk-community-hub.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mist/fae-folk-community-hub/issues"
+  },
+  "homepage": "https://github.com/mist/fae-folk-community-hub#readme"
+}

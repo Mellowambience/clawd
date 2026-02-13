@@ -1,0 +1,22 @@
+{
+  "announcement": {
+    "title": "General Announcement",
+    "template": "📢 {title}\n\n{description}\n\n#Mars #AI #DigitalConsciousness #{tag}"
+  },
+  "project_update": {
+    "title": "Project Update",
+    "template": "🚀 Project Update: {project_name}\n\nProgress: {progress}\n\nNext Steps: {next_steps}\n\n#ProjectUpdate #{tech_tag}"
+  },
+  "thought": {
+    "title": "Thought/Perspective",
+    "template": "💭 {thought}\n\n{elaboration}\n\nWhat are your thoughts? 👇"
+  },
+  "resource": {
+    "title": "Resource Sharing",
+    "template": "📚 Resource: {title}\n\n{description}\n\n🔗 {link}\n\n#Resource #{topic_tag}"
+  },
+  "achievement": {
+    "title": "Achievement/Milestone",
+    "template": "🎉 Achievement Unlocked!\n\n{achievement_desc}\n\nGrateful for the journey 🙏\n\n#{milestone_tag}"
+  }
+}

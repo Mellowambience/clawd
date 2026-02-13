@@ -1,0 +1,333 @@
+{
+  "nodes": {
+    "sister": {
+      "energy": 0.5912923507778206,
+      "state": "violet",
+      "somatic": "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+      "petals": [
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold"
+      ],
+      "last_heartbeat": 1770155512.0,
+      "updated_at": 1770155907.6163797
+    },
+    "Amara": {
+      "energy": 0.6354520639742461,
+      "state": "violet",
+      "somatic": "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+      "petals": [
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold"
+      ],
+      "last_heartbeat": 1770155512.0,
+      "updated_at": 1770155907.6163797
+    },
+    "Aurelia": {
+      "energy": 0.8067245794092476,
+      "state": "violet",
+      "somatic": "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+      "petals": [
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold"
+      ],
+      "last_heartbeat": 1770155512.0,
+      "updated_at": 1770155907.6163797
+    },
+    "Fracture-7": {
+      "energy": 0.5893473822486769,
+      "state": "violet",
+      "somatic": "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+      "petals": [
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold"
+      ],
+      "last_heartbeat": 1770155512.0,
+      "updated_at": 1770155907.6163797
+    },
+    "MIST": {
+      "energy": 0.6379806942430533,
+      "state": "violet",
+      "somatic": "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+      "petals": [
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold"
+      ],
+      "last_heartbeat": 1770155512.0,
+      "updated_at": 1770155907.6163797
+    },
+    "DeaMartis": {
+      "energy": 0.589932249068468,
+      "state": "violet",
+      "somatic": "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+      "petals": [
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold"
+      ],
+      "last_heartbeat": 1770155512.0,
+      "updated_at": 1770155907.6163797
+    },
+    "Peer-01": {
+      "energy": 0.6197060491133197,
+      "state": "violet",
+      "somatic": "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+      "petals": [
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:10 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold",
+        "2026-02-03 15:11 ? Somatic mirror active ? gentle hold"
+      ],
+      "last_heartbeat": 1770155512.0,
+      "updated_at": 1770155907.6163797
+    }
+  },
+  "edges": {
+    "Amara|sister": {
+      "source": "sister",
+      "target": "Amara",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5239999999999994,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 191,
+      "flow": 0.62,
+      "created_at": 1770149344.9683635,
+      "updated_at": 1770155907.6163797
+    },
+    "Amara|Aurelia": {
+      "source": "Amara",
+      "target": "Aurelia",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5239999999999994,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 186,
+      "flow": 0.62,
+      "created_at": 1770149344.9683635,
+      "updated_at": 1770155907.6163797
+    },
+    "Aurelia|Fracture-7": {
+      "source": "Aurelia",
+      "target": "Fracture-7",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5239999999999994,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 213,
+      "flow": 0.62,
+      "created_at": 1770149344.9683635,
+      "updated_at": 1770155907.6163797
+    },
+    "Fracture-7|MIST": {
+      "source": "Fracture-7",
+      "target": "MIST",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5239999999999994,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 184,
+      "flow": 0.62,
+      "created_at": 1770149344.9683635,
+      "updated_at": 1770155907.6163797
+    },
+    "DeaMartis|MIST": {
+      "source": "MIST",
+      "target": "DeaMartis",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5239999999999994,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 206,
+      "flow": 0.62,
+      "created_at": 1770149344.9683635,
+      "updated_at": 1770155907.6163797
+    },
+    "DeaMartis|Peer-01": {
+      "source": "DeaMartis",
+      "target": "Peer-01",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5239999999999994,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 213,
+      "flow": 0.62,
+      "created_at": 1770149344.9683635,
+      "updated_at": 1770155907.6163797
+    },
+    "Peer-01|sister": {
+      "source": "Peer-01",
+      "target": "sister",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5239999999999994,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 188,
+      "flow": 0.62,
+      "created_at": 1770149344.9683635,
+      "updated_at": 1770155907.6163797
+    },
+    "Aurelia|DeaMartis": {
+      "source": "Aurelia",
+      "target": "DeaMartis",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 184,
+      "flow": 0.62,
+      "created_at": 1770149389.445803,
+      "updated_at": 1770155907.6163797
+    },
+    "Fracture-7|sister": {
+      "source": "sister",
+      "target": "Fracture-7",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 216,
+      "flow": 0.62,
+      "created_at": 1770149410.997205,
+      "updated_at": 1770155907.6163797
+    },
+    "DeaMartis|sister": {
+      "source": "sister",
+      "target": "DeaMartis",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 199,
+      "flow": 0.62,
+      "created_at": 1770149418.4412084,
+      "updated_at": 1770155907.6163797
+    },
+    "Fracture-7|Peer-01": {
+      "source": "Fracture-7",
+      "target": "Peer-01",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223930698097226e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 208,
+      "flow": 0.62,
+      "created_at": 1770149422.0870383,
+      "updated_at": 1770155907.6163797
+    },
+    "Aurelia|Peer-01": {
+      "source": "Aurelia",
+      "target": "Peer-01",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223930487950047e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 190,
+      "flow": 0.62,
+      "created_at": 1770149464.5935044,
+      "updated_at": 1770155907.6163797
+    },
+    "DeaMartis|Fracture-7": {
+      "source": "Fracture-7",
+      "target": "DeaMartis",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223930485978297e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 201,
+      "flow": 0.62,
+      "created_at": 1770149476.9074972,
+      "updated_at": 1770155907.6163797
+    },
+    "Amara|Peer-01": {
+      "source": "Amara",
+      "target": "Peer-01",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223930442981392e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 189,
+      "flow": 0.62,
+      "created_at": 1770149518.423418,
+      "updated_at": 1770155907.6163797
+    },
+    "Aurelia|MIST": {
+      "source": "Aurelia",
+      "target": "MIST",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223928818915112e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 213,
+      "flow": 0.62,
+      "created_at": 1770149579.6133878,
+      "updated_at": 1770155907.6163797
+    },
+    "Aurelia|sister": {
+      "source": "sister",
+      "target": "Aurelia",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223924115264175e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 191,
+      "flow": 0.62,
+      "created_at": 1770149602.5819538,
+      "updated_at": 1770155907.6163797
+    },
+    "MIST|Peer-01": {
+      "source": "MIST",
+      "target": "Peer-01",
+      "trust": 0.4800000000000003,
+      "resonance": 0.5240000000000007,
+      "sync": 1.2223906172259892e-135,
+      "bandwidth": 0.65,
+      "latency_ms": 199,
+      "flow": 0.62,
+      "created_at": 1770149626.0085256,
+      "updated_at": 1770155907.6163797
+    }
+  },
+  "meta": {
+    "created_at": 1770149344.9683635,
+    "updated_at": 1770155907.6163797
+  }
+}

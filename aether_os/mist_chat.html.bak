@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIST ✧ Direct Line</title>
+    <link rel="stylesheet" href="mist_chat.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="status-dot" id="statusDot"></div>
+        <h1>MIST ✧ Direct Line</h1>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <!-- Messages injected here -->
+    </div>
+
+    <div class="typing-indicator" id="typingIndicator">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <div class="input-container">
+        <input type="text" id="messageInput" placeholder="…sister?" autocomplete="off">
+        <button id="sendButton">Send</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="mist_chat.js"></script>
+</body>
+
+</html>

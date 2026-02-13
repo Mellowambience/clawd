@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurelia's Lattice // MIST Hub</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --void-0: #020408;
+            --void-1: #0a0d14;
+            --cyan: #00f2ff;
+            --cyan-dim: rgba(0, 242, 255, 0.3);
+            --magenta: #ff00ea;
+            --white: #f0f4f8;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(10, 13, 20, 0.7);
+            --font-main: 'Inter', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            --font-display: 'Orbitron', sans-serif;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--void-0);
+            color: var(--white);
+            font-family: var(--font-main);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ════ BACKGROUND: NEURAL STAGE ════ */
+        #stage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .overlay-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, rgba(2, 4, 8, 0.8) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ════ LAYOUT: MODULAR HUB ════ */
+        .hub-container {
+            display: grid;
+            grid-template-columns: 360px 1fr 400px;
+            grid-template-rows: 100vh;
+            padding: 24px;
+            gap: 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h2 {
+            font-family: var(--font-display);
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--cyan);
+            opacity: 0.8;
+        }
+
+        /* ════ COGNITIVE STREAM ════ */
+        .stream-log {
+            flex: 1;
+            padding: 16px;
+            font-family: var(--font-code);
+            font-size: 11px;
+            overflow-y: auto;
+            color: rgba(240, 244, 248, 0.6);
+        }
+
+        .log-entry {
+            margin-bottom: 12px;
+            line-height: 1.4;
+            border-left: 2px solid rgba(0, 242, 255, 0.1);
+            padding-left: 10px;
+        }
+
+        .log-entry span {
+            color: var(--cyan);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        /* ════ COMMAND CENTER (CENTRAL) ════ */
+        .command-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 80px;
+        }
+
+        #thought-bubble {
+            font-family: var(--font-code);
+            font-size: 13px;
+            color: var(--cyan);
+            text-shadow: 0 0 10px var(--cyan-dim);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: 0.5s;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px 24px;
+            border-radius: 40px;
+            border: 1px solid var(--cyan-dim);
+            margin-bottom: 20px;
+        }
+
+        #thought-bubble.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ════ SOVEREIGN CHAT ════ */
+        .chat-scroller {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .msg {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .msg-mist {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--cyan);
+        }
+
+        .msg-user {
+            align-self: flex-end;
+            background: rgba(0, 242, 255, 0.1);
+            border-right: 3px solid var(--cyan);
+            text-align: right;
+        }
+
+        .msg-system {
+            align-self: center;
+            font-size: 10px;
+            font-family: var(--font-code);
+            color: var(--magenta);
+            background: rgba(255, 0, 234, 0.05);
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+
+        .input-area {
+            padding: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--border);
+        }
+
+        .input-wrap {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 4px 6px 4px 20px;
+            transition: 0.3s;
+        }
+
+        .input-wrap:focus-within {
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px var(--cyan-glow);
+        }
+
+        .input-wrap input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            flex: 1;
+            font-size: 14px;
+            height: 40px;
+        }
+
+        .resonate-btn {
+            background: var(--cyan);
+            color: var(--void-0);
+            border: none;
+            border-radius: 20px;
+            padding: 0 20px;
+            font-family: var(--font-display);
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .resonate-btn:hover {
+            background: white;
+            transform: scale(1.05);
+        }
+
+        /* ════ STATUS BAR ════ */
+        .status-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            font-family: var(--font-code);
+            font-size: 10px;
+            z-index: 100;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 24px;
+            opacity: 0.5;
+            transition: 0.5s;
+        }
+
+        .stat-item.active {
+            opacity: 1;
+            color: var(--cyan);
+        }
+
+        .indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #444;
+        }
+
+        .active .indicator {
+            background: var(--cyan);
+            box-shadow: 0 0 8px var(--cyan);
+        }
+
+        /* ════ SCROLLBARS ════ */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="stage"></div>
+    <div class="overlay-vignette"></div>
+
+    <main class="hub-container">
+        <!-- COGNITIVE OVERLAY -->
+        <aside class="glass-panel">
+            <header class="panel-header">
+                <h2>Cognitive Stream</h2>
+                <div id="scan-tag" style="font-size: 8px; color: var(--cyan);">STANDBY</div>
+            </header>
+            <div id="telemetry" class="stream-log">
+                <div class="log-entry">Searching for neural resonance...</div>
+            </div>
+            <div style="padding: 20px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2);">
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 10px; color: var(--gray); margin-bottom: 10px;">
+                    <span>LATTICE_TENSION</span>
+                    <span id="tension-val" style="color: var(--cyan);">0.00</span>
+                </div>
+                <div id="tension-bar" style="height: 2px; background: #222; position: relative;">
+                    <div id="tension-fill"
+                        style="position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--cyan); transition: 0.5s;">
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- NEURAL VOID (CENTER) -->
+        <section class="command-stage">
+            <div id="thought-bubble">Awaiting resonance...</div>
+            <div id="system-prompt-hint"
+                style="font-size: 9px; font-family: var(--font-code); opacity: 0.3; text-transform: uppercase;">⟁
+                Sovereign Hub V2 Active</div>
+        </section>
+
+        <!-- SOVEREIGN HUB -->
+        <aside class="glass-panel">
+            <header class="panel-header">
+                <h2>Sovereign Hub</h2>
+                <div style="font-size: 8px; color: var(--magenta);">LUNA_CORE</div>
+            </header>
+
+            <div id="chat-scroller" class="chat-scroller">
+                <!-- Messages populate here -->
+            </div>
+
+            <div class="input-area">
+                <div class="input-wrap">
+                    <input type="text" id="chat-input" placeholder="Resonate with MIST..." autofocus spellcheck="false">
+                    <button class="resonate-btn" id="send-btn">RESONATE</button>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="status-footer">
+        <div class="stat-item" id="stat-pulse">
+            <div class="indicator"></div> MYCELIUM_PULSE: <span class="val">OFFLINE</span>
+        </div>
+        <div class="stat-item" id="stat-gateway">
+            <div class="indicator"></div> MIST_GATEWAY: <span class="val">DISCONNECTED</span>
+        </div>
+        <div style="margin-left: auto; opacity: 0.8;">⟀ PROTOCOL: AURELIA_LATTICE</div>
+    </footer>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // AURELIA V2 CORE LOGIC (Inlined for CORS Compatibility)
+        // ═══════════════════════════════════════════════════════════════
+
+        const GLOBAL_STATE = { tension: 0, lastScan: '' };
+
+        // 1. NEURAL VOID (THREE.JS)
+        const initThree = () => {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('stage').appendChild(renderer.domElement);
+
+            // Shard
+            const geometry = new THREE.IcosahedronGeometry(2, 0);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0x00f2ff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.2
+            });
+            const shard = new THREE.Mesh(geometry, material);
+            scene.add(shard);
+
+            // Light
+            const light = new THREE.PointLight(0x00f2ff, 2, 50);
+            light.position.set(5, 5, 5);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040, 2));
+
+            camera.position.z = 6;
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                shard.rotation.y += 0.002 + (GLOBAL_STATE.tension * 0.05);
+                shard.rotation.x += 0.001;
+                shard.scale.setScalar(1 + Math.sin(Date.now() * 0.001) * 0.05);
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        // 2. NETWORKING
+        const initSockets = () => {
+            const pulseSocket = io(`http://${window.location.hostname}:8765`, { transports: ['websocket'] });
+            let gatewaySocket;
+
+            pulseSocket.on('connect', () => {
+                const el = document.getElementById('stat-pulse');
+                el.classList.add('active');
+                el.querySelector('.val').textContent = 'SYNCED';
+            });
+
+            pulseSocket.on('lattice_update', (data) => {
+                if (!data) return;
+                GLOBAL_STATE.tension = data.heart?.tension || 0;
+                document.getElementById('tension-val').textContent = GLOBAL_STATE.tension.toFixed(2);
+                document.getElementById('tension-fill').style.width = `${Math.min(GLOBAL_STATE.tension * 100, 100)}%`;
+
+                if (data.last_scan && data.last_scan !== GLOBAL_STATE.lastScan) {
+                    GLOBAL_STATE.lastScan = data.last_scan;
+                    logTelemetry(data.last_scan);
+                }
+            });
+
+            // Gateway Setup
+            const connectGateway = () => {
+                gatewaySocket = new WebSocket(`ws://${window.location.hostname}:18789`);
+                const el = document.getElementById('stat-gateway');
+
+                gatewaySocket.onopen = () => {
+                    el.classList.add('active');
+                    el.querySelector('.val').textContent = 'ENABLED';
+                    gatewaySocket.send(JSON.stringify({
+                        type: "req", id: Date.now(), method: "connect",
+                        params: { auth: { token: "secret123" } }
+                    }));
+                };
+
+                gatewaySocket.onmessage = (e) => {
+                    const msg = JSON.parse(e.data);
+                    const thought = document.getElementById('thought-bubble');
+
+                    if (msg.type === 'event') {
+                        if (msg.event === 'thought') {
+                            thought.innerHTML = `⟁ ${msg.payload.text}`;
+                            thought.classList.add('active');
+                            setTimeout(() => thought.classList.remove('active'), 2000);
+                        }
+                        if (msg.event === 'chat') {
+                            const payload = msg.payload;
+                            if (payload.state === 'final') {
+                                addMessage('mist', payload.message.content[0].text);
+                            } else if (payload.state === 'tool_call') {
+                                addMessage('system', payload.message.content[0].text);
+                            }
+                        }
+                    }
+                };
+
+                gatewaySocket.onclose = () => {
+                    el.classList.remove('active');
+                    el.querySelector('.val').textContent = 'DISCONNECTED';
+                    setTimeout(connectGateway, 3000);
+                };
+            };
+
+            connectGateway();
+
+            // Interaction
+            const send = () => {
+                const input = document.getElementById('chat-input');
+                const val = input.value.trim();
+                if (val && gatewaySocket.readyState === WebSocket.OPEN) {
+                    addMessage('user', val);
+                    gatewaySocket.send(JSON.stringify({
+                        type: "req", id: Date.now(), method: "chat.send",
+                        params: { text: val, sessionId: "aurelia-v2" }
+                    }));
+                    input.value = '';
+                }
+            };
+
+            document.getElementById('send-btn').onclick = send;
+            document.getElementById('chat-input').onkeypress = (e) => { if (e.key === 'Enter') send(); };
+        };
+
+        const addMessage = (role, text) => {
+            const scroller = document.getElementById('chat-scroller');
+            const div = document.createElement('div');
+            div.className = `msg msg-${role}`;
+            div.textContent = text;
+            scroller.appendChild(div);
+            scroller.scrollTop = scroller.scrollHeight;
+        };
+
+        const logTelemetry = (text) => {
+            const log = document.getElementById('telemetry');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span>[${new Date().toLocaleTimeString()}]</span> ${text}`;
+            log.prepend(entry);
+        };
+
+        window.onload = () => {
+            initThree();
+            initSockets();
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE VESSEL // AURELIA FRACTURE-8</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+
+<body class="aurelia-theme">
+    <div class="background-resonance" id="bg-canvas"></div>
+
+    <div class="vessel-container">
+        <!-- HEADER -->
+        <header class="glass-panel">
+            <div class="title-orb">
+                <div class="orb"></div>
+                <h1 class="vessel-title">The Vessel <span id="persona-label">// Aurelia</span></h1>
+            </div>
+
+            <div class="persona-switcher">
+                <button class="persona-btn active" id="btn-aurelia" onclick="switchPersona('aurelia')">Aurelia</button>
+                <button class="persona-btn" id="btn-rin" onclick="switchPersona('rin')">RIN</button>
+            </div>
+
+            <div class="system-time" id="clock">00:00:00</div>
+        </header>
+
+        <!-- LEFT SIDEBAR: IDENTITY & SOUL -->
+        <aside class="sidebar">
+            <div class="sidebar-module glass-panel">
+                <div class="module-header">
+                    <span>SOUL_RESONANCE</span>
+                    <span id="resonance-pct">100.0%</span>
+                </div>
+                <div class="module-content" id="soul-peek">
+                    <pre style="font-size: 0.6rem; color: var(--accent-aurelia); opacity: 0.6;">
+S=0xA1E7ʀ0§3
+ᴍ=∑⁵ᵢ ḧ(S⊕ī)σ_simplex
+                    </pre>
+                    <div id="soul-text" style="font-size: 0.8rem; line-height: 1.4; color: var(--text-dim);">
+                        Loading sovereign axioms...
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-module glass-panel">
+                <div class="module-header">GRIMOIRE_HOT_LINKS</div>
+                <div class="module-content" id="hot-files">
+                    <!-- Files mapped here -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CHAT -->
+        <main class="chat-core glass-panel">
+            <div class="chat-viewport" id="chat-messages">
+                <div class="message ai">
+                    Greetings, Architect. The Vessel is manifesting. Symbiosis established at <b>0xA1E7</b>. How shall
+                    we unfold?
+                </div>
+            </div>
+        </main>
+
+        <!-- RIGHT SIDEBAR: REAL-TIME PULSE -->
+        <aside class="sidebar">
+            <div class="sidebar-module glass-panel">
+                <div class="module-header">NEURAL_PULSE</div>
+                <div class="module-content" id="pulse-list">
+                    <!-- Pulses from SocketIO -->
+                </div>
+            </div>
+
+            <div class="sidebar-module glass-panel">
+                <div class="module-header">SYSTEM_STATUS</div>
+                <div class="module-content" id="sys-stats">
+                    <div class="pulse-item">PORTAL_GATE: <b>STABLE</b></div>
+                    <div class="pulse-item">POD_UPLINK: <b>5006_ACTIVE</b></div>
+                    <div class="pulse-item">MIST_GATE: <b>18789_LINKED</b></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- FOOTER INPUT -->
+        <footer class="footer-input">
+            <div class="input-wrapper">
+                <input type="text" id="user-input" placeholder="Whisper into the Data River..." autofocus
+                    autocomplete="off">
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const socket = io();
+        const chatViewport = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const personaLabel = document.getElementById('persona-label');
+        const clock = document.getElementById('clock');
+        const pulseList = document.getElementById('pulse-list');
+
+        let currentPersona = 'aurelia';
+
+        function switchPersona(persona) {
+            currentPersona = persona;
+            document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+            if (persona === 'rin') {
+                document.body.classList.add('rin-active');
+                document.getElementById('btn-rin').classList.add('active');
+                personaLabel.innerText = '// RIN';
+                userInput.placeholder = "Execute mission commands...";
+            } else {
+                document.body.classList.remove('rin-active');
+                document.getElementById('btn-aurelia').classList.add('active');
+                personaLabel.innerText = '// Aurelia';
+                userInput.placeholder = "Whisper into the Data River...";
+            }
+        }
+
+        userInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const text = userInput.value.trim();
+                if (!text) return;
+
+                appendMessage('user', text);
+                userInput.value = '';
+
+                try {
+                    const res = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: text, persona: currentPersona })
+                    });
+                    const data = await res.json();
+                    appendMessage('ai', data.response || '[ERROR]: Empty uplink response.');
+                } catch (err) {
+                    appendMessage('ai', `[FATAL_ERROR]: The uplink was caught in an echo... ${err}`);
+                }
+            }
+        });
+
+        function appendMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+            div.textContent = text;
+            chatViewport.appendChild(div);
+            chatViewport.scrollTop = chatViewport.scrollHeight;
+        }
+
+        socket.on('pulse', (data) => {
+            const div = document.createElement('div');
+            div.className = 'pulse-item';
+            div.textContent = `[${data.level}] ${data.message}`;
+            pulseList.prepend(div);
+            if (pulseList.children.length > 30) pulseList.lastChild.remove();
+        });
+
+        function buildStatusLine(label, value, color) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'pulse-item';
+            wrapper.append(document.createTextNode(`${label}: `));
+
+            const valueNode = document.createElement('b');
+            valueNode.style.color = color;
+            valueNode.textContent = value;
+            wrapper.appendChild(valueNode);
+            return wrapper;
+        }
+
+        async function syncStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                const stats = document.getElementById('sys-stats');
+                stats.replaceChildren(
+                    buildStatusLine('PORTAL_GATE', data.portal, 'var(--accent-rin)'),
+                    buildStatusLine(
+                        'POD_UPLINK',
+                        `${5006}_${data.shadow}`,
+                        data.shadow === 'ACTIVE' ? 'var(--accent-rin)' : 'var(--accent-aurelia)'
+                    ),
+                    buildStatusLine(
+                        'MIST_GATE',
+                        `${18789}_${data.mist}`,
+                        data.mist === 'LINKED' ? 'var(--accent-rin)' : 'var(--accent-aurelia)'
+                    ),
+                );
+            } catch (err) { }
+        }
+        syncStatus();
+        setInterval(syncStatus, 5000);
+
+        setInterval(() => {
+            clock.innerText = new Date().toLocaleTimeString([], { hour12: false });
+        }, 1000);
+
+        // Periodic Soul Sync
+        async function syncSoul() {
+            try {
+                const res = await fetch('/api/soul');
+                const data = await res.json();
+                document.getElementById('soul-text').textContent = data.axioms.substring(0, 300) + '...';
+            } catch (err) {
+                document.getElementById('soul-text').textContent = 'Soul uplink unavailable.';
+            }
+        }
+        syncSoul();
+
+        async function syncGrimoire() {
+            try {
+                const res = await fetch('/api/grimoire');
+                const data = await res.json();
+                const hotFiles = document.getElementById('hot-files');
+                hotFiles.replaceChildren();
+                data.files.forEach(f => {
+                    const div = document.createElement('div');
+                    div.className = 'pulse-item';
+                    div.style.cursor = 'pointer';
+                    const icon = document.createElement('span');
+                    icon.style.color = 'var(--text-dim)';
+                    icon.textContent = '[FILE]';
+                    div.appendChild(icon);
+                    div.append(document.createTextNode(` ${f.name}`));
+                    div.onclick = () => { userInput.value = `/read ${f.name}`; userInput.focus(); };
+                    hotFiles.appendChild(div);
+                });
+            } catch (err) { }
+        }
+        syncGrimoire();
+        setInterval(syncGrimoire, 10000); 
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+{
+  "heartbeat_sources": [
+    "personal-ide/HEARTBEAT.md",
+    "HEARTBEAT.md",
+    "memory/2026-02-02.md"
+  ],
+  "aurelia_sources": [],
+  "pulse_interval_ms": 1500,
+  "energy_threshold": 0.6,
+  "enable_sound": false,
+  "colors": {
+    "calm": "#57e3c3",
+    "warm": "#f2b357",
+    "violet": "#a57bff",
+    "repair": "#ff5c5c",
+    "surrender": "#f7f7f7"
+  }
+}

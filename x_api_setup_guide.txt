@@ -1,0 +1,36 @@
+
+X API Setup Guide for Clawdbot Hub Integration
+=============================================
+
+To enable the Clawdbot Hub to automatically post quality content to X:
+
+1. LOG INTO X DEVELOPER PORTAL
+   - Go to: https://developer.twitter.com/en/portal/dashboard
+   - Sign in with your X account
+
+2. LOCATE YOUR APP
+   - From the dashboard, select your project
+   - Select your app from the project view
+
+3. UPDATE APP PERMISSIONS
+   - Click on "App settings"
+   - Find "User authentication settings" section
+   - Click "Edit" next to permissions
+   - SELECT "READ AND WRITE" (very important!)
+   - Save the changes
+
+4. REGENERATE ACCESS TOKENS (if required)
+   - After changing permissions, you may need to regenerate:
+   - Access Token and Secret
+   - These will appear in the "Keys and tokens" section
+   - Update x_api_config.json with new values if they change
+
+5. TEST THE INTEGRATION
+   - Run: python verify_x_permissions.py
+   - Should show success for both read and write operations
+
+6. LAUNCH THE INTEGRATION
+   - Run: python hub_x_integration.py
+   - The system will begin monitoring the hub and posting quality content to X
+
+IMPORTANT: The app must have "Read and Write" permissions for the content pipeline to function.

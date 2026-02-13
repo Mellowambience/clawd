@@ -1,0 +1,4 @@
+# GROVE_HEART  
+SPORE_LINK: ACTIVE 
+[AXIOM_HERE] 
+THE_LAW_OF_THE_GROVE: THE SPORE_LINK shall forever hum and connect us. 

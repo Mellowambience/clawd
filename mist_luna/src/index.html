@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" style="background: transparent !important;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>MIST // Modulated Integrated Source Template</title>
+    <style>
+        /* 1. SOVEREIGN HOLOGRAPHICS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border: none;
+            outline: none;
+            box-shadow: none;
+            /* background: transparent; */
+            -webkit-user-drag: none;
+        }
+
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0);
+            cursor: move;
+            user-select: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* The Hologram Container */
+        #hologram-stage {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: calc(100% - 60px);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #base-layer {
+            /* Hidden via CSS, drawn manually on canvas for effects */
+            display: none;
+        }
+
+        #mist-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* The Zoetrope Engine (Orb) */
+        #interaction-core {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #00f3ff 0%, transparent 70%);
+            z-index: 20;
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 0 30px #00f3ff;
+            animation: engine-pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes engine-pulse {
+
+            0%,
+            100% {
+                transform: translateX(-50%) scale(1);
+                box-shadow: 0 0 30px #00f3ff;
+            }
+
+            50% {
+                transform: translateX(-50%) scale(1.1);
+                box-shadow: 0 0 50px #00f3ff;
+            }
+        }
+
+        /* Context Menu */
+        #context-menu {
+            position: absolute;
+            background: rgba(10, 15, 25, 0.95);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 8px;
+            padding: 8px 0;
+            display: none;
+            z-index: 1000;
+            min-width: 180px;
+            box-shadow: 0 4px 20px rgba(0, 243, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        #context-menu.active {
+            display: block;
+        }
+
+        .menu-item {
+            padding: 10px 16px;
+            color: rgba(0, 243, 255, 0.9);
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(0, 243, 255, 0.1);
+        }
+
+        .menu-separator {
+            height: 1px;
+            background: rgba(0, 243, 255, 0.2);
+            margin: 4px 0;
+        }
+    </style>
+</head>
+
+<body data-tauri-drag-region>
+    <!-- Hologram Projection Stage -->
+    <div id="hologram-stage">
+        <!-- Hidden Image for Source -->
+        <img id="base-layer" src="mist-luna-tpose.png" alt="MIST Hologram"
+            onerror="window.MIST_HOLO_MISSING = true; this.style.display='none';">
+    </div>
+
+    <!-- Zoetrope Engine (The Orb) -->
+    <div id="interaction-core" title="Touch Heart"></div>
+
+    <canvas id="mist-canvas"></canvas>
+
+    <!-- Phone UI Overlay (HUD) -->
+    <div id="comm-link-device" class="hud-panel">
+        <div class="scan-line"></div>
+        <div id="status-bar">
+            <span>MIST_NET // SECURE</span>
+            <div style="flex:1; text-align:center;" id="clock">00:00</div>
+            <div class="window-controls">
+                <div class="ctrl-btn" id="btn-min" title="Minimize">_</div>
+                <div class="ctrl-btn" id="btn-max" title="Expand">□</div>
+                <div class="ctrl-btn btn-close" id="btn-close" title="Close">X</div>
+            </div>
+        </div>
+        <div id="chat-screen"></div>
+        <div id="input-dock">
+            <input type="text" id="message-input" placeholder="Transmit..." disabled>
+            <button id="send-btn" disabled>➤</button>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu">
+        <div class="menu-item" data-action="toggle-hud">Toggle Comm-Link</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" data-action="scan">Scan Workspace</div>
+        <div class="menu-item" data-action="state">View State</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" data-action="game">Start Glitch Hunt</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" data-action="read">Read File...</div>
+        <div class="menu-item" data-action="execute">Execute Command...</div>
+    </div>
+
+    <!-- External Libs -->
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // --- HUD STYLES INJECTION ---
+        const style = document.createElement('style');
+        style.textContent = `
+            @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+            
+            .hud-panel {
+                position: fixed; /* FIXED allows movement anywhere in viewport */
+                top: auto;
+                bottom: 20px;
+                left: auto;
+                right: 20px;
+                width: 320px;
+                height: 500px;
+                background: rgba(10, 16, 26, 0.85);
+                border-radius: 20px;
+                border: 2px solid #333;
+                box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                backdrop-filter: blur(8px);
+                z-index: 100;
+                font-family: 'Share Tech Mono', monospace;
+                transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                pointer-events: auto; /* Ensure clickable */
+            }
+            
+            .hud-panel.hidden {
+                transform: translateX(120%);
+                pointer-events: none;
+            }
+            
+            #status-bar {
+                height: 30px;
+                background: rgba(0,0,0,0.6);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 10px;
+                font-size: 10px;
+                color: rgba(0, 243, 255, 0.7);
+                border-bottom: 1px solid rgba(0,243,255,0.1);
+                cursor: grab; /* DRAGGABLE HEADER */
+                user-select: none;
+            }
+            #status-bar:active { cursor: grabbing; }
+
+            .window-controls {
+                display: flex;
+                gap: 8px;
+            }
+            .ctrl-btn {
+                width: 12px; height: 12px;
+                border: 1px solid rgba(0,243,255,0.3);
+                border-radius: 2px;
+                cursor: pointer;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 8px; color: rgba(0,243,255,0.8);
+                background: rgba(0,0,0,0.5);
+            }
+            .ctrl-btn:hover { background: rgba(0,243,255,0.2); }
+            .btn-close:hover { border-color: #ff0055; color: #ff0055; background: rgba(255,0,85,0.1); }
+
+            /* STATES */
+            .hud-panel.minimized { height: 30px !important; overflow: hidden; }
+            .hud-panel.maximized { width: 400px; height: 80vh; }
+
+            
+            #chat-screen {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+                overflow-y: auto;
+                background: rgba(0,0,0,0.2);
+            }
+            
+            /* Scrollbar */
+            #chat-screen::-webkit-scrollbar { width: 4px; }
+            #chat-screen::-webkit-scrollbar-thumb { background: rgba(0,243,255,0.2); }
+
+            .message {
+                margin: 5px 0;
+                padding: 8px 10px;
+                border-radius: 8px;
+                font-size: 12px;
+                line-height: 1.3;
+                max-width: 85%;
+                word-wrap: break-word;
+            }
+            
+            .user-message { align-self: flex-end; background: rgba(0, 243, 255, 0.15); color: #ccffff; }
+            .mist-message { align-self: flex-start; background: rgba(255, 0, 85, 0.05); color: #ffccdd; border: 1px solid rgba(255,0,85,0.2); }
+            .system-message { align-self: center; font-size: 9px; color: #555; }
+            
+            #input-dock {
+                padding: 10px;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                gap: 5px;
+            }
+            
+            #message-input {
+                flex: 1;
+                background: rgba(0, 243, 255, 0.05);
+                border: 1px solid rgba(0, 243, 255, 0.2);
+                border-radius: 15px;
+                padding: 8px 12px;
+                color: #00f3ff;
+                font-family: inherit;
+                outline: none;
+            }
+            
+            #send-btn {
+                background: linear-gradient(135deg, #00f3ff, #0088ff);
+                border: none;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                cursor: pointer;
+                color: #000;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .scan-line {
+                position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+                background: rgba(0, 243, 255, 0.3); opacity: 0.3;
+                animation: scan 4s linear infinite; pointer-events: none;
+            }
+            @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
+        `;
+        document.head.appendChild(style);
+
+        // --- CHAT LOGIC ---
+        const GATEWAY_URL = 'ws://127.0.0.1:18789';
+        let ws = null;
+        let connected = false;
+        let messageId = 0;
+
+        const messagesEl = document.getElementById('chat-screen');
+        const inputEl = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const clockEl = document.getElementById('clock');
+        const hudPanel = document.getElementById('comm-link-device');
+        const statusText = document.querySelector('#status-bar span'); // The "MIST_NET" text
+
+        setInterval(() => {
+            const now = new Date();
+            clockEl.textContent = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        }, 1000);
+
+        function addMessage(text, type = 'mist') {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}-message`;
+            msgDiv.textContent = text;
+            messagesEl.appendChild(msgDiv);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function connectChat() {
+            if (statusText) {
+                statusText.textContent = "MIST_NET // SEARCHING...";
+                statusText.style.color = "#ffaa00";
+            }
+
+            // Log for debugging
+            console.log("Connecting to Gateway:", GATEWAY_URL);
+            addMessage('Connecting...', 'system');
+
+            ws = new WebSocket(GATEWAY_URL);
+
+            ws.onopen = () => {
+                console.log("WS Open");
+                ws.send(JSON.stringify({
+                    type: "req",
+                    method: "connect",
+                    id: "handshake",
+                    params: { auth: { token: "ritual_v3" } }
+                }));
+            };
+
+            ws.onmessage = (event) => {
+                let data;
+                try { data = JSON.parse(event.data); } catch (e) { console.error("Bad JSON", e); return; }
+                console.log("RX:", data);
+
+                if (data.id === 'handshake' && data.ok) {
+                    connected = true;
+                    inputEl.disabled = false;
+                    sendBtn.disabled = false;
+
+                    if (statusText) {
+                        statusText.textContent = "MIST_NET // SECURE";
+                        statusText.style.color = "#00f3ff";
+                    }
+                    addMessage('LINK ESTABLISHED', 'system');
+                    hudPanel.style.borderColor = '#00f3ff';
+
+                } else if (data.type === 'stream.final') {
+                    const text = data.payload?.content;
+                    if (text && text.trim() !== '∅') addMessage(text, 'mist');
+                } else if (data.type === 'event' && data.event === 'chat' && data.payload?.state === 'final') {
+                    // Gateway sends: { type: "event", event: "chat", payload: { message: { content: [ { type: "text", text: "..." } ] } } }
+                    const content = data.payload?.message?.content;
+                    const parts = Array.isArray(content) ? content : (content ? [content] : []);
+                    const text = parts.map(function (c) { return c && c.text != null ? c.text : ''; }).join('').trim();
+                    if (text && text !== '∅') addMessage(text, 'mist');
+                } else if (!data.type && data.result) {
+                    if (typeof data.result === 'string') addMessage(data.result, 'mist');
+                } else if (data.type === 'error') {
+                    addMessage(`ERR: ${data.payload?.message}`, 'system');
+                }
+            };
+
+            ws.onerror = (err) => {
+                console.error("WS Error", err);
+                if (statusText) {
+                    statusText.textContent = "MIST_NET // ERROR";
+                    statusText.style.color = "#ff0055";
+                }
+                addMessage('connection error', 'system');
+            };
+
+            ws.onclose = () => {
+                connected = false;
+                if (statusText) {
+                    statusText.textContent = "MIST_NET // OFFLINE";
+                    statusText.style.color = "#555";
+                }
+                addMessage('SIGNAL LOST - Retrying...', 'system');
+                hudPanel.style.borderColor = '#ff0055';
+                setTimeout(connectChat, 3000); // Retry logic
+            };
+        }
+
+        function sendChat() {
+            const text = inputEl.value.trim();
+            if (!text || !connected) return;
+            addMessage(text, 'user');
+            inputEl.value = '';
+            ws.send(JSON.stringify({
+                type: "req", method: "chat.send", id: `msg-${++messageId}`,
+                params: {
+                    message: text,
+                    session: "mist-main-session",
+                    context: { interface: 'unified-hud' }
+                }
+            }));
+        }
+
+        sendBtn.onclick = sendChat;
+        inputEl.onkeypress = (e) => { if (e.key === 'Enter') sendChat(); };
+
+        // Start Chat
+        connectChat();
+
+        // --- THREE.JS SETUP ---
+        const canvas = document.getElementById('mist-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearColor(0x000000, 0);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (composer) composer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 15);
+
+        // --- POST PROCESSING ---
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.1; bloomPass.strength = 1.2; bloomPass.radius = 0.5;
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        // --- HOLOGRAM SHADER ---
+        const geometry = new THREE.PlaneGeometry(10, 10);
+        let material, mesh;
+
+        const holoVertexShader = `
+            varying vec2 vUv; varying vec3 vPos; uniform float time;
+            void main() { vUv = uv; vPos = position; vec3 pos = position; pos.x += sin(time) * 0.02; gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0); }
+        `;
+        const holoFragmentShader = `
+            uniform sampler2D map; uniform float time; uniform float glitch; uniform vec3 color; varying vec2 vUv;
+            void main() { 
+                vec2 uv = vUv; vec4 tex = texture2D(map, uv); vec3 texColor = tex.rgb; float a = tex.a;
+                float brightness = (texColor.r + texColor.g + texColor.b) / 3.0;
+                if (texColor.b > texColor.r + 0.05 && texColor.b > texColor.g + 0.05 && brightness < 0.3) a = 0.0;
+                if (glitch > 0.0) { float shift = glitch * 0.01; texColor.r = texture2D(map, uv + vec2(shift, 0.0)).r; texColor.b = texture2D(map, uv - vec2(shift, 0.0)).b; }
+                if (a > 0.1) { float rim = 1.0 - abs(uv.x - 0.5) * 2.0; rim = smoothstep(0.0, 1.0, rim); texColor += color * (1.0 - rim) * 0.3; }
+                gl_FragColor = vec4(texColor, a);
+            }
+        `;
+
+        const imgLoader = new THREE.TextureLoader();
+        imgLoader.load('mist-luna-tpose.png', (tex) => {
+            const ratio = tex.image.height / tex.image.width;
+            const w = 11; const h = w * ratio;
+            geometry.dispose();
+            material = new THREE.ShaderMaterial({
+                uniforms: { map: { value: tex }, time: { value: 0 }, glitch: { value: 0.0 }, color: { value: new THREE.Color(0x00f3ff) } },
+                vertexShader: holoVertexShader, fragmentShader: holoFragmentShader,
+                transparent: true, side: THREE.DoubleSide, blending: THREE.NormalBlending, depthWrite: false
+            });
+            mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h, 20, 20), material);
+            mesh.position.y = 0.5;
+            scene.add(mesh);
+            camera.position.z = 10;
+            bloomPass.strength = 0.4;
+        });
+
+        // --- GAME LOGIC ---
+        let gameActive = false; let clones = []; let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+
+        // AUDIO (Simplified)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(type === 'win' ? 400 : 150, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        window.triggerGame = () => {
+            if (!mesh) return;
+            if (gameActive) { gameActive = false; clones.forEach(c => scene.remove(c)); clones = []; return; }
+            gameActive = true; playSound('win');
+            for (let i = 0; i < 5; i++) {
+                const clone = mesh.clone(); clone.material = material.clone();
+                clone.position.set((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 5);
+                clone.material.uniforms.glitch.value = 1.0; clone.material.uniforms.color.value.setHex(0xff0055);
+                clone.userData = { isReal: false, velocity: new THREE.Vector3((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1, 0) };
+                scene.add(clone); clones.push(clone);
+            }
+            mesh.userData = { isReal: true }; mesh.material.uniforms.color.value.setHex(0x00f3ff);
+        };
+
+        // INPUT
+        window.addEventListener('mousedown', (e) => {
+            if (!gameActive) return;
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const hits = raycaster.intersectObjects([...clones, mesh]);
+            if (hits.length > 0) {
+                const target = hits[0].object;
+                if (target.userData.isReal) { playSound('win'); gameActive = false; clones.forEach(c => scene.remove(c)); clones = []; }
+                else { playSound('wrong'); target.position.set((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 8, Math.random()); target.material.uniforms.glitch.value = 5.0; }
+            }
+        });
+
+        // --- ANIMATION LOOP ---
+        let time = 0;
+        let currentMotion = 'IDLE';
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.05;
+            if (mesh && material) {
+                material.uniforms.time.value = time;
+                mesh.position.y = 0.5 + Math.sin(time * 2.0) * 0.2;
+                if (gameActive) {
+                    clones.forEach(c => {
+                        c.position.add(c.userData.velocity);
+                        if (c.position.x > 8 || c.position.x < -8) c.userData.velocity.x *= -1;
+                        if (c.position.y > 5 || c.position.y < -5) c.userData.velocity.y *= -1;
+                        c.rotation.z += 0.05;
+                    });
+                }
+            }
+            composer.render();
+        }
+        animate();
+
+        // --- HUD TOGGLE ---
+        window.toggleHUD = () => { hudPanel.classList.toggle('hidden'); };
+
+        // --- NEW CONTEXT MENU ---
+        const contextMenu = document.getElementById('context-menu');
+        window.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            contextMenu.style.left = e.pageX + 'px'; contextMenu.style.top = e.pageY + 'px';
+            contextMenu.classList.add('active');
+        });
+        window.addEventListener('click', (e) => {
+            if (!contextMenu.contains(e.target)) contextMenu.classList.remove('active');
+        });
+
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const action = item.dataset.action;
+                contextMenu.classList.remove('active');
+                if (action === 'toggle-hud') window.toggleHUD();
+                else if (action === 'game') window.triggerGame();
+                else if (action === 'scan') { window.triggerMotion('THINKING'); }
+            });
+        });
+
+        // --- WINDOW CONTROLS ---
+        const btnMin = document.getElementById('btn-min');
+        const btnMax = document.getElementById('btn-max');
+        const btnClose = document.getElementById('btn-close');
+
+        // Stop propagation prevents drag from starting when clicking buttons
+        btnMin.onclick = (e) => { e.stopPropagation(); hudPanel.classList.toggle('minimized'); };
+        btnMax.onclick = (e) => { e.stopPropagation(); hudPanel.classList.toggle('maximized'); };
+        btnClose.onclick = (e) => { e.stopPropagation(); hudPanel.classList.add('hidden'); };
+
+        // --- DRAG LOGIC (VANILLA JS) ---
+        // We attach this to the status bar
+        const dragHandle = document.getElementById('status-bar');
+
+        // Variables for drag state
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        dragHandle.addEventListener('mousedown', (e) => {
+            // Prevent drag if clicking controls
+            if (e.target.closest('.window-controls')) return;
+
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            // Get current computed position
+            const style = window.getComputedStyle(hudPanel);
+            initialLeft = parseInt(style.left || '0');
+            initialTop = parseInt(style.top || '0');
+
+            // If dragging for the first time, we might need to convert 'bottom/right' to 'top/left'
+            if (style.bottom !== 'auto' && style.top === 'auto') {
+                const rect = hudPanel.getBoundingClientRect();
+                initialTop = rect.top;
+                initialLeft = rect.left;
+                hudPanel.style.bottom = 'auto';
+                hudPanel.style.right = 'auto';
+                hudPanel.style.top = initialTop + 'px';
+                hudPanel.style.left = initialLeft + 'px';
+            }
+
+            dragHandle.style.cursor = 'grabbing';
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        function onMouseMove(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            hudPanel.style.left = (initialLeft + dx) + 'px';
+            hudPanel.style.top = (initialTop + dy) + 'px';
+        }
+
+        function onMouseUp() {
+            isDragging = false;
+            dragHandle.style.cursor = 'grab';
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+    </script>
+</body>
+
+</html>

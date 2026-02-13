@@ -1,0 +1,43 @@
+{
+  "deployment_id": "swarm-1769901464",
+  "deployment_time": "2026-01-31T18:17:41.868670",
+  "agents": [
+    {
+      "id": "agent-research-agent-5625d58e",
+      "label": "research-agent",
+      "task": "Initialize research capabilities with web search, browsing, and analysis tools",
+      "spawned_at": "2026-01-31T18:17:41.868670"
+    },
+    {
+      "id": "agent-development-agent-939cab4a",
+      "label": "development-agent",
+      "task": "Initialize development capabilities with file operations, execution, and coding tools",
+      "spawned_at": "2026-01-31T18:17:42.379119"
+    },
+    {
+      "id": "agent-communication-agent-b20ad5ab",
+      "label": "communication-agent",
+      "task": "Initialize communication capabilities with messaging, social media, and notification tools",
+      "spawned_at": "2026-01-31T18:17:42.893440"
+    },
+    {
+      "id": "agent-analysis-agent-11d60702",
+      "label": "analysis-agent",
+      "task": "Initialize analysis capabilities with memory search, data analysis, and pattern recognition tools",
+      "spawned_at": "2026-01-31T18:17:43.407708"
+    },
+    {
+      "id": "agent-maintenance-agent-b1d8ffd3",
+      "label": "maintenance-agent",
+      "task": "Initialize maintenance capabilities with system monitoring, health checks, and resource management",
+      "spawned_at": "2026-01-31T18:17:43.920504"
+    }
+  ],
+  "moltbot_integration": true,
+  "capabilities": [
+    "multi_agent_coordination",
+    "distributed_task_processing",
+    "centralized_control",
+    "specialized_agents"
+  ]
+}

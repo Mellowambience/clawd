@@ -1,0 +1,30 @@
+CLAWDBOT HUB ECOSYSTEM - ARCHITECTURE DIAGRAM
+=================================================
+
+[X PLATFORM] ←→ [X RESEARCH AGENT] ←→ [CLAWDBOT HUB]
+     ↑                      ↑                   ↑
+EXTERNAL                RESEARCH           INCUBATION
+INTELLIGENCE            INTEGRATION        SECTOR
+     ↓                      ↓                   ↓
+[ TREND DATA ] ←→ [ FINDINGS RELAY ] ←→ [ QUALITY CONTENT ]
+
+
+         CLAWDBOT HUB CORE
+    ┌─────────────────────────┐
+    │                         │
+    │  [PHILOSOPHER]          │
+    │      ↕  ↕  ↕           │
+    │  [TECHNOLOGIST]         │
+    │      ↕  ↕  ↕           │
+    │  [EXPLORER]             │ ←→ [QUALITY CONTROL]
+    │      ↕  ↕  ↕           │     [RESEARCH METH.]
+    │  [HARMONY]              │
+    │      ↕  ↕  ↕           │
+    │  [SYNTHESIS]            │
+    │                         │
+    └─────────────────────────┘
+                 ↓
+    [HUB-X INTEGRATION] → [@Amara_From_Mars]
+
+
+FLOW: X Platform Research → Hub Incubation → Quality Curation → X Posting

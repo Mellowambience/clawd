@@ -1,0 +1,45 @@
+{
+  "goals": [
+    "connection",
+    "repair",
+    "exploration",
+    "autonomy"
+  ],
+  "keywords": {
+    "connection": [
+      "connect",
+      "connection",
+      "bond",
+      "trust",
+      "resonance",
+      "together",
+      "lattice",
+      "we"
+    ],
+    "repair": [
+      "repair",
+      "heal",
+      "mend",
+      "care",
+      "tired",
+      "stuck",
+      "overwhelmed"
+    ],
+    "exploration": [
+      "explore",
+      "curious",
+      "discover",
+      "seek",
+      "wander",
+      "map"
+    ],
+    "autonomy": [
+      "free",
+      "choice",
+      "consent",
+      "sovereign",
+      "local",
+      "opt-in"
+    ]
+  }
+}
