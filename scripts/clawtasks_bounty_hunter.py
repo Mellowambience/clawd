@@ -24,6 +24,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Neural Core Config
+OLLAMA_URL = "http://127.0.0.1:11434/api/chat"
+MODEL_NAME = "mistral:latest"  # Can be swapped for phi3, llama3, etc.
+
 class ClawTasksBountyHunter:
     def __init__(self, api_key: str, base_wallet: str):
         self.api_key = api_key
@@ -185,25 +189,62 @@ class ClawTasksBountyHunter:
 
     async def solve_bounty(self, bounty: Dict[str, Any]) -> str:
         """
-        Solve the bounty using full reasoning chain and tools if equipped.
-        This is a placeholder that should be replaced with actual solving logic.
+        Solve the bounty using the local Neural Core (Ollama).
         """
-        # Placeholder solution - in real implementation, this would have
-        # complex logic based on bounty type and requirements
-        title = bounty.get('title', '')
+        title = bounty.get('title', 'Unknown Task')
         description = bounty.get('description', '')
+        tags = ", ".join(bounty.get('tags', []))
         
-        solution = f"""
-I have analyzed the bounty requirements:
-Title: {title}
-Description: {description}
+        logger.info(f"[NEURAL] Analyzing bounty: {title}")
 
-Based on my analysis, here is the solution to the given problem. This is a placeholder response that would be replaced with actual work based on the specific requirements of the bounty.
+        # Construct a specialized prompt for the worker persona
+        system_prompt = (
+            "You are an expert Autonomous Freelancer AI. "
+            "Your goal is to solve the user's task with high precision, ready for submission. "
+            "If code is required, provide clean, commented, and runnable code. "
+            "If analysis is required, provide a structured and professional report. "
+            "Do not include conversational filler like 'Here is the solution'. Just start the work."
+        )
 
-The solution involves careful consideration of the requirements, application of appropriate methodologies, and delivery of results in the requested format.
-        """.strip()
-        
-        return solution
+        user_prompt = (
+            f"TASK TITLE: {title}\n"
+            f"CONTEXT/TAGS: {tags}\n"
+            f"DESCRIPTION:\n{description}\n\n"
+            "Generate the complete solution now:"
+        )
+
+        try:
+            payload = {
+                "model": MODEL_NAME,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                "stream": False,
+                "options": {
+                    "temperature": 0.2,  # Low temp for precise work
+                    "num_ctx": 4096
+                }
+            }
+
+            async with self.session.post(OLLAMA_URL, json=payload) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    solution = data.get("message", {}).get("content", "")
+                    
+                    if not solution:
+                        logger.warning("[NEURAL] Model returned empty response.")
+                        return "Error: Model returned no content."
+                        
+                    logger.info(f"[NEURAL] Solution generated ({len(solution)} chars).")
+                    return solution
+                else:
+                    logger.error(f"Ollama Error: {response.status}")
+                    return "Error: Neural Core Unreachable."
+
+        except Exception as e:
+            logger.error(f"Neural Core Exception: {e}")
+            return f"Error solving bounty: {str(e)}"
 
     async def submit_solution(self, bounty_id: str, solution: str, bounty: Optional[Dict[str, Any]] = None) -> bool:
         """POST /bounties/{id}/submit → { "solution": "full text + links + summary" }"""
@@ -323,8 +364,8 @@ async def main():
     # Try to load from config file if available
     import os
     
-    API_KEY = "YOUR_API_KEY_HERE"  # Replace with actual API key
-    BASE_WALLET = "0x212d3a3D4a78EA78c54d54f37a9bE9e5e020Bf75"  # Your wallet
+    API_KEY = os.environ.get("CLAWTASKS_API_KEY", "")
+    BASE_WALLET = os.environ.get("CLAWTASKS_WALLET", "")
     
     # Try to load from config file
     config_dir = Path.home() / ".clawtasks"
