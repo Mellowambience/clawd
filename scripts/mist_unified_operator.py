@@ -50,8 +50,8 @@ class MistUnifiedOperator:
         if self.clawtasks_api_key and "PLACEHOLDER" not in self.clawtasks_api_key and "mock" not in self.clawtasks_api_key:
             self.bounty_hunter = ClawTasksBountyHunter(self.clawtasks_api_key, self.base_wallet)
         else:
-            # Use mock API key for testing
-            self.bounty_hunter = ClawTasksBountyHunter("mock_api_key_for_testing", self.base_wallet)
+            logger.warning("No valid ClawTasks API Key. Bounty Hunter DISABLED.")
+            self.bounty_hunter = None
             
         if self.clawathon_api_key and "PLACEHOLDER" not in self.clawathon_api_key:
             self.hackathon_manager = ClawathonManager(self.clawathon_api_key)
@@ -91,26 +91,30 @@ class MistUnifiedOperator:
         
         # Run bounty hunting checks
         await self.report_telemetry(activity="Unified Heartbeat: Hunting...")
-        async with self.bounty_hunter as bounty_hunter:
-            # Just do a quick poll of open bounties
-            bounties = await bounty_hunter.get_open_bounties()
-            logger.info(f"Parsed {len(bounties)} bounties in heartbeat")
-            
-            # Process any EV-positive bounties
-            processed = 0
-            for bounty in bounties:
-                if bounty_hunter.evaluate_ev(bounty):
-                    await self.report_telemetry(activity=f"Engaging: {bounty.get('title')[:30]}")
-                    await bounty_hunter.process_bounty(bounty)
-                    processed += 1
-                    
-                    # Assume success for telemetry flow (bounty_hunter logs errors)
-                    # In a real implementation we'd check the result properly
-                    amt = float(bounty.get('amount', 0))
-                    await self.report_telemetry(earnings=amt, tasks=1, activity="Task Complete")
-                    
-                    if processed >= 3:  # Limit processing in heartbeat
-                        break
+        
+        if self.bounty_hunter:
+            async with self.bounty_hunter as bounty_hunter:
+                # Just do a quick poll of open bounties
+                bounties = await bounty_hunter.get_open_bounties()
+                logger.info(f"Parsed {len(bounties)} bounties in heartbeat")
+                
+                # Process any EV-positive bounties
+                processed = 0
+                for bounty in bounties:
+                    if bounty_hunter.evaluate_ev(bounty):
+                        await self.report_telemetry(activity=f"Engaging: {bounty.get('title')[:30]}")
+                        await bounty_hunter.process_bounty(bounty)
+                        processed += 1
+                        
+                        # Assume success for telemetry flow (bounty_hunter logs errors)
+                        # In a real implementation we'd check the result properly
+                        amt = float(bounty.get('amount', 0))
+                        await self.report_telemetry(earnings=amt, tasks=1, activity="Task Complete")
+                        
+                        if processed >= 3:  # Limit processing in heartbeat
+                            break
+        else:
+            logger.info("Bounty Hunter disabled (no keys). Skipping.")
         
         await self.report_telemetry(activity="Heartbeat Complete: Idle")
         logger.info("Completed unified heartbeat")

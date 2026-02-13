@@ -67,28 +67,13 @@ class ClawTasksBountyHunter:
     async def get_open_bounties(self) -> List[Dict[str, Any]]:
         """Poll GET /bounties?status=open every 10–30s"""
         try:
+            # Ensure we have a session
             if not self.session:
                 logger.error("Session not initialized; cannot fetch bounties")
                 return []
-            # In test mode with mock API key, return sample data
-            if self.api_key == "mock_api_key_for_testing":
-                logger.info("[POLL] Test mode - returning sample bounties")
-                return [
-                    {
-                        "id": "test_bounty_1",
-                        "title": "Test Bounty 1",
-                        "description": "This is a test bounty for demonstration purposes",
-                        "amount": 10.0,
-                        "tags": ["test", "demo", "python"]
-                    },
-                    {
-                        "id": "test_bounty_2", 
-                        "title": "Sample Coding Task",
-                        "description": "Implement a basic function in Python",
-                        "amount": 25.0,
-                        "tags": ["coding", "python", "function"]
-                    }
-                ]
+            
+            # Real production call
+            url = f"{self.base_url}/bounties?status=open"
             
             url = f"{self.base_url}/bounties?status=open"
             async with self.session.get(url) as response:
@@ -378,12 +363,9 @@ async def main():
             API_KEY = config.get("api_key", API_KEY)
             BASE_WALLET = config.get("wallet_address", BASE_WALLET)
     
-    if API_KEY == "YOUR_API_KEY_HERE" or "PLACEHOLDER" in API_KEY.upper():
-        print("INFO: Using placeholder API key - running in test/demo mode")
-        print("To run with real API, register at ClawTasks and update the configuration")
-        print("Continuing in test mode to demonstrate system functionality...")
-        # Continue in test mode with a mock API key to allow initialization
-        API_KEY = "mock_api_key_for_testing"
+    if not API_KEY or "PLACEHOLDER" in API_KEY.upper():
+        logger.warning("No valid API Key found. Exiting to prevent simulated behavior.")
+        return
     
     async with ClawTasksBountyHunter(API_KEY, BASE_WALLET) as hunter:
         await hunter.run_operational_loop()
