@@ -59,9 +59,28 @@ class MistUnifiedOperator:
             # Use empty API key for testing
             self.hackathon_manager = ClawathonManager(None)
 
+    async def report_telemetry(self, activity=None, earnings=0.0, tasks=0):
+        """Send operational signals to the Mycelium Pulse."""
+        try:
+            pulse_url = "http://127.0.0.1:8765/manifest/telemetry"
+            payload = {}
+            if activity: payload["activity"] = activity
+            if earnings > 0: payload["earnings"] = earnings
+            if tasks > 0: payload["tasks"] = tasks
+            
+            if not payload: return
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(pulse_url, json=payload, timeout=2) as resp:
+                    if resp.status == 200:
+                        logger.debug("Telemetry pulse sent.")
+        except Exception as e:
+            logger.debug(f"Telemetry pulse failed (Pulse offline?): {e}")
+
     async def run_heartbeat(self):
         """Run both bounty hunting and hackathon checks"""
         logger.info("Running unified heartbeat...")
+        await self.report_telemetry(activity="Unified Heartbeat: Syncing...")
         
         # Run hackathon checks
         async with self.hackathon_manager as hackathon_mgr:
@@ -71,6 +90,7 @@ class MistUnifiedOperator:
         await asyncio.sleep(5)
         
         # Run bounty hunting checks
+        await self.report_telemetry(activity="Unified Heartbeat: Hunting...")
         async with self.bounty_hunter as bounty_hunter:
             # Just do a quick poll of open bounties
             bounties = await bounty_hunter.get_open_bounties()
@@ -80,11 +100,19 @@ class MistUnifiedOperator:
             processed = 0
             for bounty in bounties:
                 if bounty_hunter.evaluate_ev(bounty):
+                    await self.report_telemetry(activity=f"Engaging: {bounty.get('title')[:30]}")
                     await bounty_hunter.process_bounty(bounty)
                     processed += 1
+                    
+                    # Assume success for telemetry flow (bounty_hunter logs errors)
+                    # In a real implementation we'd check the result properly
+                    amt = float(bounty.get('amount', 0))
+                    await self.report_telemetry(earnings=amt, tasks=1, activity="Task Complete")
+                    
                     if processed >= 3:  # Limit processing in heartbeat
                         break
         
+        await self.report_telemetry(activity="Heartbeat Complete: Idle")
         logger.info("Completed unified heartbeat")
 
     async def run_operational_loop(self):

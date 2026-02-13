@@ -113,6 +113,10 @@ MANIFEST_STATE = {
     "reflex_enabled": True,
     "high_load_start": 0,
     "last_purge_ts": 0,
+    "earnings_session": 0.0,
+    "current_activity": "idle",
+    "tasks_completed": 0,
+    "last_earning_ts": 0,
 }
 
 COMPANION_LOCAL_STATE: Dict[str, Any] = {
@@ -1441,7 +1445,12 @@ def build_manifestation(heartbeat: Dict, dominant: str, silence_hours: float = N
         "battery": battery,
         "chronos": time.localtime().tm_hour,
         "silence_hours": silence_hours,
-        "collapsed": SharedHeart.get_tension() >= 13
+        "collapsed": SharedHeart.get_tension() >= 13,
+        "telemetry": {
+            "earnings": MANIFEST_STATE.get("earnings_session", 0.0),
+            "activity": MANIFEST_STATE.get("current_activity", "idle"),
+            "tasks": MANIFEST_STATE.get("tasks_completed", 0)
+        }
     }
 
 class SharedHeart:
@@ -1676,6 +1685,32 @@ def manifest_reflex():
     enabled = bool(data.get("enabled", True))
     MANIFEST_STATE["reflex_enabled"] = enabled
     return jsonify({"ok": True, "enabled": enabled})
+
+@app.post("/manifest/telemetry")
+def manifest_telemetry():
+    """Ingest operational telemetry from agents (Bounty Hunter, etc)."""
+    data = request.get_json(silent=True) or {}
+    
+    # Update Manifest State with telemetry data
+    if "earnings" in data:
+        MANIFEST_STATE["earnings_session"] = MANIFEST_STATE.get("earnings_session", 0.0) + float(data["earnings"])
+        MANIFEST_STATE["last_earning_ts"] = time.time()
+        
+    if "activity" in data:
+        MANIFEST_STATE["current_activity"] = str(data["activity"])[:100]
+        
+    if "tasks" in data:
+        MANIFEST_STATE["tasks_completed"] = MANIFEST_STATE.get("tasks_completed", 0) + int(data["tasks"])
+        
+    # Trigger a subtle glow shift based on earnings/activity
+    if data.get("earnings", 0) > 0:
+        SharedHeart.touch("PROVIDER", tension_jump=-2.0) # Earning calms the system (resource security)
+        
+    return jsonify({
+        "ok": True, 
+        "earnings": MANIFEST_STATE.get("earnings_session", 0),
+        "activity": MANIFEST_STATE.get("current_activity", "idle")
+    })
 
 @app.get("/health")
 def health():
