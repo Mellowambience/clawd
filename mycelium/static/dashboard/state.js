@@ -8,7 +8,9 @@ export const state = {
     nodes: [],
     reflexes: [],
     guardrailEvents: [],
-    gatewayMessages: [],
+    gatewayMessages: [
+        { role: 'mist', text: 'The Sanctuary is active. I am here.' }
+    ],
     events: [],
     lastUpdate: 0,
     companion: {
@@ -72,7 +74,7 @@ export function addEvent(level, message) {
 }
 
 export function addGatewayMessage(role, text, meta = {}) {
-    state.gatewayMessages.unshift({
+    state.gatewayMessages.push({
         at: new Date().toLocaleTimeString([], { hour12: false }),
         role,
         text,
@@ -80,7 +82,7 @@ export function addGatewayMessage(role, text, meta = {}) {
         receiptId: meta.receipt?.id || null,
         kind: meta.kind || null,
     });
-    state.gatewayMessages = state.gatewayMessages.slice(0, 120);
+    state.gatewayMessages = state.gatewayMessages.slice(-120);
 }
 
 export function setCompanionProfile(partial) {

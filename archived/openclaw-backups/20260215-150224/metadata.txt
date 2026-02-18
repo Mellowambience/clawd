@@ -1,0 +1,8 @@
+timestamp=2026-02-15T15:02:24-05:00
+oldVersion=2026.1.30
+newVersion=2026.2.14
+latestAtInstall=2026.2.14
+prefix=C:\Users\nator\AppData\Roaming\npm
+backupShims=C:\Users\nator\clawd\archived\openclaw-backups\20260215-150224\\shims
+backupPkg=C:\Users\nator\clawd\archived\openclaw-backups\20260215-150224\\pkg\\openclaw
+rollbackHint=npm install -g openclaw@2026.1.30

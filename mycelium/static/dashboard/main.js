@@ -251,6 +251,39 @@ function buildRealityAnchoredMessage(content, companion) {
     ].join('\\n');
 }
 
+async function initJournal() {
+    const btn = document.getElementById('viewJournalBtn');
+    const overlay = document.getElementById('journalOverlay');
+    const closeBtn = document.getElementById('closeJournal');
+    const body = document.getElementById('journalBody');
+
+    if (!btn || !overlay) return;
+
+    btn.onclick = async () => {
+        overlay.classList.add('active');
+        body.innerHTML = '<h1>Reflections</h1><p>Establishing connection to the soul...</p>';
+        try {
+            const resp = await fetch('/journal');
+            const data = await resp.json();
+            if (data.content) {
+                const html = data.content
+                    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                    .replace(/\n\n/g, '<p></p>')
+                    .replace(/\n/g, '<br>');
+                body.innerHTML = html;
+            }
+        } catch (err) {
+            body.innerHTML = '<h1>Reflections</h1><p>The connection is faint. Try again later.</p>';
+        }
+    };
+
+    closeBtn.onclick = () => overlay.classList.remove('active');
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('active'); };
+}
+
 function bootstrap() {
     bindControls(
         (message) => sendGateway(message),
@@ -286,6 +319,7 @@ function bootstrap() {
     scheduleGatewayReconnect('initial connect');
     startPolling();
     startGuardrailPolling();
+    initJournal();
     addEvent('info', 'dashboard initialized');
     render();
 }

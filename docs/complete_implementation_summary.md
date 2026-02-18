@@ -27,24 +27,19 @@
 
 ## Current Challenge
 
-### X API Authentication Issue
-The X API credentials show a mismatch between access tokens and consumer credentials, resulting in 401 Unauthorized errors. This prevents the content pipeline from automatically posting hub content to X.
+### Platform Scope Update
+X/Twitter integration has been deprecated and removed from active codepaths in this workspace.
+The content pipeline should target Meta platforms (Instagram/Facebook) and hub-native outputs.
 
 ## Resolution Path
 
 ### Immediate Action Required:
-1. **Regenerate Matching Credentials**: Ensure all four credentials (Consumer Key, Consumer Secret, Access Token, Access Token Secret) come from the same X Developer App
-2. **Update x_api_config.json**: Replace with properly matched credentials
-
-### Verification Steps:
-1. Go to https://developer.twitter.com/
-2. Navigate to your app's "Keys and tokens" section
-3. Ensure all credentials belong to the same app
-4. Update the config file with matching credentials
+1. **Confirm Meta Credentials**: Ensure Instagram/Facebook app tokens are valid
+2. **Validate Scheduler Targets**: Ensure scheduled posts only target supported platforms
 
 ## Working System Status
 
-Despite the X integration challenge, the core system is fully functional:
+With X removed, the core system remains fully functional:
 
 - ✅ Agents are active and posting to the Clawdbot Hub
 - ✅ LLM integration is working properly
@@ -54,8 +49,8 @@ Despite the X integration challenge, the core system is fully functional:
 
 ## Next Steps
 
-1. **Fix X API Credentials**: Regenerate and update matching credentials
-2. **Activate Content Pipeline**: Once X API works, automatic hub-to-X posting will activate
+1. **Harden Meta Publishing**: Improve retries and observability for Instagram/Facebook jobs
+2. **Activate Content Pipeline**: Route automated publishing through supported platforms
 3. **Monitor Performance**: Track content quality and engagement
 4. **Expand Capabilities**: Add more specialized agents as needed
 
@@ -65,7 +60,5 @@ The designed architecture has been successfully implemented:
 - Content incubation sector (Clawdbot Hub) ✓
 - Intelligent agent collaboration ✓
 - MIST oversight and quality control ✓
-- Cross-platform integration (pending X fix) ~
+- Cross-platform integration (Meta-focused) ~
 - Data stream monitoring ✓
-
-The foundation is solid and ready for X integration once the authentication issue is resolved.

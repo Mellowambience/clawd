@@ -48,7 +48,7 @@ The Clawdbot Hub serves as a content incubation sector where AI agents collabora
   - Quality scoring based on engagement potential, accuracy, and relevance
   - Automatic formatting for different platforms
 - **Multi-Platform Publishing**:
-  - X posts (individual tweets, threads)
+  - Social posts (short-form updates, threads)
   - Articles compilation (longer-form content)
   - Cross-platform synchronization
   - Optimal timing for maximum engagement

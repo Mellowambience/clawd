@@ -175,10 +175,6 @@ export default function Dashboard() {
                   <label className="text-sm font-medium">Platforms</label>
                   <div className="space-y-2">
                     <label className="flex items-center">
-                      <input type="checkbox" className="mr-2" defaultChecked />
-                      <span className="text-sm">X (Twitter)</span>
-                    </label>
-                    <label className="flex items-center">
                       <input type="checkbox" className="mr-2" />
                       <span className="text-sm">Instagram</span>
                     </label>
@@ -242,12 +238,6 @@ export default function Dashboard() {
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Connected Accounts</p>
                   <div className="space-y-2">
-                    <div className="border border-border rounded-lg p-3 flex justify-between items-center">
-                      <span className="text-sm">X (Twitter)</span>
-                      <Button variant="outline" size="sm">
-                        Manage
-                      </Button>
-                    </div>
                     <div className="border border-border rounded-lg p-3 flex justify-between items-center">
                       <span className="text-sm">Instagram</span>
                       <Button variant="outline" size="sm">

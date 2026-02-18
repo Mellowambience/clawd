@@ -15,8 +15,7 @@
 - [x] Implement format conversion for platform-specific requirements
 
 ### Social Media API Integration
-- [x] Integrate X (Twitter) API v2 for posting images
-- [x] Implement X API media upload and tweet creation
+- [x] Remove X/Twitter integration from active codepaths
 - [x] Integrate Meta Instagram Graph API for posting
 - [x] Implement Instagram container creation and publishing
 - [x] Integrate Meta Facebook Graph API for page posting
@@ -56,7 +55,7 @@
 - [ ] Integrate with Manus notification system
 
 ### Testing & Deployment
-- [x] Write vitest tests for X API integration
+- [x] Remove legacy social integration tests
 - [ ] Write vitest tests for image processing
 - [ ] Write vitest tests for scheduling logic
 - [ ] End-to-end testing of full workflow
@@ -65,7 +64,7 @@
 ## Implementation Order
 1. Database schema and migrations
 2. Image processing pipeline
-3. Social media API integration (X first, then Meta)
+3. Social media API integration (Meta platforms)
 4. Backend scheduling and job processing
 5. Frontend dashboard and curation UI
 6. LLM caption generation

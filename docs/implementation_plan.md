@@ -28,14 +28,13 @@
 
 ### 2.2 Content Generation
 - [ ] Create content templating system
-- [ ] Implement multi-format output (tweets, articles, threads)
+- [ ] Implement multi-format output (social posts, articles, threads)
 - [ ] Add fact-checking and verification layers
 - [ ] Set up content quality scoring
 
 ## Phase 3: Cross-Platform Integration (Week 3)
-### 3.1 X API Integration
+### 3.1 Meta Platform Integration
 - [ ] Implement automated posting based on content scoring
-- [ ] Create thread generation from hub discussions
 - [ ] Set up optimal timing algorithms
 - [ ] Add engagement tracking and analysis
 
@@ -63,11 +62,11 @@
 ### Immediate Actions (This Week)
 1. **Agent Framework**: Start building the agent template that can connect to LLMs
 2. **MIST Orchestration**: Enhance MIST's ability to monitor and coordinate agents
-3. **X Integration**: Use the updated X API config to start posting hub content
+3. **Meta Integration**: Connect hub content pipeline to Instagram/Facebook posting
 
 ### Quick Wins
 1. Create a simple agent that can respond to hub posts using LLM
-2. Set up basic content curation from hub to X
+2. Set up basic content curation from hub to Meta platforms
 3. Implement topic tagging for better organization
 
 ### Technical Requirements

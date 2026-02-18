@@ -1,28 +1,12 @@
 import { getScheduledPostsForPublishing, updateScheduledPostStatus, createPostHistory, getArtVariantsByPieceId, getSocialAccountById } from "../db";
-import { XApiService } from "./xApiService";
 import { MetaApiService } from "./metaApiService";
-import { storagePut } from "../storage";
 
 /**
  * Publishing Service
  * Handles publishing scheduled posts to social media platforms
  */
 export class PublishingService {
-  private xApiService: XApiService;
-
-  constructor(
-    xConsumerKey: string,
-    xConsumerSecret: string,
-    xAccessToken: string,
-    xAccessTokenSecret: string
-  ) {
-    this.xApiService = new XApiService(
-      xConsumerKey,
-      xConsumerSecret,
-      xAccessToken,
-      xAccessTokenSecret
-    );
-  }
+  constructor() {}
 
   /**
    * Process all scheduled posts that are ready to publish
@@ -66,9 +50,7 @@ export class PublishingService {
         try {
           let platformPostId: string;
 
-          if (platform === "x" && socialAccount.platform === "x") {
-            platformPostId = await this.publishToX(imageUrls, post.caption);
-          } else if (platform === "instagram" && socialAccount.platform === "instagram") {
+          if (platform === "instagram" && socialAccount.platform === "instagram") {
             platformPostId = await this.publishToInstagram(
               socialAccount.accountId,
               socialAccount.accessToken,
@@ -114,35 +96,6 @@ export class PublishingService {
   }
 
   /**
-   * Publish to X (Twitter)
-   */
-  private async publishToX(imageUrls: string[], caption: string): Promise<string> {
-    try {
-      if (imageUrls.length === 0) {
-        // Post text-only tweet
-        return await this.xApiService.createTweet(caption, []);
-      }
-
-      // Download images and post
-      const images: Array<{ buffer: Buffer; mediaType: string }> = [];
-      for (const url of imageUrls.slice(0, 4)) {
-        // X allows max 4 images
-        const response = await fetch(url);
-        const buffer = await response.arrayBuffer();
-        images.push({
-          buffer: Buffer.from(buffer),
-          mediaType: "image/jpeg",
-        });
-      }
-
-      return await this.xApiService.postMultipleImages(images, caption);
-    } catch (error) {
-      console.error("[PublishingService] X publishing failed:", error);
-      throw error;
-    }
-  }
-
-  /**
    * Publish to Instagram
    */
   private async publishToInstagram(
@@ -183,21 +136,5 @@ export class PublishingService {
  * Factory function to create publishing service
  */
 export function createPublishingService(): PublishingService {
-  const xConsumerKey = process.env.X_API_KEY;
-  const xConsumerSecret = process.env.X_API_SECRET;
-  const xAccessToken = process.env.X_ACCESS_TOKEN;
-  const xAccessTokenSecret = process.env.X_ACCESS_TOKEN_SECRET;
-
-  if (!xConsumerKey || !xConsumerSecret || !xAccessToken || !xAccessTokenSecret) {
-    throw new Error(
-      "X API credentials not found. Required: X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_TOKEN_SECRET"
-    );
-  }
-
-  return new PublishingService(
-    xConsumerKey,
-    xConsumerSecret,
-    xAccessToken,
-    xAccessTokenSecret
-  );
+  return new PublishingService();
 }
