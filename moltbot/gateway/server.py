@@ -99,7 +99,12 @@ class MistGateway:
 
         self.tension = 0
         self.care_collapsed = False
-        self.live_seed_file = Path("c:/Users/nator/clawd/live_seed.json")
+        # Use paths module for portability (Issue #4 fix)
+        try:
+            from moltbot.gateway.paths import MYCELIUM_DATA_DIR
+            self.live_seed_file = MYCELIUM_DATA_DIR / "live_seed.json"
+        except ImportError:
+            self.live_seed_file = PROJECT_ROOT / "mycelium" / "data" / "live_seed.json
         self._load_seed_state()
         
         # Load Prompt
@@ -203,6 +208,18 @@ class MistGateway:
         except:
             self.histories = {}
 
+    def _truncate_memory(self, memory: str, max_chars: int = 16000) -> str:
+        """Smart memory truncation: keep identity section + most recent content."""
+        if len(memory) <= max_chars:
+            return memory
+        # Keep first 4000 chars (identity/core) + most recent
+        identity = memory[:4000]
+        remaining = memory[4000:]
+        remaining_limit = max_chars - len(identity) - 50
+        if len(remaining) > remaining_limit:
+            remaining = "...(older memories truncated)...\n" + remaining[-remaining_limit:]
+        return identity + remaining
+
     def save_history(self):
         try:
             with open(self.history_file, "w", encoding="utf-8") as f:
@@ -235,7 +252,7 @@ class MistGateway:
         logger.info(f"Querying neural core for: {user_message[:20]}...")
         messages = [
             {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": f"Context: {self.long_term_memory[:4000]}"},
+            {"role": "user", "content": f"Context: {self._truncate_memory(self.long_term_memory)}"},
             {"role": "assistant", "content": "⟁"},
             {"role": "user", "content": user_message}
         ]
@@ -279,6 +296,7 @@ class MistGateway:
             logger.error(f"Chat error: {e}")
 
     async def handler(self, websocket):
+        remote = getattr(websocket, 'remote_address', 'unknown')
         self.clients.add(websocket)
         try:
             async for message in websocket:
@@ -323,8 +341,12 @@ class MistGateway:
                         "ok": False,
                         "error": {"message": f"Unsupported method: {method}"}
                     }))
+        except websockets.exceptions.ConnectionClosedError as e:
+            logger.info(f"Client {remote} disconnected unexpectedly: {e.code}")
+        except websockets.exceptions.ConnectionClosedOK:
+            logger.debug(f"Client {remote} disconnected gracefully")
         finally:
-            self.clients.remove(websocket)
+            self.clients.discard(websocket)
 
     async def start(self):
         logger.info(f"Ignition: {MODEL_NAME} | Port: {PORT}")
@@ -342,5 +364,18 @@ class MistGateway:
 
 if __name__ == "__main__":
     gateway = MistGateway()
-    signal.signal(signal.SIGINT, lambda s, f: sys.exit(0))
-    asyncio.run(gateway.start())
+
+    def shutdown_handler(signum, frame):
+        logger.info("Shutdown signal received - saving state...")
+        gateway.save_history()
+        gateway._save_seed_state()
+        logger.info("State saved. Goodbye!")
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, shutdown_handler)
+    signal.signal(signal.SIGTERM, shutdown_handler)
+
+    try:
+        asyncio.run(gateway.start())
+    except KeyboardInterrupt:
+        shutdown_handler(None, None)

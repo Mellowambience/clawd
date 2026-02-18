@@ -23,12 +23,34 @@ class OpenClawEngine:
 
     def load_config(self) -> Dict[str, Any]:
         config_path = Path.home() / ".clawdbot" / "moltbot.json"
-        if config_path.exists():
+
+        # Create default config if missing (Issue #5 fix)
+        if not config_path.exists():
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            default_config = {
+                "tools": {
+                    "elevated": {
+                        "enabled": True,
+                        "allowList": ["read_file", "write_file", "list_dir", "cmd"]
+                    }
+                },
+                "channels": {"whatsapp": {"enabled": False}},
+                "safety": {"blockedCommands": ["del /s", "rm -rf", "format"]}
+            }
             try:
-                with open(config_path, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                with open(config_path, "w", encoding="utf-8") as f:
+                    json.dump(default_config, f, indent=2)
+                logger.info(f"Created default OpenClaw config at {config_path}")
+                return default_config
             except Exception as e:
-                logger.error(f"Failed to load config: {e}")
+                logger.error(f"Failed to create default config: {e}")
+                return {}
+
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load config: {e}")
         return {}
 
     def _parse_capabilities(self):
