@@ -211,7 +211,7 @@ const normalizeToolChoice = (
  */
 const resolveApiUrl = () => {
   if (ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0) {
-    return `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`;
+    return `${ENV.forgeApiUrl.replace(/\/+$/, "")}/v1/chat/completions`;
   }
   if (ENV.moonshotApiKey && ENV.moonshotApiKey.trim().length > 0) {
     return "https://api.moonshot.cn/v1/chat/completions";
@@ -220,6 +220,14 @@ const resolveApiUrl = () => {
     return "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
   }
   return "https://forge.manus.im/v1/chat/completions";
+};
+
+/**
+ * Get all available Gemini API keys (primary + fallback).
+ * Returns keys in priority order, skipping empty ones.
+ */
+const getGeminiKeys = (): string[] => {
+  return [ENV.geminiApiKey, ENV.geminiApiKey2].filter((k) => k && k.trim().length > 0);
 };
 
 /**
@@ -302,6 +310,9 @@ const normalizeResponseFormat = ({
   };
 };
 
+/**
+ * Invoke the LLM API. Supports automatic key rotation for Gemini 429 quota errors.
+ */
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   assertApiKey();
 
@@ -343,19 +354,43 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.response_format = normalizedResponseFormat;
   }
 
-  const response = await fetch(resolveApiUrl(), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${resolveApiKey()}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  const apiUrl = resolveApiUrl();
+  const isGemini = apiUrl.includes("googleapis.com");
 
-  if (!response.ok) {
+  // For Gemini, try all available keys in sequence on 429 (quota exhausted)
+  const keysToTry = isGemini ? getGeminiKeys() : [resolveApiKey()];
+
+  let lastError: Error | undefined;
+  for (const apiKey of keysToTry) {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      return (await response.json()) as InvokeResult;
+    }
+
     const errorText = await response.text();
+    const is429 = response.status === 429;
+
+    // On 429, try the next key if available
+    if (is429 && keysToTry.length > 1) {
+      lastError = new Error(`LLM invoke failed: ${response.status} ${response.statusText} — ${errorText}`);
+      continue;
+    }
+
+    // Surface quota errors with a clear message
+    if (is429) {
+      throw new Error(`QUOTA_EXHAUSTED: ${response.status} ${response.statusText} — ${errorText}`);
+    }
+
     throw new Error(`LLM invoke failed: ${response.status} ${response.statusText} — ${errorText}`);
   }
 
-  return (await response.json()) as InvokeResult;
+  throw lastError ?? new Error("LLM invoke failed: all keys exhausted");
 }
