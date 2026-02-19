@@ -1,0 +1,25 @@
+# Render deployment blueprint for MIST API server.
+# Deploy: Dashboard → New → Blueprint → connect this repo.
+# Free tier: 512 MB RAM, spins down after 15 min inactivity.
+#
+# After deploy, set EXPO_PUBLIC_MIST_API_BASE_URL in your
+# Expo env to the Render URL (e.g., https://clawd-api.onrender.com).
+
+services:
+  - type: web
+    name: clawd-api
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npx tsx server/_core/index.ts
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false  # Set in dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: ""  # Empty = allow all local + mobile (no-origin) requests

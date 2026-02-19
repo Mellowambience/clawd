@@ -11,6 +11,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "api": "tsx server/_core/index.ts",
+    "start:server": "npx tsx server/_core/index.ts",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
