@@ -12,4 +12,7 @@ export const ENV = {
 
   // Direct Gemini support — used when Forge keys are not set
   geminiApiKey: process.env.GEMINI_API_KEY ?? "",
+
+  // Moonshot (Kimi) support
+  moonshotApiKey: process.env.MOONSHOT_API_KEY ?? "",
 };

@@ -205,12 +205,16 @@ const normalizeToolChoice = (
  * Resolve the LLM API endpoint.
  * Priority:
  *   1. BUILT_IN_FORGE_API_URL (custom Forge/Manus endpoint)
- *   2. GEMINI_API_KEY → Google's OpenAI-compatible endpoint
- *   3. Default Forge endpoint (forge.manus.im)
+ *   2. MOONSHOT_API_KEY → Moonshot (Kimi) endpoint
+ *   3. GEMINI_API_KEY → Google's OpenAI-compatible endpoint
+ *   4. Default Forge endpoint (forge.manus.im)
  */
 const resolveApiUrl = () => {
   if (ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0) {
     return `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`;
+  }
+  if (ENV.moonshotApiKey && ENV.moonshotApiKey.trim().length > 0) {
+    return "https://api.moonshot.cn/v1/chat/completions";
   }
   if (ENV.geminiApiKey && ENV.geminiApiKey.trim().length > 0) {
     return "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
@@ -225,6 +229,9 @@ const resolveApiKey = (): string => {
   if (ENV.forgeApiKey && ENV.forgeApiKey.trim().length > 0) {
     return ENV.forgeApiKey;
   }
+  if (ENV.moonshotApiKey && ENV.moonshotApiKey.trim().length > 0) {
+    return ENV.moonshotApiKey;
+  }
   if (ENV.geminiApiKey && ENV.geminiApiKey.trim().length > 0) {
     return ENV.geminiApiKey;
   }
@@ -235,7 +242,7 @@ const assertApiKey = () => {
   const key = resolveApiKey();
   if (!key) {
     throw new Error(
-      "No LLM API key configured. Set GEMINI_API_KEY or BUILT_IN_FORGE_API_KEY.",
+      "No LLM API key configured. Set MOONSHOT_API_KEY, GEMINI_API_KEY or BUILT_IN_FORGE_API_KEY.",
     );
   }
 };
@@ -244,7 +251,11 @@ const assertApiKey = () => {
  * Resolve the model name for the chosen provider.
  */
 const resolveModel = (): string => {
-  // If using Gemini directly, use the Gemini model name
+  // If using Moonshot directly
+  if (!ENV.forgeApiKey && ENV.moonshotApiKey) {
+    return "moonshot-v1-8k";
+  }
+  // If using Gemini directly
   if (!ENV.forgeApiKey && ENV.geminiApiKey) {
     return "gemini-2.0-flash";
   }
