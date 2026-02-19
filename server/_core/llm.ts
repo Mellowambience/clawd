@@ -201,15 +201,54 @@ const normalizeToolChoice = (
   return toolChoice;
 };
 
-const resolveApiUrl = () =>
-  ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
-    : "https://forge.manus.im/v1/chat/completions";
+/**
+ * Resolve the LLM API endpoint.
+ * Priority:
+ *   1. BUILT_IN_FORGE_API_URL (custom Forge/Manus endpoint)
+ *   2. GEMINI_API_KEY → Google's OpenAI-compatible endpoint
+ *   3. Default Forge endpoint (forge.manus.im)
+ */
+const resolveApiUrl = () => {
+  if (ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0) {
+    return `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`;
+  }
+  if (ENV.geminiApiKey && ENV.geminiApiKey.trim().length > 0) {
+    return "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+  }
+  return "https://forge.manus.im/v1/chat/completions";
+};
+
+/**
+ * Resolve the API key for the chosen provider.
+ */
+const resolveApiKey = (): string => {
+  if (ENV.forgeApiKey && ENV.forgeApiKey.trim().length > 0) {
+    return ENV.forgeApiKey;
+  }
+  if (ENV.geminiApiKey && ENV.geminiApiKey.trim().length > 0) {
+    return ENV.geminiApiKey;
+  }
+  return "";
+};
 
 const assertApiKey = () => {
-  if (!ENV.forgeApiKey) {
-    throw new Error("OPENAI_API_KEY is not configured");
+  const key = resolveApiKey();
+  if (!key) {
+    throw new Error(
+      "No LLM API key configured. Set GEMINI_API_KEY or BUILT_IN_FORGE_API_KEY.",
+    );
   }
+};
+
+/**
+ * Resolve the model name for the chosen provider.
+ */
+const resolveModel = (): string => {
+  // If using Gemini directly, use the Gemini model name
+  if (!ENV.forgeApiKey && ENV.geminiApiKey) {
+    return "gemini-2.0-flash";
+  }
+  return "gemini-2.5-flash";
 };
 
 const normalizeResponseFormat = ({
@@ -267,7 +306,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   } = params;
 
   const payload: Record<string, unknown> = {
-    model: "gemini-2.5-flash",
+    model: resolveModel(),
     messages: messages.map(normalizeMessage),
   };
 
@@ -281,9 +320,6 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   }
 
   payload.max_tokens = 32768;
-  payload.thinking = {
-    budget_tokens: 128,
-  };
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,
@@ -300,14 +336,14 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
+      authorization: `Bearer ${resolveApiKey()}`,
     },
     body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`);
+    throw new Error(`LLM invoke failed: ${response.status} ${response.statusText} — ${errorText}`);
   }
 
   return (await response.json()) as InvokeResult;
