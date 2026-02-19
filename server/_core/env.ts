@@ -11,7 +11,9 @@ export const ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
 
   // Direct Gemini support — used when Forge keys are not set
+  // GEMINI_API_KEY_2 is a fallback key for when the primary hits daily quota
   geminiApiKey: process.env.GEMINI_API_KEY ?? "",
+  geminiApiKey2: process.env.GEMINI_API_KEY_2 ?? "",
 
   // Moonshot (Kimi) support
   moonshotApiKey: process.env.MOONSHOT_API_KEY ?? "",
