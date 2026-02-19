@@ -7,7 +7,7 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
-const STORAGE_KEY = "@moltbot_settings";
+const STORAGE_KEY = "@mist_settings";
 
 interface Settings {
   notifications: boolean;
@@ -93,7 +93,7 @@ export default function ProfileScreen() {
             >
               <Text className="text-4xl">🦀</Text>
             </View>
-            <Text className="text-xl font-bold text-foreground">moltbot</Text>
+            <Text className="text-xl font-bold text-foreground">MIST</Text>
             <Text className="text-sm text-muted mt-1">Your AI Assistant</Text>
           </View>
         </View>
@@ -219,7 +219,7 @@ export default function ProfileScreen() {
           </Text>
           <View className="bg-surface rounded-2xl p-4 border border-border">
             <Text className="text-sm text-foreground leading-relaxed">
-              moltbot is a personal AI assistant inspired by OpenClaw. It helps
+              MIST is your sovereign AI companion, built on OpenClaw. It helps
               you manage tasks, connect services, and automate your daily
               activities.
             </Text>

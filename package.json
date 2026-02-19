@@ -1,5 +1,5 @@
 {
-  "name": "moltbot",
+  "name": "mist",
   "version": "1.0.0",
   "private": true,
   "description": "MIST system app (Expo + API + Mycelium).",

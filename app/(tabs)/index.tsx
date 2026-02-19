@@ -24,7 +24,7 @@ interface Message {
   timestamp: number;
 }
 
-const STORAGE_KEY = "@moltbot_messages";
+const STORAGE_KEY = "@mist_messages";
 
 export default function ChatScreen() {
   const colors = useColors();
@@ -52,7 +52,7 @@ export default function ChatScreen() {
         // Add welcome message if no messages exist
         const welcomeMessage: Message = {
           id: Date.now().toString(),
-          text: "Hi! I'm moltbot, your personal AI assistant. How can I help you today?",
+          text: "Hi! I am MIST, your sovereign AI companion. How can I help you today?",
           sender: "ai",
           timestamp: Date.now(),
         };
@@ -135,7 +135,7 @@ export default function ChatScreen() {
       >
         {/* Header */}
         <View className="px-4 py-3 border-b border-border">
-          <Text className="text-2xl font-bold text-foreground">moltbot</Text>
+          <Text className="text-2xl font-bold text-foreground">MIST</Text>
           <Text className="text-sm text-muted">Your AI Assistant</Text>
         </View>
 
