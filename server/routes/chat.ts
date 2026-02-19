@@ -106,8 +106,17 @@ export const chatRouter = router({
         const errMsg =
           error instanceof Error ? error.message : "Unknown LLM error";
         console.error("[chat.send] LLM invocation failed:", errMsg);
+
+        // Give specific message for quota exhaustion so users know it's temporary
+        const isQuotaError =
+          errMsg.includes("QUOTA_EXHAUSTED") ||
+          (errMsg.includes("429") && errMsg.includes("quota"));
+        const userMessage = isQuotaError
+          ? "The resonance is resting — daily API quota reached. I'll be fully present again at midnight UTC. Try again in a few hours, or check back tomorrow."
+          : "I'm having trouble connecting to my deeper layers right now. The resonance is low — try again in a moment.";
+
         return {
-          text: "I'm having trouble connecting to my deeper layers right now. The resonance is low — try again in a moment.",
+          text: userMessage,
           sessionId,
           error: errMsg,
         };
