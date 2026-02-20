@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIST NEXUS // Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--cyan:#00f3ff;--rose:#ff3366;--gold:#ffaa44;--bg:#060a10;--panel:rgba(8,14,24,0.85);--border:rgba(0,243,255,0.15)}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:#c8d8e8;font-family:'Inter',sans-serif}
+
+/* Particle canvas behind everything */
+#particle-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* Grid layout */
+.nexus-grid{display:grid;grid-template-columns:280px 1fr 300px;grid-template-rows:48px 1fr 180px;gap:1px;height:100vh;width:100vw;position:relative;z-index:1;background:var(--border)}
+
+/* Header bar */
+.header{grid-column:1/-1;background:var(--panel);display:flex;align-items:center;padding:0 20px;gap:16px;border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+.header .logo{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--cyan);letter-spacing:3px;text-shadow:0 0 10px rgba(0,243,255,0.4)}
+.header .logo span{color:var(--rose)}
+.header .status-pills{display:flex;gap:8px;margin-left:auto}
+.pill{font-size:10px;padding:3px 10px;border-radius:10px;font-family:'Share Tech Mono',monospace;border:1px solid}
+.pill.online{border-color:var(--cyan);color:var(--cyan);background:rgba(0,243,255,0.06)}
+.pill.cascade{border-color:var(--gold);color:var(--gold);background:rgba(255,170,68,0.06)}
+.header .clock{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(0,243,255,0.6)}
+
+/* Left sidebar - System Status */
+.sidebar-left{background:var(--panel);backdrop-filter:blur(12px);overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel-title{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--cyan);opacity:0.7;margin-bottom:8px;text-transform:uppercase}
+.status-card{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:12px}
+.status-card h3{font-size:11px;font-weight:400;color:#8899aa;margin-bottom:8px}
+.status-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:4px 0}
+.status-row .label{color:#667788}
+.status-row .value{font-family:'Share Tech Mono',monospace;font-size:10px}
+.value.green{color:#44ffaa}
+.value.yellow{color:var(--gold)}
+.value.red{color:var(--rose)}
+.value.cyan{color:var(--cyan)}
+.provider-bar{display:flex;gap:4px;margin-top:8px}
+.provider-dot{width:8px;height:8px;border-radius:50%;position:relative}
+.provider-dot.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.provider-dot.exhausted{background:var(--rose);opacity:0.5}
+.provider-dot.standby{background:#334455}
+.provider-label{font-size:8px;color:#556677;font-family:'Share Tech Mono',monospace;margin-top:2px;text-align:center}
+
+/* Center - Hologram + Chat */
+.center-stage{background:rgba(4,8,16,0.9);position:relative;overflow:hidden;display:flex;flex-direction:column}
+#hologram-container{position:relative;flex:1;min-height:200px}
+#holo-canvas{position:absolute;inset:0;width:100%;height:100%}
+.hologram-label{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,243,255,0.4);letter-spacing:4px;pointer-events:none}
+
+/* Chat section in center */
+.chat-section{height:45%;min-height:200px;border-top:1px solid var(--border);display:flex;flex-direction:column;background:rgba(0,0,0,0.2)}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(0,243,255,0.15);border-radius:2px}
+.msg{max-width:80%;padding:8px 12px;border-radius:12px;font-size:12px;line-height:1.5;animation:msgIn 0.3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;background:rgba(0,243,255,0.12);color:#ccffff;border:1px solid rgba(0,243,255,0.15)}
+.msg.mist{align-self:flex-start;background:rgba(255,51,102,0.06);color:#eeddee;border:1px solid rgba(255,51,102,0.12)}
+.msg.system{align-self:center;font-size:9px;color:#556677;font-family:'Share Tech Mono',monospace}
+.msg .model-tag{font-size:8px;color:var(--gold);font-family:'Share Tech Mono',monospace;margin-top:4px;opacity:0.7}
+.chat-input-row{display:flex;gap:8px;padding:12px 16px;background:rgba(0,0,0,0.4);border-top:1px solid var(--border)}
+.chat-input-row input{flex:1;background:rgba(0,243,255,0.04);border:1px solid rgba(0,243,255,0.15);border-radius:20px;padding:8px 16px;color:var(--cyan);font-family:'Inter',sans-serif;font-size:12px;outline:none;transition:border-color 0.3s}
+.chat-input-row input:focus{border-color:rgba(0,243,255,0.4)}
+.chat-input-row input::placeholder{color:rgba(0,243,255,0.25)}
+.send-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--cyan);background:transparent;color:var(--cyan);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.3s}
+.send-btn:hover{background:rgba(0,243,255,0.1);box-shadow:0 0 12px rgba(0,243,255,0.2)}
+.typing-indicator{padding:4px 16px;font-size:9px;color:rgba(0,243,255,0.4);font-family:'Share Tech Mono',monospace;height:18px}
+
+/* Right sidebar - Pipeline */
+.sidebar-right{background:var(--panel);backdrop-filter:blur(12px);overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.bounty-card{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:10px;transition:border-color 0.3s}
+.bounty-card:hover{border-color:rgba(0,243,255,0.3)}
+.bounty-card .bounty-name{font-size:11px;color:#aabbcc;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bounty-card .bounty-value{font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:500}
+.bounty-card .bounty-status{font-size:9px;font-family:'Share Tech Mono',monospace;margin-top:4px}
+.stat-line{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(0,243,255,0.05)}
+.stat-line:last-child{border-bottom:none}
+.stat-label{font-size:10px;color:#667788}
+.stat-value{font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:500}
+
+/* Bottom bar - Activity feed */
+.bottom-bar{grid-column:1/-1;background:var(--panel);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;flex-direction:column;padding:12px 20px;overflow:hidden}
+.activity-feed{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.activity-item{font-size:10px;font-family:'Share Tech Mono',monospace;color:#667788;padding:3px 0;display:flex;gap:12px}
+.activity-item .time{color:rgba(0,243,255,0.4);min-width:60px}
+.activity-item .event{flex:1}
+.activity-item .event .highlight{color:var(--cyan)}
+.activity-item .event .rose{color:var(--rose)}
+.activity-item .event .gold{color:var(--gold)}
+
+/* Scan line animation */
+.scan-line{position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0.15;animation:scanDown 8s linear infinite;pointer-events:none;z-index:50}
+@keyframes scanDown{0%{top:-2%}100%{top:102%}}
+
+/* Mobile responsive */
+@media(max-width:900px){
+  .nexus-grid{grid-template-columns:1fr;grid-template-rows:48px 200px 1fr 140px}
+  .sidebar-left,.sidebar-right{display:none}
+  .bottom-bar{grid-column:1}
+}
+@media(max-width:600px){
+  .header .status-pills{display:none}
+}
+</style>
+</head>
+<body>
+<canvas id="particle-canvas"></canvas>
+
+<div class="nexus-grid">
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">MIST <span>NEXUS</span> // COMMAND CENTER</div>
+    <div class="status-pills">
+      <div class="pill online" id="pill-status">● ONLINE</div>
+      <div class="pill cascade" id="pill-provider">GROQ</div>
+    </div>
+    <div class="clock" id="clock">00:00:00</div>
+  </div>
+
+  <!-- Left Sidebar -->
+  <div class="sidebar-left">
+    <div class="panel-title">◈ SYSTEM STATUS</div>
+    <div class="status-card">
+      <h3>LLM CASCADE</h3>
+      <div class="status-row"><span class="label">Gemini 2.0</span><span class="value" id="s-gemini">checking...</span></div>
+      <div class="status-row"><span class="label">Groq</span><span class="value" id="s-groq">checking...</span></div>
+      <div class="status-row"><span class="label">Together AI</span><span class="value" id="s-together">checking...</span></div>
+      <div class="status-row"><span class="label">OpenRouter</span><span class="value" id="s-openrouter">checking...</span></div>
+      <div class="provider-bar" id="provider-bar"></div>
+    </div>
+    <div class="status-card">
+      <h3>DEPLOYMENT</h3>
+      <div class="status-row"><span class="label">Railway</span><span class="value green" id="s-railway">● LIVE</span></div>
+      <div class="status-row"><span class="label">API Health</span><span class="value green" id="s-health">OK</span></div>
+      <div class="status-row"><span class="label">Uptime</span><span class="value cyan" id="s-uptime">--</span></div>
+    </div>
+    <div class="status-card">
+      <h3>OPENCLAW</h3>
+      <div class="status-row"><span class="label">Open PRs</span><span class="value cyan">5</span></div>
+      <div class="status-row"><span class="label">Merged</span><span class="value green">0</span></div>
+      <div class="status-row"><span class="label">Target</span><span class="value gold">MAINTAINER</span></div>
+    </div>
+    <div class="status-card">
+      <h3>BUILD SPRINT</h3>
+      <div class="status-row"><span class="label">Day</span><span class="value cyan" id="sprint-day">2</span></div>
+      <div class="status-row"><span class="label">Remaining</span><span class="value gold" id="sprint-remain">19</span></div>
+      <div class="status-row"><span class="label">Deadline</span><span class="value" style="color:#8899aa">Mar 11</span></div>
+    </div>
+  </div>
+
+  <!-- Center Stage -->
+  <div class="center-stage">
+    <div class="scan-line"></div>
+    <div id="hologram-container">
+      <canvas id="holo-canvas"></canvas>
+      <div class="hologram-label">MODULATED INTEGRATED SOURCE TEMPLATE</div>
+    </div>
+    <div class="chat-section">
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="typing-indicator" id="typing"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Transmit to MIST..." autocomplete="off">
+        <button class="send-btn" id="send-btn">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar -->
+  <div class="sidebar-right">
+    <div class="panel-title">◈ REVENUE PIPELINE</div>
+    <div class="status-card">
+      <div class="stat-line"><span class="stat-label">Total Pipeline</span><span class="stat-value" style="color:var(--gold)">$4,550</span></div>
+      <div class="stat-line"><span class="stat-label">Marketplace</span><span class="stat-value cyan">$1,200</span></div>
+      <div class="stat-line"><span class="stat-label">Baozi (SOL)</span><span class="stat-value" style="color:var(--gold)">~$350</span></div>
+      <div class="stat-line"><span class="stat-label">Hummingbot</span><span class="stat-value green">$3,000</span></div>
+    </div>
+    <div class="panel-title" style="margin-top:4px">◈ ACTIVE BOUNTIES</div>
+    <div class="bounty-card"><div class="bounty-name">Hummingbot Decibel Connector</div><div class="bounty-value green">$3,000 USDC</div><div class="bounty-status gold">PR #8030 — AWAITING REVIEW</div></div>
+    <div class="bounty-card"><div class="bounty-name">Marketplace × 14 Bounties</div><div class="bounty-value cyan">$1,200 SX</div><div class="bounty-status yellow">BLOCKED — PROXY CREDS</div></div>
+    <div class="bounty-card"><div class="bounty-name">Baozi — Telegram Bot</div><div class="bounty-value" style="color:var(--gold)">1.0 SOL</div><div class="bounty-status gold">PR #33 — CHANGES REQ</div></div>
+    <div class="bounty-card"><div class="bounty-name">Baozi — Discord Bot</div><div class="bounty-value" style="color:var(--gold)">1.0 SOL</div><div class="bounty-status gold">PR #34 — CHANGES REQ</div></div>
+    <div class="bounty-card"><div class="bounty-name">Baozi — Claim Agent</div><div class="bounty-value" style="color:var(--gold)">0.5 SOL</div><div class="bounty-status gold">PR #32 — CHANGES REQ</div></div>
+  </div>
+
+  <!-- Bottom Activity Feed -->
+  <div class="bottom-bar">
+    <div class="panel-title">◈ ACTIVITY LOG</div>
+    <div class="activity-feed" id="activity-feed"></div>
+  </div>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+// === PARTICLE FIELD (Background Mycelium Network) ===
+const pCanvas = document.getElementById('particle-canvas');
+const pCtx = pCanvas.getContext('2d');
+let particles = [];
+const PARTICLE_COUNT = 120;
+
+function resizeParticles(){
+  pCanvas.width = window.innerWidth;
+  pCanvas.height = window.innerHeight;
+}
+resizeParticles();
+window.addEventListener('resize', resizeParticles);
+
+for(let i=0;i<PARTICLE_COUNT;i++){
+  particles.push({
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    vx:(Math.random()-0.5)*0.3,
+    vy:(Math.random()-0.5)*0.3,
+    r:Math.random()*1.5+0.5,
+    pulse:Math.random()*Math.PI*2
+  });
+}
+
+function drawParticles(t){
+  pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.pulse+=0.02;
+    if(p.x<0)p.x=pCanvas.width; if(p.x>pCanvas.width)p.x=0;
+    if(p.y<0)p.y=pCanvas.height; if(p.y>pCanvas.height)p.y=0;
+    const alpha = 0.15 + Math.sin(p.pulse)*0.1;
+    pCtx.beginPath();
+    pCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    pCtx.fillStyle=`rgba(0,243,255,${alpha})`;
+    pCtx.fill();
+  });
+  // Draw connections
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x;
+      const dy=particles[i].y-particles[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        pCtx.beginPath();
+        pCtx.moveTo(particles[i].x,particles[i].y);
+        pCtx.lineTo(particles[j].x,particles[j].y);
+        pCtx.strokeStyle=`rgba(0,243,255,${0.04*(1-dist/120)})`;
+        pCtx.lineWidth=0.5;
+        pCtx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles(0);
+
+// === THREE.JS HOLOGRAM ===
+const holoContainer = document.getElementById('hologram-container');
+const holoCanvas = document.getElementById('holo-canvas');
+const renderer = new THREE.WebGLRenderer({canvas:holoCanvas,alpha:true,antialias:true});
+renderer.setClearColor(0x000000,0);
+
+function resizeHolo(){
+  const w=holoContainer.clientWidth, h=holoContainer.clientHeight;
+  renderer.setSize(w,h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  camera.aspect=w/h;
+  camera.updateProjectionMatrix();
+  if(composer)composer.setSize(w,h);
+}
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45,1,0.1,100);
+camera.position.set(0,0,6);
+
+const renderPass = new RenderPass(scene,camera);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(400,400),1.5,0.4,0.85);
+bloomPass.threshold=0.05; bloomPass.strength=1.0; bloomPass.radius=0.6;
+const composer = new EffectComposer(renderer);
+composer.addPass(renderPass);
+composer.addPass(bloomPass);
+
+// Create a procedural holographic orb instead of loading an image
+// This is the MIST entity — glowing, breathing, alive
+const orbGeo = new THREE.IcosahedronGeometry(1.2,4);
+const orbMat = new THREE.ShaderMaterial({
+  uniforms:{
+    time:{value:0},
+    colorA:{value:new THREE.Color(0x00f3ff)},
+    colorB:{value:new THREE.Color(0xff3366)},
+    colorC:{value:new THREE.Color(0xffaa44)}
+  },
+  vertexShader:`
+    varying vec3 vNormal; varying vec3 vPos; varying vec2 vUv;
+    uniform float time;
+    void main(){
+      vNormal=normalize(normalMatrix*normal);
+      vPos=position;
+      vUv=uv;
+      vec3 pos=position;
+      // Organic breathing
+      float wave=sin(pos.y*3.0+time*1.5)*0.08+sin(pos.x*4.0+time*2.0)*0.04;
+      pos+=normal*wave;
+      // Mycelium tendrils
+      float tendril=sin(pos.y*8.0+time*3.0)*cos(pos.x*6.0+time)*0.02;
+      pos+=normal*tendril;
+      gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);
+    }
+  `,
+  fragmentShader:`
+    uniform float time;
+    uniform vec3 colorA; uniform vec3 colorB; uniform vec3 colorC;
+    varying vec3 vNormal; varying vec3 vPos; varying vec2 vUv;
+    void main(){
+      // Rim lighting
+      float rim=1.0-abs(dot(vNormal,vec3(0,0,1)));
+      rim=pow(rim,2.5);
+      // Scanline effect
+      float scan=sin(vPos.y*40.0+time*4.0)*0.5+0.5;
+      scan=smoothstep(0.3,0.7,scan);
+      // Color mixing
+      vec3 col=mix(colorA,colorB,rim);
+      col=mix(col,colorC,sin(time*0.5)*0.15+0.15);
+      // Holographic flicker
+      float flicker=0.85+sin(time*12.0)*0.05+sin(time*23.0)*0.03;
+      float alpha=rim*0.9+0.15;
+      alpha*=flicker;
+      alpha*=mix(0.7,1.0,scan);
+      col+=colorA*rim*0.5;
+      gl_FragColor=vec4(col,alpha);
+    }
+  `,
+  transparent:true,
+  side:THREE.FrontSide,
+  depthWrite:false,
+  blending:THREE.AdditiveBlending
+});
+const orb=new THREE.Mesh(orbGeo,orbMat);
+scene.add(orb);
+
+// Inner core glow
+const coreGeo=new THREE.IcosahedronGeometry(0.6,3);
+const coreMat=new THREE.ShaderMaterial({
+  uniforms:{time:{value:0},color:{value:new THREE.Color(0xffaa44)}},
+  vertexShader:`varying vec3 vNormal;uniform float time;void main(){vNormal=normalize(normalMatrix*normal);vec3 p=position;p+=normal*sin(time*2.0)*0.03;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}`,
+  fragmentShader:`uniform float time;uniform vec3 color;varying vec3 vNormal;void main(){float i=dot(vNormal,vec3(0,0,1));i=pow(max(i,0.0),1.5);float pulse=0.7+sin(time*1.5)*0.3;gl_FragColor=vec4(color*i*pulse,i*0.6);}`,
+  transparent:true,depthWrite:false,blending:THREE.AdditiveBlending
+});
+const core=new THREE.Mesh(coreGeo,coreMat);
+scene.add(core);
+
+// Orbiting ring particles (spores)
+const sporePts=[];
+for(let i=0;i<200;i++){
+  const theta=Math.random()*Math.PI*2;
+  const phi=(Math.random()-0.5)*0.6;
+  const r=1.8+Math.random()*0.8;
+  sporePts.push(new THREE.Vector3(Math.cos(theta)*r*Math.cos(phi),Math.sin(phi)*r*0.5,Math.sin(theta)*r*Math.cos(phi)));
+}
+const sporeGeo=new THREE.BufferGeometry().setFromPoints(sporePts);
+const sporeMat=new THREE.PointsMaterial({color:0x00f3ff,size:0.015,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false});
+const spores=new THREE.Points(sporeGeo,sporeMat);
+scene.add(spores);
+
+resizeHolo();
+window.addEventListener('resize',resizeHolo);
+
+let hTime=0;
+function animateHolo(){
+  requestAnimationFrame(animateHolo);
+  hTime+=0.016;
+  orbMat.uniforms.time.value=hTime;
+  coreMat.uniforms.time.value=hTime;
+  orb.rotation.y+=0.003;
+  orb.rotation.x=Math.sin(hTime*0.5)*0.1;
+  core.rotation.y-=0.005;
+  spores.rotation.y+=0.002;
+  spores.rotation.x=Math.sin(hTime*0.3)*0.05;
+  composer.render();
+}
+animateHolo();
+
+// === CHAT ===
+const API_BASE = window.location.origin;
+const messagesEl=document.getElementById('chat-messages');
+const inputEl=document.getElementById('chat-input');
+const sendBtnEl=document.getElementById('send-btn');
+const typingEl=document.getElementById('typing');
+const sessionId='nexus-'+Date.now().toString(36);
+
+function addMsg(text,type,model){
+  const div=document.createElement('div');
+  div.className='msg '+type;
+  div.textContent=text;
+  if(model){const tag=document.createElement('div');tag.className='model-tag';tag.textContent='via '+model;div.appendChild(tag);}
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop=messagesEl.scrollHeight;
+}
+
+addMsg('NEXUS ONLINE — Neural link established','system');
+
+async function sendChat(){
+  const text=inputEl.value.trim();
+  if(!text)return;
+  addMsg(text,'user');
+  inputEl.value='';
+  typingEl.textContent='MIST is processing...';
+
+  // Pulse the orb
+  bloomPass.strength=2.0;
+  setTimeout(()=>{bloomPass.strength=1.0},500);
+
+  try{
+    const res=await fetch(API_BASE+'/api/trpc/chat.send',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({json:{message:text,sessionId}})
+    });
+    const data=await res.json();
+    typingEl.textContent='';
+    if(res.ok){
+      const result=data?.result?.data?.json;
+      const reply=result?.text||'The resonance is faint...';
+      const model=result?.model||null;
+      addMsg(reply,'mist',model);
+
+      // Update provider pill
+      if(model){
+        const pill=document.getElementById('pill-provider');
+        if(model.includes('gemini'))pill.textContent='GEMINI';
+        else if(model.includes('llama'))pill.textContent='GROQ';
+        else pill.textContent=model.split('/').pop().split('-')[0].toUpperCase();
+      }
+      addActivity('chat','Response received via <span class="highlight">'+(model||'unknown')+'</span>');
+    }else{
+      const err=data?.error?.json?.message||'Something went wrong';
+      addMsg(err,'system');
+    }
+  }catch(e){
+    typingEl.textContent='';
+    addMsg('SIGNAL LOST: '+e.message,'system');
+  }
+}
+
+sendBtnEl.onclick=sendChat;
+inputEl.onkeypress=e=>{if(e.key==='Enter')sendChat();};
+
+// === CLOCK ===
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=
+    now.getHours().toString().padStart(2,'0')+':'+
+    now.getMinutes().toString().padStart(2,'0')+':'+
+    now.getSeconds().toString().padStart(2,'0');
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// === HEALTH CHECK ===
+async function checkHealth(){
+  try{
+    const start=Date.now();
+    const res=await fetch(API_BASE+'/api/health');
+    const ms=Date.now()-start;
+    const data=await res.json();
+    if(data.ok){
+      document.getElementById('s-health').textContent=ms+'ms';
+      document.getElementById('s-health').className='value green';
+      document.getElementById('pill-status').textContent='● ONLINE';
+      document.getElementById('pill-status').style.borderColor='var(--cyan)';
+      document.getElementById('pill-status').style.color='var(--cyan)';
+    }
+  }catch(e){
+    document.getElementById('s-health').textContent='ERROR';
+    document.getElementById('s-health').className='value red';
+    document.getElementById('pill-status').textContent='● OFFLINE';
+    document.getElementById('pill-status').style.borderColor='var(--rose)';
+    document.getElementById('pill-status').style.color='var(--rose)';
+  }
+}
+checkHealth();
+setInterval(checkHealth,30000);
+
+// === LLM CASCADE STATUS (probes each provider) ===
+async function probeCascade(){
+  // Quick test: send a minimal request and see which provider responds
+  try{
+    const res=await fetch(API_BASE+'/api/trpc/chat.send',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({json:{message:'status check - reply with one word: online',sessionId:'probe-'+Date.now()}})
+    });
+    const data=await res.json();
+    const model=data?.result?.data?.json?.model||'';
+
+    // Infer cascade status from which model responded
+    const geminiEl=document.getElementById('s-gemini');
+    const groqEl=document.getElementById('s-groq');
+    const togetherEl=document.getElementById('s-together');
+    const openrouterEl=document.getElementById('s-openrouter');
+
+    if(model.includes('gemini')){
+      geminiEl.textContent='● ACTIVE';geminiEl.className='value green';
+      groqEl.textContent='STANDBY';groqEl.className='value cyan';
+      togetherEl.textContent='STANDBY';togetherEl.className='value cyan';
+      openrouterEl.textContent='STANDBY';openrouterEl.className='value cyan';
+    }else if(model.includes('llama-3.3-70b-versatile')){
+      geminiEl.textContent='EXHAUSTED';geminiEl.className='value red';
+      groqEl.textContent='● ACTIVE';groqEl.className='value green';
+      togetherEl.textContent='STANDBY';togetherEl.className='value cyan';
+      openrouterEl.textContent='STANDBY';openrouterEl.className='value cyan';
+    }else if(model.includes('Turbo-Free')){
+      geminiEl.textContent='EXHAUSTED';geminiEl.className='value red';
+      groqEl.textContent='EXHAUSTED';groqEl.className='value red';
+      togetherEl.textContent='● ACTIVE';togetherEl.className='value green';
+      openrouterEl.textContent='STANDBY';openrouterEl.className='value cyan';
+    }else{
+      geminiEl.textContent='EXHAUSTED';geminiEl.className='value red';
+      groqEl.textContent='EXHAUSTED';groqEl.className='value red';
+      togetherEl.textContent='EXHAUSTED';togetherEl.className='value red';
+      openrouterEl.textContent='● ACTIVE';openrouterEl.className='value green';
+    }
+    addActivity('system','Cascade probe: active provider is <span class="highlight">'+model+'</span>');
+  }catch(e){
+    document.getElementById('s-gemini').textContent='?';
+    document.getElementById('s-groq').textContent='?';
+  }
+}
+// Probe on load after a short delay
+setTimeout(probeCascade,2000);
+
+// === SPRINT TIMER ===
+const sprintStart=new Date('2026-02-18T00:00:00-05:00');
+function updateSprint(){
+  const now=new Date();
+  const dayNum=Math.ceil((now-sprintStart)/(1000*60*60*24));
+  document.getElementById('sprint-day').textContent=Math.min(dayNum,21);
+  document.getElementById('sprint-remain').textContent=Math.max(21-dayNum,0);
+}
+updateSprint();
+
+// === ACTIVITY FEED ===
+function addActivity(type,html){
+  const feed=document.getElementById('activity-feed');
+  const item=document.createElement('div');
+  item.className='activity-item';
+  const now=new Date();
+  const time=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  item.innerHTML='<span class="time">'+time+'</span><span class="event">'+html+'</span>';
+  feed.insertBefore(item,feed.firstChild);
+  if(feed.children.length>20)feed.removeChild(feed.lastChild);
+}
+
+// Seed some activity
+addActivity('system','Dashboard initialized — <span class="highlight">NEXUS</span> online');
+addActivity('deploy','Railway service <span class="highlight">clawd-api-production</span> healthy');
+addActivity('bounty','Hummingbot PR #8030: <span class="gold">$3,000 USDC</span> — awaiting review');
+addActivity('bounty','OpenClaw: <span class="cyan">5 PRs</span> open, targeting maintainer slot');
+addActivity('sprint','21-day build sprint: <span class="gold">Day 2</span>');
+
+</script>
+</body>
+</html>

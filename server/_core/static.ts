@@ -4,31 +4,37 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 /**
- * Serve static files and the /chat web UI.
+ * Serve static files and web UIs.
  * Call this after tRPC middleware is mounted.
  */
 export function mountStaticRoutes(app: express.Application) {
-  // Resolve public dir relative to this file (server/_core/static.ts -> ../../public)
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const publicDir = path.resolve(__dirname, '../../public');
-  const chatFile = path.join(publicDir, 'chat.html');
 
-  // Serve /chat -> public/chat.html
-  app.get('/chat', (_req, res) => {
-    if (fs.existsSync(chatFile)) {
-      res.sendFile(chatFile);
+  function servePublicFile(filename: string, res: express.Response) {
+    const filePath = path.join(publicDir, filename);
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
     } else {
-      // Fallback: try cwd-based path
-      const cwdPath = path.resolve(process.cwd(), 'public', 'chat.html');
+      const cwdPath = path.resolve(process.cwd(), 'public', filename);
       if (fs.existsSync(cwdPath)) {
         res.sendFile(cwdPath);
       } else {
-        res.status(404).send('Chat UI not found. Searched: ' + chatFile + ' and ' + cwdPath);
+        res.status(404).send(`UI not found. Searched: ${filePath} and ${cwdPath}`);
       }
     }
-  });
+  }
 
-  // Serve any other static assets from public/
+  // /chat -> simple chat UI
+  app.get('/chat', (_req, res) => servePublicFile('chat.html', res));
+
+  // /nexus -> MIST Nexus command center dashboard
+  app.get('/nexus', (_req, res) => servePublicFile('nexus.html', res));
+
+  // / -> redirect to nexus (main entry point)
+  app.get('/', (_req, res) => res.redirect('/nexus'));
+
+  // Static assets
   app.use('/public', express.static(publicDir));
 }
