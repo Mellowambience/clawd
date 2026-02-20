@@ -22,12 +22,25 @@ function isLocalOrigin(origin: string): boolean {
   }
 }
 
-function isAllowedOrigin(origin?: string): boolean {
+function isSameOriginOrTrusted(origin: string, host?: string): boolean {
+  try {
+    const originUrl = new URL(origin);
+    // Allow same-origin (the /chat page talking to /api/trpc on same domain)
+    if (host && originUrl.host === host) return true;
+    // Allow Railway domains
+    if (originUrl.hostname.endsWith(".up.railway.app")) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+function isAllowedOrigin(origin: string | undefined, host: string | undefined): boolean {
   if (!origin) return true;
   if (allowedOrigins.length > 0) {
     return allowedOrigins.includes(origin);
   }
-  return isLocalOrigin(origin);
+  return isLocalOrigin(origin) || isSameOriginOrTrusted(origin, host);
 }
 
 
@@ -57,7 +70,8 @@ async function startServer() {
   // Enable CORS for all routes - reflect the request origin to support credentials
   app.use((req, res, next) => {
     const origin = req.headers.origin;
-    if (origin && !isAllowedOrigin(origin)) {
+    const host = req.headers.host;
+    if (origin && !isAllowedOrigin(origin, host)) {
       res.status(403).json({ error: "CORS origin denied" });
       return;
     }
