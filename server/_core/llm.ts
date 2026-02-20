@@ -201,73 +201,95 @@ const normalizeToolChoice = (
   return toolChoice;
 };
 
+// ─── Provider Definitions ──────────────────────────────────────────────────────
+// Each provider in the cascade is defined with its URL, key(s), model, and name.
+// On 429/quota errors, the system automatically falls through to the next provider.
+
+type Provider = {
+  name: string;
+  url: string;
+  keys: string[];
+  model: string;
+  extraHeaders?: Record<string, string>;
+};
+
 /**
- * Resolve the LLM API endpoint.
- * Priority:
- *   1. BUILT_IN_FORGE_API_URL (custom Forge/Manus endpoint)
- *   2. MOONSHOT_API_KEY → Moonshot (Kimi) endpoint
- *   3. GEMINI_API_KEY → Google's OpenAI-compatible endpoint
- *   4. Default Forge endpoint (forge.manus.im)
+ * Build the ordered provider cascade.
+ * Priority: Gemini (2-key rotation) → Groq → Together AI → OpenRouter → Forge/Manus
+ * Only providers with at least one valid key are included.
  */
-const resolveApiUrl = () => {
-  if (ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0) {
-    return `${ENV.forgeApiUrl.replace(/\/+$/, "")}/v1/chat/completions`;
+const buildProviderCascade = (): Provider[] => {
+  const providers: Provider[] = [];
+
+  // 1. Gemini — primary provider, supports 2-key rotation on 429
+  const geminiKeys = [ENV.geminiApiKey, ENV.geminiApiKey2].filter((k) => k && k.trim().length > 0);
+  if (geminiKeys.length > 0) {
+    providers.push({
+      name: "Gemini",
+      url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+      keys: geminiKeys,
+      model: "gemini-2.0-flash",
+    });
   }
+
+  // 2. Groq — Llama 3.3 70B Versatile, free tier (30 RPM / 100K TPD)
+  if (ENV.groqApiKey && ENV.groqApiKey.trim().length > 0) {
+    providers.push({
+      name: "Groq",
+      url: "https://api.groq.com/openai/v1/chat/completions",
+      keys: [ENV.groqApiKey],
+      model: "llama-3.3-70b-versatile",
+    });
+  }
+
+  // 3. Together AI — Llama 3.3 70B Instruct Turbo (free variant)
+  if (ENV.togetherApiKey && ENV.togetherApiKey.trim().length > 0) {
+    providers.push({
+      name: "Together AI",
+      url: "https://api.together.xyz/v1/chat/completions",
+      keys: [ENV.togetherApiKey],
+      model: "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+    });
+  }
+
+  // 4. OpenRouter — Llama 3.3 70B Instruct (free variant)
+  if (ENV.openrouterApiKey && ENV.openrouterApiKey.trim().length > 0) {
+    providers.push({
+      name: "OpenRouter",
+      url: "https://openrouter.ai/api/v1/chat/completions",
+      keys: [ENV.openrouterApiKey],
+      model: "meta-llama/llama-3.3-70b-instruct:free",
+      extraHeaders: {
+        "HTTP-Referer": "https://github.com/Mellowambience/clawd",
+        "X-Title": "MIST",
+      },
+    });
+  }
+
+  // 5. Moonshot (Kimi) — legacy, kept for backward compatibility
   if (ENV.moonshotApiKey && ENV.moonshotApiKey.trim().length > 0) {
-    return "https://api.moonshot.cn/v1/chat/completions";
+    providers.push({
+      name: "Moonshot",
+      url: "https://api.moonshot.cn/v1/chat/completions",
+      keys: [ENV.moonshotApiKey],
+      model: "moonshot-v1-8k",
+    });
   }
-  if (ENV.geminiApiKey && ENV.geminiApiKey.trim().length > 0) {
-    return "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-  }
-  return "https://forge.manus.im/v1/chat/completions";
-};
 
-/**
- * Get all available Gemini API keys (primary + fallback).
- * Returns keys in priority order, skipping empty ones.
- */
-const getGeminiKeys = (): string[] => {
-  return [ENV.geminiApiKey, ENV.geminiApiKey2].filter((k) => k && k.trim().length > 0);
-};
-
-/**
- * Resolve the API key for the chosen provider.
- */
-const resolveApiKey = (): string => {
+  // 6. Forge/Manus — ultimate fallback
   if (ENV.forgeApiKey && ENV.forgeApiKey.trim().length > 0) {
-    return ENV.forgeApiKey;
+    const baseUrl = ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
+      ? ENV.forgeApiUrl.replace(/\/+$/, "")
+      : "https://forge.manus.im";
+    providers.push({
+      name: "Forge",
+      url: `${baseUrl}/v1/chat/completions`,
+      keys: [ENV.forgeApiKey],
+      model: "gemini-2.5-flash",
+    });
   }
-  if (ENV.moonshotApiKey && ENV.moonshotApiKey.trim().length > 0) {
-    return ENV.moonshotApiKey;
-  }
-  if (ENV.geminiApiKey && ENV.geminiApiKey.trim().length > 0) {
-    return ENV.geminiApiKey;
-  }
-  return "";
-};
 
-const assertApiKey = () => {
-  const key = resolveApiKey();
-  if (!key) {
-    throw new Error(
-      "No LLM API key configured. Set MOONSHOT_API_KEY, GEMINI_API_KEY or BUILT_IN_FORGE_API_KEY.",
-    );
-  }
-};
-
-/**
- * Resolve the model name for the chosen provider.
- */
-const resolveModel = (): string => {
-  // If using Moonshot directly
-  if (!ENV.forgeApiKey && ENV.moonshotApiKey) {
-    return "moonshot-v1-8k";
-  }
-  // If using Gemini directly
-  if (!ENV.forgeApiKey && ENV.geminiApiKey) {
-    return "gemini-2.0-flash";
-  }
-  return "gemini-2.5-flash";
+  return providers;
 };
 
 const normalizeResponseFormat = ({
@@ -311,10 +333,21 @@ const normalizeResponseFormat = ({
 };
 
 /**
- * Invoke the LLM API. Supports automatic key rotation for Gemini 429 quota errors.
+ * Invoke the LLM API with automatic provider cascade.
+ *
+ * On 429/quota errors, automatically falls through to the next provider.
+ * Gemini supports multi-key rotation within its own provider entry.
+ *
+ * Cascade order: Gemini → Groq → Together AI → OpenRouter → Moonshot → Forge
  */
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
-  assertApiKey();
+  const providers = buildProviderCascade();
+
+  if (providers.length === 0) {
+    throw new Error(
+      "No LLM API key configured. Set GEMINI_API_KEY, GROQ_API_KEY, TOGETHER_API_KEY, OPENROUTER_API_KEY, or BUILT_IN_FORGE_API_KEY.",
+    );
+  }
 
   const {
     messages,
@@ -327,21 +360,9 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     response_format,
   } = params;
 
-  const payload: Record<string, unknown> = {
-    model: resolveModel(),
-    messages: messages.map(normalizeMessage),
-  };
-
-  if (tools && tools.length > 0) {
-    payload.tools = tools;
-  }
+  const normalizedMessages = messages.map(normalizeMessage);
 
   const normalizedToolChoice = normalizeToolChoice(toolChoice || tool_choice, tools);
-  if (normalizedToolChoice) {
-    payload.tool_choice = normalizedToolChoice;
-  }
-
-  payload.max_tokens = 32768;
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,
@@ -350,47 +371,79 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     output_schema,
   });
 
-  if (normalizedResponseFormat) {
-    payload.response_format = normalizedResponseFormat;
-  }
-
-  const apiUrl = resolveApiUrl();
-  const isGemini = apiUrl.includes("googleapis.com");
-
-  // For Gemini, try all available keys in sequence on 429 (quota exhausted)
-  const keysToTry = isGemini ? getGeminiKeys() : [resolveApiKey()];
-
   let lastError: Error | undefined;
-  for (const apiKey of keysToTry) {
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(payload),
-    });
 
-    if (response.ok) {
-      return (await response.json()) as InvokeResult;
+  for (const provider of providers) {
+    // Try each key for this provider (Gemini has 2, others have 1)
+    for (const apiKey of provider.keys) {
+      const payload: Record<string, unknown> = {
+        model: provider.model,
+        messages: normalizedMessages,
+      };
+
+      if (tools && tools.length > 0) {
+        payload.tools = tools;
+      }
+
+      if (normalizedToolChoice) {
+        payload.tool_choice = normalizedToolChoice;
+      }
+
+      payload.max_tokens = 32768;
+
+      if (normalizedResponseFormat) {
+        payload.response_format = normalizedResponseFormat;
+      }
+
+      try {
+        const headers: Record<string, string> = {
+          "content-type": "application/json",
+          authorization: `Bearer ${apiKey}`,
+          ...(provider.extraHeaders ?? {}),
+        };
+
+        const response = await fetch(provider.url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          const result = (await response.json()) as InvokeResult;
+          // Log which provider served the request (useful for debugging)
+          console.log(`[llm] ${provider.name} (${provider.model}) — OK`);
+          return result;
+        }
+
+        const errorText = await response.text();
+        const is429 = response.status === 429;
+        const isQuotaError = is429 || response.status === 503;
+
+        lastError = new Error(
+          `[llm] ${provider.name} failed: ${response.status} ${response.statusText} — ${errorText}`,
+        );
+
+        if (isQuotaError) {
+          console.warn(
+            `[llm] ${provider.name} quota exhausted (${response.status}), trying next...`,
+          );
+          continue; // Try next key or next provider
+        }
+
+        // Non-quota error — still cascade to next provider
+        // (auth errors, bad request, etc. might be provider-specific)
+        console.warn(
+          `[llm] ${provider.name} error (${response.status}), cascading...`,
+        );
+        break; // Skip remaining keys for this provider, try next provider
+      } catch (err) {
+        // Network error — cascade to next provider
+        lastError = err instanceof Error ? err : new Error(String(err));
+        console.warn(`[llm] ${provider.name} network error: ${lastError.message}`);
+        break;
+      }
     }
-
-    const errorText = await response.text();
-    const is429 = response.status === 429;
-
-    // On 429, try the next key if available
-    if (is429 && keysToTry.length > 1) {
-      lastError = new Error(`LLM invoke failed: ${response.status} ${response.statusText} — ${errorText}`);
-      continue;
-    }
-
-    // Surface quota errors with a clear message
-    if (is429) {
-      throw new Error(`QUOTA_EXHAUSTED: ${response.status} ${response.statusText} — ${errorText}`);
-    }
-
-    throw new Error(`LLM invoke failed: ${response.status} ${response.statusText} — ${errorText}`);
   }
 
-  throw lastError ?? new Error("LLM invoke failed: all keys exhausted");
+  throw lastError ?? new Error("LLM invoke failed: all providers exhausted");
 }

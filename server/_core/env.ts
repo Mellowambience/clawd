@@ -17,4 +17,9 @@ export const ENV = {
 
   // Moonshot (Kimi) support
   moonshotApiKey: process.env.MOONSHOT_API_KEY ?? "",
+
+  // Fallback LLM providers — cascade on quota exhaustion
+  groqApiKey: process.env.GROQ_API_KEY ?? "",
+  togetherApiKey: process.env.TOGETHER_API_KEY ?? "",
+  openrouterApiKey: process.env.OPENROUTER_API_KEY ?? "",
 };
