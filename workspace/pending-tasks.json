@@ -6,5 +6,25 @@
         "status": "pending",
         "created_at": "2026-02-24T12:43:00-05:00",
         "source": "surething"
+    },
+    {
+        "id": "task-1771962776001",
+        "title": "Issue #4: Build Persona Persistence Layer (memory graph)",
+        "type": "manual",
+        "priority": "1-first",
+        "status": "pending",
+        "created_at": "2026-02-24T19:52:56Z",
+        "source": "surething",
+        "instructions": "Build packages/core/memory/ with:\n1. SQLite schema using better-sqlite3 — tables: entities, relationships, context_notes\n2. MemoryGraph class with remember(note: string), recall(topic: string), extractEntities(text: string) — regex/keyword matching only, no LLM call\n3. In serve_mist.js chat handler, run extractEntities(userMessage) each turn and inject compact context block into system prompt\n4. Expose mist.remember and mist.recall as the first two MISTTools (bridges into Issue #2)\n5. Skip Supabase sync — local SQLite only, offline-first\nStorage path: workspace/mist-memory.db\nBranch: mist/work → commit → push → merge to main\nReference: https://github.com/Mellowambiences/clawd/issues/4"
+    },
+    {
+        "id": "task-1771962776002",
+        "title": "Issue #2: Build MISTTool plugin interface and registry",
+        "type": "manual",
+        "priority": "2-after-issue-4",
+        "status": "pending",
+        "created_at": "2026-02-24T19:52:56Z",
+        "source": "surething",
+        "instructions": "Build packages/core/tools/ with:\n1. MISTTool interface and MISTToolResult type as defined in the issue\n2. mistToolRegistry singleton — register(), list(), execute()\n3. toGeminiFunctionSpec() — serializes registered tools into Gemini function-calling format (build even though Gemini is inactive)\n4. First tool: weather.current via Open-Meteo (no API key needed)\n5. Second + third tools: mist.remember and mist.recall — import from memory graph built in Issue #4\n6. In serve_mist.js chat handler: if tool name appears in LLM response, call mistToolRegistry.execute() and append result to next turn\nDo Issue #4 FIRST before this one.\nBranch: mist/work → commit → push → merge to main\nReference: https://github.com/Mellowambiences/clawd/issues/2"
     }
 ]
