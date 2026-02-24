@@ -1,0 +1,7 @@
+SOUL.md
+aether_os/antigravity-mist.json
+mist_chat.html
+workspace/
+.env
+serve_mist.js
+AGENTS.md
