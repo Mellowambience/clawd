@@ -1,65 +1,64 @@
-const http = require('http');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 
+const app = express();
 const PORT = 3333;
 const DIR = __dirname;
 
-const MIME_TYPES = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'text/javascript',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.svg': 'image/svg+xml'
-};
+// Use Express's existing json middleware
+app.use(express.json());
 
-const server = http.createServer((req, res) => {
-    if (req.method === 'POST' && req.url === '/api/task') {
-        let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
-        req.on('end', async () => {
-            try {
-                const newTask = JSON.parse(body);
-                const tasksPath = path.join(DIR, '..', 'workspace', 'pending-tasks.json');
-                const tasks = JSON.parse(fs.readFileSync(tasksPath, 'utf8'));
-                tasks.push(newTask);
-                fs.writeFileSync(tasksPath, JSON.stringify(tasks, null, 2));
-
-                const { exec } = require('child_process');
-                exec('node aether_os/skills/heartbeat_check.js', { cwd: path.join(DIR, '..') }, (error, stdout, stderr) => {
-                    if (error) console.error(`Heartbeat error: ${error}`);
-                    if (stdout) console.log(`Heartbeat output: ${stdout}`);
-                    if (stderr) console.error(`Heartbeat stderr: ${stderr}`);
-                });
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ ok: true, message: 'Task added and heartbeat triggered' }));
-            } catch (err) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ ok: false, error: 'Invalid JSON or filing error' }));
-            }
-        });
-        return;
-    }
-
-    let filePath = path.join(DIR, req.url === '/' ? 'mist_chat.html' : req.url);
-    const ext = path.extname(filePath);
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-
-    fs.readFile(filePath, (err, content) => {
-        if (err) {
-            res.writeHead(404);
-            res.end('Not Found');
-            return;
+// API Task Endpoint
+app.post('/api/task', (req, res) => {
+    try {
+        const newTask = req.body;
+        if (!newTask || !newTask.id) {
+            return res.status(400).json({ ok: false, error: 'Missing task object or task.id' });
         }
-        res.writeHead(200, { 'Content-Type': contentType });
-        res.end(content);
-    });
+
+        const tasksPath = path.join(DIR, '..', 'workspace', 'pending-tasks.json');
+        let tasks = [];
+
+        // Read workspace/pending-tasks.json (create with [] if missing)
+        if (fs.existsSync(tasksPath)) {
+            try {
+                tasks = JSON.parse(fs.readFileSync(tasksPath, 'utf8'));
+            } catch (err) {
+                console.error('Error parsing pending-tasks.json, resetting to []:', err);
+                tasks = [];
+            }
+        }
+
+        // Append the task object
+        tasks.push(newTask);
+
+        // Write the file back
+        fs.writeFileSync(tasksPath, JSON.stringify(tasks, null, 2));
+
+        // Immediately trigger one heartbeat_check.js run (non-blocking, fire-and-forget)
+        exec('node aether_os/skills/heartbeat_check.js', { cwd: path.join(DIR, '..') }, (error) => {
+            if (error) console.error(`Background heartbeat trigger failed: ${error}`);
+        });
+
+        // Returns { ok: true, id: task.id }
+        res.json({ ok: true, id: newTask.id });
+    } catch (err) {
+        console.error('Error in /api/task:', err);
+        res.status(500).json({ ok: false, error: 'Internal server error' });
+    }
 });
 
-server.listen(PORT, () => {
+// Main route serves mist_chat.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(DIR, 'mist_chat.html'));
+});
+
+// Static assets from current directory
+app.use(express.static(DIR));
+
+app.listen(PORT, () => {
     console.log(`✧ MIST Chat Server running at http://localhost:${PORT}`);
     console.log('   Open this URL in your browser to connect to MIST.');
 });
