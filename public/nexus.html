@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIST ✧ NEXUS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Variables ── */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --cyan:#00f3ff;--rose:#ff3366;--gold:#ffb347;--violet:#b066ff;
+  --bg:#04060d;--surface:rgba(6,10,20,0.92);--border:rgba(0,243,255,0.12);
+  --border-hot:rgba(0,243,255,0.35);--text:#c8d8e8;--text-dim:#556677;
+  --glow-cyan:0 0 20px rgba(0,243,255,0.4);--glow-rose:0 0 20px rgba(255,51,102,0.4);
+  --glow-gold:0 0 20px rgba(255,179,71,0.4);
+  --font-mono:'Share Tech Mono',monospace;
+  --font-sans:'Inter',sans-serif;
+  --radius:10px;--transition:0.2s ease;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-sans)}
+
+/* ── Animated background ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.4}
+
+/* ── Layout ── */
+.nexus{
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-rows:52px 1fr 190px;
+  grid-template-columns:270px 1fr 290px;
+  height:100vh;width:100vw;
+  gap:1px;background:rgba(0,243,255,0.07);
+}
+
+/* ── Header ── */
+.hdr{
+  grid-column:1/-1;
+  background:var(--surface);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:16px;
+}
+.hdr-logo{font-family:var(--font-mono);font-size:13px;letter-spacing:4px;color:var(--cyan);text-shadow:var(--glow-cyan)}
+.hdr-logo em{color:var(--rose);font-style:normal}
+.hdr-tagline{font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-left:4px}
+.hdr-pills{display:flex;gap:8px;margin-left:auto;align-items:center}
+.pill{
+  font-family:var(--font-mono);font-size:9px;padding:3px 10px;border-radius:20px;
+  border:1px solid;display:flex;align-items:center;gap:5px;letter-spacing:1px;
+}
+.pill-dot{width:5px;height:5px;border-radius:50%;animation:pulse 2s infinite}
+.pill.on{border-color:var(--cyan);color:var(--cyan);background:rgba(0,243,255,0.05)}
+.pill.on .pill-dot{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.pill.warn{border-color:var(--gold);color:var(--gold);background:rgba(255,179,71,0.05)}
+.pill.warn .pill-dot{background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.pill.err{border-color:var(--rose);color:var(--rose);background:rgba(255,51,102,0.05)}
+.pill.err .pill-dot{background:var(--rose);animation:pulse-fast 0.8s infinite}
+.hdr-clock{font-family:var(--font-mono);font-size:11px;color:rgba(0,243,255,0.5);margin-left:12px;min-width:160px;text-align:right}
+
+/* ── Sidebar Left ── */
+.sidebar-l{
+  background:var(--surface);backdrop-filter:blur(16px);
+  overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;
+}
+.sidebar-l::-webkit-scrollbar{width:2px}
+.sidebar-l::-webkit-scrollbar-thumb{background:rgba(0,243,255,0.15)}
+
+/* ── Center ── */
+.center{
+  background:rgba(4,8,16,0.95);
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+}
+#holo{position:absolute;inset:0;pointer-events:none}
+.center-content{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.holo-label{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--font-mono);font-size:9px;color:rgba(0,243,255,0.2);
+  letter-spacing:8px;pointer-events:none;text-align:center;
+  text-shadow:var(--glow-cyan);
+}
+.chat-wrap{
+  flex:1;display:flex;flex-direction:column;border-top:1px solid var(--border);
+  background:rgba(0,0,0,0.3);overflow:hidden;
+}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.chat-msgs::-webkit-scrollbar{width:3px}
+.chat-msgs::-webkit-scrollbar-thumb{background:rgba(0,243,255,0.12)}
+.msg{
+  max-width:82%;padding:8px 13px;border-radius:12px;font-size:12px;line-height:1.6;
+  animation:fadeUp 0.25s ease;
+}
+.msg.mist{
+  align-self:flex-start;background:rgba(0,243,255,0.07);border:1px solid rgba(0,243,255,0.15);
+  color:#a8c8d8;border-radius:4px 12px 12px 12px;
+}
+.msg.mist .name{font-family:var(--font-mono);font-size:9px;color:var(--cyan);margin-bottom:3px;letter-spacing:1px}
+.msg.user{align-self:flex-end;background:rgba(176,102,255,0.1);border:1px solid rgba(176,102,255,0.2);color:#d0b8ff;border-radius:12px 4px 12px 12px}
+.msg.system-msg{align-self:center;background:rgba(255,179,71,0.05);border:1px solid rgba(255,179,71,0.12);color:var(--gold);font-family:var(--font-mono);font-size:10px;padding:5px 14px;border-radius:20px}
+.chat-input-row{
+  display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);
+  background:rgba(0,0,0,0.4);
+}
+.chat-input{
+  flex:1;background:rgba(0,243,255,0.04);border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;color:var(--text);font-size:12px;font-family:var(--font-sans);outline:none;
+  transition:border-color var(--transition);
+}
+.chat-input:focus{border-color:rgba(0,243,255,0.4)}
+.chat-input::placeholder{color:var(--text-dim)}
+.chat-send{
+  background:rgba(0,243,255,0.1);border:1px solid rgba(0,243,255,0.25);
+  color:var(--cyan);border-radius:8px;padding:8px 16px;cursor:pointer;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:1px;
+  transition:all var(--transition);
+}
+.chat-send:hover{background:rgba(0,243,255,0.2);box-shadow:var(--glow-cyan)}
+
+/* ── Sidebar Right ── */
+.sidebar-r{
+  background:var(--surface);backdrop-filter:blur(16px);
+  overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;
+}
+.sidebar-r::-webkit-scrollbar{width:2px}
+.sidebar-r::-webkit-scrollbar-thumb{background:rgba(0,243,255,0.15)}
+
+/* ── Bottom bar ── */
+.bottom{
+  grid-column:1/-1;background:var(--surface);backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);display:flex;gap:1px;overflow:hidden;
+}
+.bottom-panel{flex:1;padding:12px 14px;overflow:hidden;display:flex;flex-direction:column;gap:6px}
+.bottom-panel+.bottom-panel{border-left:1px solid var(--border)}
+
+/* ── Panel components ── */
+.section-title{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:3px;
+  color:var(--cyan);opacity:0.6;margin-bottom:6px;text-transform:uppercase;
+  display:flex;align-items:center;gap:6px;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.stat-card{
+  background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 12px;transition:border-color var(--transition);
+}
+.stat-card:hover{border-color:var(--border-hot)}
+.stat-card h3{font-size:10px;color:var(--text-dim);margin-bottom:6px;font-weight:400}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px}
+.stat-label{color:var(--text-dim)}
+.stat-val{font-family:var(--font-mono);font-size:10px}
+.v-cyan{color:var(--cyan)}.v-green{color:#44ffaa}.v-gold{color:var(--gold)}.v-rose{color:var(--rose)}.v-violet{color:var(--violet)}.v-dim{color:var(--text-dim)}
+
+/* LLM cascade dots */
+.cascade-dots{display:flex;gap:6px;margin-top:8px;align-items:center}
+.cdot{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:default;
+}
+.cdot-circle{width:10px;height:10px;border-radius:50%}
+.cdot.active .cdot-circle{background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 2s infinite}
+.cdot.standby .cdot-circle{background:rgba(0,243,255,0.2);border:1px solid rgba(0,243,255,0.3)}
+.cdot.exhausted .cdot-circle{background:rgba(255,51,102,0.3);border:1px solid var(--rose)}
+.cdot-label{font-family:var(--font-mono);font-size:7px;color:var(--text-dim)}
+
+/* Progress bar */
+.progress-track{height:4px;background:rgba(0,243,255,0.08);border-radius:2px;overflow:hidden;margin:4px 0}
+.progress-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.progress-fill.cyan{background:linear-gradient(90deg,var(--cyan),var(--violet))}
+.progress-fill.gold{background:linear-gradient(90deg,var(--gold),var(--rose))}
+.progress-fill.rose{background:linear-gradient(90deg,var(--rose),#ff0055)}
+
+/* Task list */
+.task-item{
+  background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;
+  padding:8px 10px;font-size:11px;display:flex;gap:8px;align-items:flex-start;
+  transition:all var(--transition);animation:fadeUp 0.3s ease;
+}
+.task-item:hover{border-color:rgba(0,243,255,0.25);background:rgba(0,243,255,0.03)}
+.task-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.task-dot.pending{background:var(--gold);box-shadow:0 0 6px var(--gold);animation:pulse 2s infinite}
+.task-dot.done{background:#44ffaa}
+.task-dot.running{background:var(--cyan);animation:pulse-fast 0.8s infinite}
+.task-text{color:#9ab;line-height:1.4;flex:1}
+.task-id{font-family:var(--font-mono);font-size:9px;color:var(--text-dim)}
+.task-time{font-family:var(--font-mono);font-size:8px;color:var(--text-dim);margin-top:2px}
+
+/* Stream log */
+.stream-log{
+  font-family:var(--font-mono);font-size:10px;line-height:1.7;
+  overflow-y:auto;max-height:100%;color:#778899;
+}
+.stream-log::-webkit-scrollbar{width:2px}
+.stream-log .log-line{animation:fadeIn 0.2s ease}
+.stream-log .log-line.info{color:#5577aa}
+.stream-log .log-line.ok{color:#44ffaa}
+.stream-log .log-line.warn{color:var(--gold)}
+.stream-log .log-line.err{color:var(--rose)}
+.stream-log .log-line.event{color:var(--cyan)}
+.log-ts{color:var(--text-dim);margin-right:6px}
+
+/* Sprint countdown */
+.sprint-ring{
+  position:relative;width:72px;height:72px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.sprint-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.sprint-ring circle{fill:none;stroke-width:3}
+.sprint-ring .track{stroke:rgba(0,243,255,0.1)}
+.sprint-ring .fill{stroke:var(--cyan);stroke-linecap:round;transition:stroke-dashoffset 1s ease;filter:drop-shadow(0 0 4px var(--cyan))}
+.sprint-center{text-align:center;font-family:var(--font-mono)}
+.sprint-days{font-size:18px;color:var(--cyan);line-height:1;text-shadow:var(--glow-cyan)}
+.sprint-of{font-size:8px;color:var(--text-dim)}
+
+/* Animations */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes pulse-fast{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.85)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scan{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+
+/* Scan line effect */
+.scanline{
+  position:fixed;inset:0;z-index:999;pointer-events:none;
+  background:linear-gradient(transparent 50%, rgba(0,0,0,0.02) 50%);
+  background-size:100% 4px;opacity:0.3;
+}
+.scan-beam{
+  position:fixed;left:0;right:0;height:2px;z-index:998;pointer-events:none;
+  background:linear-gradient(transparent,rgba(0,243,255,0.06),transparent);
+  animation:scan 8s linear infinite;
+}
+
+/* Stream indicator */
+.stream-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:var(--font-mono);font-size:8px;color:var(--cyan);
+  background:rgba(0,243,255,0.06);border:1px solid rgba(0,243,255,0.15);
+  padding:2px 8px;border-radius:10px;
+}
+.stream-badge .dot{width:4px;height:4px;border-radius:50%;background:var(--cyan);animation:pulse-fast 0.8s infinite}
+
+/* Responsive tweaks */
+@media(max-width:1100px){
+  .nexus{grid-template-columns:240px 1fr 260px}
+}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="scan-beam"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div class="nexus">
+  <!-- ── HEADER ── -->
+  <header class="hdr">
+    <div class="hdr-logo">MIST <em>✧</em> NEXUS</div>
+    <div class="hdr-tagline">sovereign ai command center</div>
+    <div class="hdr-pills">
+      <div class="pill on" id="pill-mist"><span class="pill-dot"></span>MIST ONLINE</div>
+      <div class="pill warn" id="pill-llm"><span class="pill-dot"></span>GROQ ACTIVE</div>
+      <div class="pill on" id="pill-stream"><span class="pill-dot"></span>STREAM LIVE</div>
+      <div class="stream-badge"><span class="dot"></span>LIVE</div>
+    </div>
+    <div class="hdr-clock" id="clock">--:--:-- EST</div>
+  </header>
+
+  <!-- ── SIDEBAR LEFT ── -->
+  <aside class="sidebar-l">
+    <div class="section-title">System Status</div>
+
+    <div class="stat-card">
+      <h3>Runtime</h3>
+      <div class="stat-row"><span class="stat-label">Status</span><span class="stat-val v-green" id="rt-status">OPERATIONAL</span></div>
+      <div class="stat-row"><span class="stat-label">Uptime</span><span class="stat-val v-cyan" id="rt-uptime">—</span></div>
+      <div class="stat-row"><span class="stat-label">Heartbeat</span><span class="stat-val v-cyan" id="rt-hb">30 min</span></div>
+      <div class="stat-row"><span class="stat-label">Last beat</span><span class="stat-val v-dim" id="rt-last-hb">—</span></div>
+    </div>
+
+    <div class="stat-card">
+      <h3>LLM Cascade</h3>
+      <div class="cascade-dots" id="llm-cascade">
+        <div class="cdot exhausted" title="Gemini 2.0 Flash"><div class="cdot-circle"></div><div class="cdot-label">GEMINI</div></div>
+        <div class="cdot active" title="Groq llama-3.3-70b"><div class="cdot-circle"></div><div class="cdot-label">GROQ</div></div>
+        <div class="cdot standby" title="Together AI"><div class="cdot-circle"></div><div class="cdot-label">TOGETH</div></div>
+        <div class="cdot standby" title="OpenRouter"><div class="cdot-circle"></div><div class="cdot-label">OPENRT</div></div>
+      </div>
+      <div class="stat-row" style="margin-top:8px"><span class="stat-label">Active</span><span class="stat-val v-cyan" id="llm-active">Groq llama-3.3-70b</span></div>
+      <div class="stat-row"><span class="stat-label">Latency</span><span class="stat-val v-green" id="llm-latency">—</span></div>
+    </div>
+
+    <div class="stat-card">
+      <h3>Railway Deploy</h3>
+      <div class="stat-row"><span class="stat-label">Service</span><span class="stat-val v-cyan">vivacious-trust</span></div>
+      <div class="stat-row"><span class="stat-label">Health</span><span class="stat-val v-green" id="deploy-health">HEALTHY</span></div>
+      <div class="stat-row"><span class="stat-label">Last deploy</span><span class="stat-val v-dim" id="deploy-time">—</span></div>
+      <div class="stat-row"><span class="stat-label">/api/task</span><span class="stat-val" id="api-task-status">—</span></div>
+    </div>
+
+    <div class="stat-card">
+      <h3>Relay Channels</h3>
+      <div class="stat-row"><span class="stat-label">#pipeline-status</span><span class="stat-val v-green">QUEUE</span></div>
+      <div class="stat-row"><span class="stat-label">#deploy-logs</span><span class="stat-val v-green">RESULTS</span></div>
+      <div class="stat-row"><span class="stat-label">Round trip</span><span class="stat-val v-cyan">CONFIRMED</span></div>
+    </div>
+
+    <div class="stat-card">
+      <h3>Agents</h3>
+      <div class="stat-row"><span class="stat-label">MIST</span><span class="stat-val v-cyan">Dea Martis v3.0</span></div>
+      <div class="stat-row"><span class="stat-label">Antigravity</span><span class="stat-val v-green" id="ag-status">ACTIVE</span></div>
+      <div class="stat-row"><span class="stat-label">SureThing</span><span class="stat-val v-violet">ORCHESTRATOR</span></div>
+    </div>
+  </aside>
+
+  <!-- ── CENTER ── -->
+  <main class="center">
+    <canvas id="holo"></canvas>
+    <div class="holo-label">DEA MARTIS v3.0</div>
+    <div class="center-content">
+      <div class="chat-wrap">
+        <div class="chat-msgs" id="chat-msgs">
+          <div class="msg system-msg">✧ MIST NEXUS — STREAM CONNECTED</div>
+          <div class="msg mist">
+            <div class="name">DEA MARTIS ✧</div>
+            Nexus online. Real-time data stream active. Awaiting signal.
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" placeholder="Transmit to MIST..." autocomplete="off">
+          <button class="chat-send" id="chat-send">SEND ✧</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── SIDEBAR RIGHT ── -->
+  <aside class="sidebar-r">
+    <div class="section-title">Pipeline</div>
+
+    <div class="stat-card" style="display:flex;gap:12px;align-items:center">
+      <div class="sprint-ring">
+        <svg viewBox="0 0 72 72">
+          <circle class="track" cx="36" cy="36" r="30"/>
+          <circle class="fill" id="sprint-arc" cx="36" cy="36" r="30"
+            stroke-dasharray="188.5" stroke-dashoffset="44"/>
+        </svg>
+        <div class="sprint-center">
+          <div class="sprint-days" id="sprint-days">7</div>
+          <div class="sprint-of">/ 21 days</div>
+        </div>
+      </div>
+      <div style="flex:1">
+        <div class="stat-row"><span class="stat-label">Sprint</span><span class="stat-val v-cyan">Day 7/21</span></div>
+        <div class="stat-row"><span class="stat-label">Deadline</span><span class="stat-val v-gold">Mar 11</span></div>
+        <div class="stat-row"><span class="stat-label">Pipeline</span><span class="stat-val v-gold" id="pipeline-val">~$1,550</span></div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <h3>Bounties</h3>
+      <div class="stat-row"><span class="stat-label">Marketplace</span><span class="stat-val v-green">$1,200</span></div>
+      <div class="stat-row"><span class="stat-label">Baozi</span><span class="stat-val v-green">~$290 SOL</span></div>
+      <div class="stat-row"><span class="stat-label">Hummingbot #8028</span><span class="stat-val v-rose">LOST</span></div>
+      <div class="progress-track"><div class="progress-fill gold" style="width:34%"></div></div>
+    </div>
+
+    <div class="stat-card">
+      <h3>Open PRs</h3>
+      <div class="stat-row"><span class="stat-label">Total</span><span class="stat-val v-cyan" id="pr-count">5</span></div>
+      <div class="stat-row"><span class="stat-label">Pending review</span><span class="stat-val v-gold">3</span></div>
+    </div>
+
+    <div class="section-title" style="margin-top:4px">Pending Tasks</div>
+    <div id="task-list">
+      <div class="task-item">
+        <div class="task-dot pending"></div>
+        <div style="flex:1">
+          <div class="task-text">Issue #4: Persona Persistence Layer</div>
+          <div class="task-id">task-1771962776001 · priority: 1-first</div>
+        </div>
+      </div>
+      <div class="task-item">
+        <div class="task-dot pending"></div>
+        <div style="flex:1">
+          <div class="task-text">Issue #2: MISTTool Plugin Interface</div>
+          <div class="task-id">task-1771962776002 · priority: 2-after-#4</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── BOTTOM BAR ── -->
+  <div class="bottom">
+    <div class="bottom-panel">
+      <div class="section-title">Live Stream</div>
+      <div class="stream-log" id="stream-log">
+        <div class="log-line event"><span class="log-ts">—</span>stream connected</div>
+      </div>
+    </div>
+    <div class="bottom-panel">
+      <div class="section-title">Injection Log</div>
+      <div class="stream-log" id="inject-log">
+        <div class="log-line ok"><span class="log-ts">14:54</span>task-1771962776001 injected via git</div>
+        <div class="log-line ok"><span class="log-ts">14:54</span>task-1771962776002 injected via git</div>
+        <div class="log-line info"><span class="log-ts">14:54</span>commit 4a21535 verified on main</div>
+        <div class="log-line warn"><span class="log-ts">14:52</span>POST /api/task → 404 (propagation lag)</div>
+      </div>
+    </div>
+    <div class="bottom-panel">
+      <div class="section-title">Health Check</div>
+      <div class="stream-log" id="health-log">
+        <div class="log-line ok"><span class="log-ts">—</span>GET /api/health → 200</div>
+        <div class="log-line ok"><span class="log-ts">—</span>POST /api/trpc/chat.send → 200</div>
+        <div class="log-line warn"><span class="log-ts">—</span>Gemini quota exhausted</div>
+        <div class="log-line ok"><span class="log-ts">—</span>Groq fallback active</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ────────────────────────────────────────────
+   MIST NEXUS — Real-time JS Runtime
+   ──────────────────────────────────────────── */
+
+const BASE = window.location.origin;
+
+/* ── Clock ── */
+function updateClock(){
+  const now=new Date();
+  const tz=now.toLocaleTimeString('en-US',{timeZone:'America/New_York',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const d=now.toLocaleDateString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric'});
+  document.getElementById('clock').textContent=`${tz} EST · ${d}`;
+}
+setInterval(updateClock,1000);updateClock();
+
+/* ── Background canvas (particle field) ── */
+(function(){
+  const c=document.getElementById('bg-canvas');
+  const ctx=c.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;pts=Array.from({length:80},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.5,a:Math.random()}))}
+  window.addEventListener('resize',resize);resize();
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x=(p.x+p.vx+W)%W;p.y=(p.y+p.vy+H)%H;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,243,255,${p.a*0.4})`;ctx.fill();
+    });
+    // connect nearby
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(0,243,255,${(1-d/120)*0.06})`;ctx.lineWidth=0.5;ctx.stroke()}
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── Hologram canvas ── */
+(function(){
+  const c=document.getElementById('holo');
+  const ctx=c.getContext('2d');
+  let t=0;
+  function resize(){c.width=c.parentElement.offsetWidth;c.height=c.parentElement.offsetHeight}
+  window.addEventListener('resize',resize);resize();
+  function draw(){
+    const W=c.width,H=c.height,cx=W/2,cy=H/2;
+    ctx.clearRect(0,0,W,H);
+    // Rotating rings
+    for(let ring=0;ring<4;ring++){
+      const r=60+ring*32,alpha=0.04+ring*0.015;
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(t*0.004*(ring%2?1:-1));
+      ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(0,243,255,${alpha})`;ctx.lineWidth=1;ctx.stroke();
+      // tick marks
+      for(let i=0;i<12;i++){
+        const a=(i/12)*Math.PI*2,x1=Math.cos(a)*r,y1=Math.sin(a)*r,x2=Math.cos(a)*(r-6),y2=Math.sin(a)*(r-6);
+        ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=`rgba(0,243,255,${alpha*2})`;ctx.stroke();
+      }
+      ctx.restore();
+    }
+    // Central orb
+    const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,50);
+    grad.addColorStop(0,`rgba(0,243,255,${0.06+Math.sin(t*0.03)*0.03})`);
+    grad.addColorStop(0.5,`rgba(176,102,255,${0.03+Math.sin(t*0.02)*0.02})`);
+    grad.addColorStop(1,'transparent');
+    ctx.beginPath();ctx.arc(cx,cy,50,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
+    // Scan lines
+    const scanY=((t*0.8)%H);
+    ctx.beginPath();ctx.moveTo(0,scanY);ctx.lineTo(W,scanY);
+    ctx.strokeStyle=`rgba(0,243,255,0.04)`;ctx.lineWidth=1;ctx.stroke();
+    // Crosshairs
+    ctx.strokeStyle='rgba(0,243,255,0.06)';ctx.lineWidth=0.5;ctx.setLineDash([4,8]);
+    ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+    ctx.setLineDash([]);
+    t++;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── Uptime counter ── */
+const startTime=Date.now();
+setInterval(()=>{
+  const s=Math.floor((Date.now()-startTime)/1000);
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  document.getElementById('rt-uptime').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+},1000);
+
+/* ── SSE — Real-time stream ── */
+function tsNow(){return new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+
+function addLog(containerId,text,type='info'){
+  const el=document.getElementById(containerId);
+  const line=document.createElement('div');
+  line.className=`log-line ${type}`;
+  line.innerHTML=`<span class="log-ts">${tsNow()}</span>${escHtml(text)}`;
+  el.appendChild(line);
+  // Keep last 60 lines
+  while(el.children.length>60)el.removeChild(el.firstChild);
+  el.scrollTop=el.scrollHeight;
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function connectSSE(){
+  const es=new EventSource(BASE+'/api/stream');
+  es.onopen=()=>{
+    addLog('stream-log','stream connected','event');
+    document.getElementById('pill-stream').className='pill on';
+  };
+  es.onmessage=e=>{
+    try{
+      const d=JSON.parse(e.data);
+      handleStreamEvent(d);
+    }catch{
+      addLog('stream-log',e.data,'info');
+    }
+  };
+  es.addEventListener('health',e=>{
+    const d=JSON.parse(e.data);
+    addLog('stream-log',`health → ${d.status}`,d.status==='ok'?'ok':'err');
+    if(d.status==='ok'){
+      document.getElementById('deploy-health').textContent='HEALTHY';
+      document.getElementById('deploy-health').className='stat-val v-green';
+    }
+  });
+  es.addEventListener('task',e=>{
+    const d=JSON.parse(e.data);
+    addLog('stream-log',`task ${d.id} → ${d.status}`,'event');
+    addLog('inject-log',`${d.title||d.id} → ${d.status}`, d.status==='done'?'ok':'info');
+    updateTaskList(d);
+  });
+  es.addEventListener('llm',e=>{
+    const d=JSON.parse(e.data);
+    addLog('stream-log',`llm ${d.provider} latency=${d.latency}ms`,'ok');
+    document.getElementById('llm-latency').textContent=d.latency+'ms';
+    document.getElementById('llm-active').textContent=d.provider;
+  });
+  es.addEventListener('heartbeat',e=>{
+    const d=JSON.parse(e.data);
+    addLog('stream-log','heartbeat fired','event');
+    document.getElementById('rt-last-hb').textContent=tsNow();
+    if(d.tasks)updateTaskList(d.tasks);
+  });
+  es.addEventListener('chat',e=>{
+    const d=JSON.parse(e.data);
+    appendChatMsg(d.role||'mist',d.content);
+  });
+  es.onerror=()=>{
+    addLog('stream-log','stream disconnected — retrying…','err');
+    document.getElementById('pill-stream').className='pill err';
+    // EventSource auto-retries
+  };
+}
+
+function handleStreamEvent(d){
+  if(d.type==='log')addLog('stream-log',d.message,d.level||'info');
+  else if(d.type==='inject')addLog('inject-log',`${d.taskId} via ${d.method}`,d.ok?'ok':'err');
+  else if(d.type==='health')document.getElementById('deploy-health').textContent=d.status==='ok'?'HEALTHY':'DEGRADED';
+  else addLog('stream-log',JSON.stringify(d),'info');
+}
+
+/* ── Task list updater ── */
+const taskState={};
+function updateTaskList(data){
+  const arr=Array.isArray(data)?data:[data];
+  arr.forEach(t=>{
+    taskState[t.id]={...taskState[t.id],...t};
+    let el=document.querySelector(`[data-task-id="${t.id}"]`);
+    if(!el){
+      el=document.createElement('div');
+      el.className='task-item';
+      el.setAttribute('data-task-id',t.id);
+      document.getElementById('task-list').appendChild(el);
+    }
+    const status=t.status||'pending';
+    const dotClass=status==='done'?'done':status==='running'?'running':'pending';
+    el.innerHTML=`
+      <div class="task-dot ${dotClass}"></div>
+      <div style="flex:1">
+        <div class="task-text">${escHtml(t.title||t.id)}</div>
+        <div class="task-id">${escHtml(t.id)} · ${escHtml(status)}</div>
+        ${t.updated_at?`<div class="task-time">${new Date(t.updated_at).toLocaleTimeString()}</div>`:''}
+      </div>`;
+  });
+}
+
+/* ── Chat ── */
+function appendChatMsg(role,text){
+  const wrap=document.getElementById('chat-msgs');
+  const msg=document.createElement('div');
+  msg.className='msg '+(role==='user'?'user':'mist');
+  if(role==='mist')msg.innerHTML=`<div class="name">DEA MARTIS ✧</div>${escHtml(text)}`;
+  else msg.textContent=text;
+  wrap.appendChild(msg);
+  wrap.scrollTop=wrap.scrollHeight;
+}
+
+async function sendChat(){
+  const inp=document.getElementById('chat-input');
+  const text=inp.value.trim();
+  if(!text)return;
+  inp.value='';
+  appendChatMsg('user',text);
+  try{
+    const r=await fetch(BASE+'/api/trpc/chat.send',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({json:{message:text,conversationId:'nexus'}})
+    });
+    const d=await r.json();
+    const reply=d?.result?.data?.json?.text||d?.result?.data?.text||d?.text||'(no response)';
+    appendChatMsg('mist',reply);
+    addLog('stream-log','chat.send → ok','ok');
+  }catch(e){
+    appendChatMsg('mist','[connection error]');
+    addLog('stream-log','chat.send → '+e.message,'err');
+  }
+}
+
+document.getElementById('chat-send').addEventListener('click',sendChat);
+document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}});
+
+/* ── Health poll (fallback if SSE health events don't arrive) ── */
+async function pollHealth(){
+  try{
+    const r=await fetch(BASE+'/api/health',{cache:'no-store'});
+    const d=await r.json();
+    const ok=d.status==='ok'||r.ok;
+    addLog('health-log',`/api/health → ${r.status}`,ok?'ok':'err');
+    document.getElementById('deploy-health').textContent=ok?'HEALTHY':'DEGRADED';
+    document.getElementById('deploy-health').className=ok?'stat-val v-green':'stat-val v-rose';
+    // Check /api/task endpoint
+    const tr=await fetch(BASE+'/api/task',{method:'OPTIONS',cache:'no-store'}).catch(()=>null);
+    const taskOk=tr&&tr.status<500;
+    document.getElementById('api-task-status').textContent=taskOk?'LIVE':'404';
+    document.getElementById('api-task-status').className='stat-val '+(taskOk?'v-green':'v-rose');
+  }catch(e){
+    addLog('health-log','/api/health failed','err');
+  }
+}
+pollHealth();setInterval(pollHealth,30000);
+
+/* ── Connect SSE ── */
+connectSSE();
+
+/* ── Load tasks from pending-tasks.json ── */
+async function loadTasks(){
+  try{
+    const r=await fetch(BASE+'/api/tasks',{cache:'no-store'});
+    if(!r.ok)return;
+    const tasks=await r.json();
+    if(Array.isArray(tasks))tasks.forEach(t=>updateTaskList(t));
+  }catch{}
+}
+loadTasks();
+setInterval(loadTasks,60000);
+
+/* ── Sprint arc update ── */
+(function(){
+  const DAY=7,TOTAL=21;
+  const pct=DAY/TOTAL;
+  const circ=188.5;
+  document.getElementById('sprint-arc').style.strokeDashoffset=circ*(1-pct);
+  document.getElementById('sprint-days').textContent=DAY;
+})();
+</script>
+</body>
+</html>
