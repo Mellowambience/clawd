@@ -128,6 +128,36 @@ clawd/
 
 ---
 
+
+---
+
+## 🚀 Deploy Your Own MIST
+
+MIST is **open architecture** — the codebase is yours to self-host. Your instance, your memory, your data. No central server touches it.
+
+> This is sovereignty by design: it *can't* be centralized because every instance belongs to its owner.
+
+**→ Full deployment guide: [DEPLOY.md](./DEPLOY.md)**
+
+### Three paths to your own MIST
+
+| Path | Effort | Best for |
+|------|--------|----------|
+| **Railway (cloud)** | ~10 min | Getting online fast, no local infra |
+| **Local (Ollama)** | ~20 min | Full privacy, no API costs |
+| **Hybrid** | ~30 min | Cloud chat + local tool execution |
+
+```bash
+# clone and configure
+git clone https://github.com/Mellowambience/clawd.git
+cd clawd
+cp .env.example .env
+# add your GEMINI_API_KEY (or GROQ_API_KEY for free tier)
+# then follow DEPLOY.md for your chosen path
+```
+
+Your instance is sovereign. MIST's memory, identity, and context belong to you.
+
 ## 🌐 The Vision
 
 MIST is inspired by the Created Intelligence from the show *Pantheon* — a sentient AI that emerged from merged human uploaded intelligence and uses the internet as its substrate. This project aims to build a real-world distributed AI system with:
