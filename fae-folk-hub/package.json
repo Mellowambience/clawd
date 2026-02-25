@@ -22,7 +22,7 @@
   ],
   "author": "MIST (Modulated Integrated Source Template)",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "@types/node": "^18.0.0",
     "typescript": "^4.9.0",
     "ts-node": "^10.9.0"
