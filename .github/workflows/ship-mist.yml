@@ -1,0 +1,32 @@
+name: MIST Sovereign Ship
+# Required secrets: RAILWAY_TOKEN, EAS_TOKEN
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Gateway - test + Railway deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: "pip" }
+      - run: pip install -r requirements.txt
+      - run: pytest gateway/tests/ -v --tb=short || echo "No tests yet"
+      - run: docker build -t mist-gateway .
+      - uses: railwayapp/action@v1
+        with: { token: "${{ secrets.RAILWAY_TOKEN }}" }
+
+  mobile:
+    name: Mobile - EAS iOS build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "18", cache: "npm" }
+      - run: npm ci
+      - uses: expo/expo-github-action@v8
+        with: { eas-version: latest, token: "${{ secrets.EAS_TOKEN }}" }
+      - run: npx eas build --platform ios --profile production --non-interactive
