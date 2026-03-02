@@ -1,32 +1,60 @@
 name: MIST Sovereign Ship
-# Required secrets: RAILWAY_TOKEN, EAS_TOKEN
+# Triggered on push to main — deploys gateway to Railway, builds mobile via EAS
+# Required secrets:
+#   RAILWAY_TOKEN  — Railway > Project Settings > Tokens > Generate
+#   EAS_TOKEN      — expo.dev > Account Settings > Access Tokens
+#   GEMINI_API_KEY — Gemini API key (routes through gateway only, never frontend)
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   backend:
-    name: Gateway - test + Railway deploy
+    name: Gateway — test + deploy to Railway
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12", cache: "pip" }
-      - run: pip install -r requirements.txt
-      - run: pytest gateway/tests/ -v --tb=short || echo "No tests yet"
-      - run: docker build -t mist-gateway .
-      - uses: railwayapp/action@v1
-        with: { token: "${{ secrets.RAILWAY_TOKEN }}" }
+        with:
+          python-version: "3.12"
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Run gateway tests (unit only, skip integration)
+        run: pytest gateway/tests/ -v --tb=short -m "not integration"
+        env:
+          PYTHONPATH: .
+
+      - name: Build Docker image
+        run: docker build -t mist-gateway .
+
+      - name: Deploy to Railway
+        uses: railwayapp/action@v1
+        with:
+          token: ${{ secrets.RAILWAY_TOKEN }}
 
   mobile:
-    name: Mobile - EAS iOS build
+    name: Mobile — EAS build (iOS)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
-        with: { node-version: "18", cache: "npm" }
-      - run: npm ci
-      - uses: expo/expo-github-action@v8
-        with: { eas-version: latest, token: "${{ secrets.EAS_TOKEN }}" }
-      - run: npx eas build --platform ios --profile production --non-interactive
+        with:
+          node-version: "18"
+
+      - name: Install mobile deps
+        run: cd app && npm ci
+
+      - name: Setup Expo EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EAS_TOKEN }}
+
+      - name: EAS build — iOS production
+        run: cd app && npx eas build --platform ios --profile production --non-interactive

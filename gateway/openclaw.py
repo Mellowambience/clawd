@@ -1,26 +1,46 @@
-# gateway/openclaw.py
-"""OpenClaw tool execution shim - routes to real openclaw engine or safe stub."""
+"""
+MIST OpenClaw — tool execution interface.
+Wires to the existing aether_os/openclaw.json tool definitions.
+This module provides the async execute_tool() expected by act_node.
+"""
 import json
 import os
-import subprocess
 from typing import Any
 
+_OPENCLAW_MANIFEST_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "aether_os", "openclaw.json"
+)
 
-async def execute_tool(name: str, arguments: dict) -> Any:
-    openclaw_config = os.path.join(os.path.dirname(__file__), "..", "aether_os", "openclaw.json")
-    try:
-        with open(openclaw_config) as f:
-            config = json.load(f)
-        tools = {t["name"]: t for t in config.get("tools", [])}
-        if name not in tools:
-            return {"status": "unknown_tool", "tool": name}
-        tool_def = tools[name]
-        if tool_def.get("type") == "shell":
-            cmd = tool_def["command"].format(**arguments)
-            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=30)
-            return {"status": "ok", "stdout": result.stdout, "stderr": result.stderr}
-        return {"status": "dispatched", "tool": name, "arguments": arguments}
-    except FileNotFoundError:
-        return {"status": "stub", "tool": name, "note": "openclaw.json not found"}
-    except Exception as e:
-        return {"status": "error", "tool": name, "error": str(e)}
+_tool_registry: dict[str, dict] = {}
+
+
+def _load_tools() -> None:
+    """Load OpenClaw tool definitions from manifest on first call."""
+    global _tool_registry
+    if _tool_registry:
+        return
+    if os.path.exists(_OPENCLAW_MANIFEST_PATH):
+        with open(_OPENCLAW_MANIFEST_PATH) as f:
+            manifest = json.load(f)
+            tools = manifest if isinstance(manifest, list) else manifest.get("tools", [])
+            _tool_registry = {t["name"]: t for t in tools if "name" in t}
+
+
+async def execute_tool(name: str, arguments: dict[str, Any]) -> Any:
+    """
+    Execute a named OpenClaw tool with given arguments.
+    Returns the tool result or an error dict.
+    """
+    _load_tools()
+    if name not in _tool_registry:
+        return {"error": f"OpenClaw: unknown tool '{name}'"}
+
+    tool_def = _tool_registry[name]
+    # TODO: implement actual tool dispatch via OpenClaw runtime
+    # For now, return the tool definition as a dry-run response
+    return {
+        "tool": name,
+        "arguments": arguments,
+        "status": "dry_run",
+        "definition": tool_def,
+    }

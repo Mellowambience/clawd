@@ -1,1 +1,1 @@
-# MIST Gateway Package
+# MIST Gateway — sovereign agent orchestration layer

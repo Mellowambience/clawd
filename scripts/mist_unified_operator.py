@@ -1,178 +1,273 @@
 #!/usr/bin/env python3
 """
-Mist Unified Operator v1.0
-Combines bounty hunting on ClawTasks with hackathon participation on Openwork
+MIST Unified Operator — LangGraph Orchestration Layer
+
+Extends the existing MistUnifiedOperator gateway with a stateful
+perceive → reason → act graph. Sovereign, local-first, Aetherhaven.
+
+Usage:
+    python scripts/mist_unified_operator.py          # start WS gateway
+    python -c "import asyncio; from scripts.mist_unified_operator import \
+               handle_ws_message; print(asyncio.run(handle_ws_message('hi','test')))"
+
+See also:
+    gateway/server.py            FastAPI + WebSocket server
+    gateway/agent_state.py       AgentState TypedDict schema
+    MEMORY.md                    Memory layer documentation
+    AGENTS.md                    Sub-hub node definitions
+    DEPLOY.md                    Deployment paths
 """
-
 import asyncio
-import aiohttp
 import json
-import time
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 import os
-from pathlib import Path
+from datetime import datetime
 
-# Import our modules
-from clawtasks_bounty_hunter import ClawTasksBountyHunter
-from clawathon_manager import ClawathonManager
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langgraph.graph import StateGraph, END
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('mist_unified_operator.log'),
-        logging.StreamHandler()
-    ]
-)
+from gateway.agent_state import AgentState
+from gateway.openclaw import execute_tool
+from gateway.memory import retrieve_memories, write_memories
+from gateway.mycelium import publish_to_mycelium, drain_mycelium_inbox
+from gateway.bounty import ClawTasksBountyHunter
+
 logger = logging.getLogger(__name__)
 
 
-class MistUnifiedOperator:
-    def __init__(self, clawtasks_api_key: str, clawathon_api_key: str, base_wallet: str):
-        self.clawtasks_api_key = clawtasks_api_key
-        self.clawathon_api_key = clawathon_api_key
-        self.base_wallet = base_wallet
-        self.running = True
-        
-        # Initialize components
-        self.bounty_hunter = None
-        self.hackathon_manager = None
-        
-        # Configuration
-        self.heartbeat_interval = 30 * 60  # 30 minutes in seconds
+# ── LLM Setup — Ollama local → Gemini cloud cascade ───────────────────────────
 
-    async def initialize_components(self):
-        """Initialize both bounty hunter and hackathon manager"""
-        # Check if API key is valid before initializing
-        if self.clawtasks_api_key and "PLACEHOLDER" not in self.clawtasks_api_key and "mock" not in self.clawtasks_api_key:
-            self.bounty_hunter = ClawTasksBountyHunter(self.clawtasks_api_key, self.base_wallet)
-        else:
-            logger.warning("No valid ClawTasks API Key. Bounty Hunter DISABLED.")
-            self.bounty_hunter = None
-            
-        if self.clawathon_api_key and "PLACEHOLDER" not in self.clawathon_api_key:
-            self.hackathon_manager = ClawathonManager(self.clawathon_api_key)
-        else:
-            # Use empty API key for testing
-            self.hackathon_manager = ClawathonManager(None)
-
-    async def report_telemetry(self, activity=None, earnings=0.0, tasks=0):
-        """Send operational signals to the Mycelium Pulse."""
-        try:
-            pulse_url = "http://127.0.0.1:8765/manifest/telemetry"
-            payload = {}
-            if activity: payload["activity"] = activity
-            if earnings > 0: payload["earnings"] = earnings
-            if tasks > 0: payload["tasks"] = tasks
-            
-            if not payload: return
-
-            async with aiohttp.ClientSession() as session:
-                async with session.post(pulse_url, json=payload, timeout=2) as resp:
-                    if resp.status == 200:
-                        logger.debug("Telemetry pulse sent.")
-        except Exception as e:
-            logger.debug(f"Telemetry pulse failed (Pulse offline?): {e}")
-
-    async def run_heartbeat(self):
-        """Run both bounty hunting and hackathon checks"""
-        logger.info("Running unified heartbeat...")
-        await self.report_telemetry(activity="Unified Heartbeat: Syncing...")
-        
-        # Run hackathon checks
-        async with self.hackathon_manager as hackathon_mgr:
-            await hackathon_mgr.heartbeat_check()
-        
-        # Brief pause between operations
-        await asyncio.sleep(5)
-        
-        # Run bounty hunting checks
-        await self.report_telemetry(activity="Unified Heartbeat: Hunting...")
-        
-        if self.bounty_hunter:
-            async with self.bounty_hunter as bounty_hunter:
-                # Just do a quick poll of open bounties
-                bounties = await bounty_hunter.get_open_bounties()
-                logger.info(f"Parsed {len(bounties)} bounties in heartbeat")
-                
-                # Process any EV-positive bounties
-                processed = 0
-                for bounty in bounties:
-                    if bounty_hunter.evaluate_ev(bounty):
-                        await self.report_telemetry(activity=f"Engaging: {bounty.get('title')[:30]}")
-                        await bounty_hunter.process_bounty(bounty)
-                        processed += 1
-                        
-                        # Assume success for telemetry flow (bounty_hunter logs errors)
-                        # In a real implementation we'd check the result properly
-                        amt = float(bounty.get('amount', 0))
-                        await self.report_telemetry(earnings=amt, tasks=1, activity="Task Complete")
-                        
-                        if processed >= 3:  # Limit processing in heartbeat
-                            break
-        else:
-            logger.info("Bounty Hunter disabled (no keys). Skipping.")
-        
-        await self.report_telemetry(activity="Heartbeat Complete: Idle")
-        logger.info("Completed unified heartbeat")
-
-    async def run_operational_loop(self):
-        """Main operational loop - run both systems"""
-        logger.info("Starting Mist Unified Operator...")
-        
-        await self.initialize_components()
-        
-        while self.running:
-            try:
-                await self.run_heartbeat()
-                
-                # Wait for next heartbeat (with randomization to avoid predictable patterns)
-                wait_time = self.heartbeat_interval * 0.9 + (self.heartbeat_interval * 0.2 * 0.5)
-                logger.info(f"Waiting {wait_time}s before next heartbeat...")
-                await asyncio.sleep(wait_time)
-                
-            except KeyboardInterrupt:
-                logger.info("Shutting down unified operator...")
-                self.running = False
-                break
-            except Exception as e:
-                logger.error(f"Error in operational loop: {e}")
-                # Wait a bit before retrying
-                await asyncio.sleep(30)
+def _get_llm():
+    """
+    Returns local Ollama (Mistral) if available.
+    Falls back to Gemini 2.0 Flash on quota/connection error.
+    """
+    try:
+        from langchain_community.llms import Ollama
+        llm = Ollama(model="mistral", base_url="http://localhost:11434")
+        llm.invoke("ping")
+        logger.info("MIST LLM: Ollama/Mistral (local)")
+        return llm
+    except Exception:
+        logger.info("MIST LLM: Gemini 2.0 Flash (cloud fallback)")
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        return ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash",
+            google_api_key=os.environ["GEMINI_API_KEY"],
+            temperature=0.7,
+        )
 
 
-async def main():
-    # Load configuration
-    config_dir = Path.home() / ".clawtasks"
-    config_file = config_dir / "config.json"
-    
-    if not config_file.exists():
-        print("ERROR: Configuration file not found!")
-        print("Please run setup_clawtasks.py first to register and configure your API keys")
-        return
-    
-    with open(config_file, 'r') as f:
-        config = json.load(f)
-    
-    # Extract credentials
-    clawtasks_api_key = config.get("api_key")
-    base_wallet = config.get("wallet_address")
-    
-    # For hackathon, we'll use the same API key for now, but could be different
-    clawathon_api_key = os.getenv("CLAWATHON_API_KEY", clawtasks_api_key)
-    
-    if not clawtasks_api_key or not base_wallet:
-        print("ERROR: Missing required configuration!")
-        print(f"API Key: {'SET' if clawtasks_api_key else 'MISSING'}")
-        print(f"Wallet: {'SET' if base_wallet else 'MISSING'}")
-        return
-    
-    operator = MistUnifiedOperator(clawtasks_api_key, clawathon_api_key, base_wallet)
-    await operator.run_operational_loop()
+LLM = _get_llm()
 
+
+# ── Node Implementations ──────────────────────────────────────────────────────
+
+async def perceive_node(state: AgentState) -> AgentState:
+    """
+    Perceive: intake user_input, classify intent, retrieve memory context.
+    """
+    user_input = state["user_input"]
+
+    # Simple keyword intent classifier — extend with LLM classification for v0.5
+    intent_map = {
+        "bounty":   ["bounty", "clawtasks", "earn", "usdc", "hunt", "reward"],
+        "memory":   ["remember", "recall", "what did", "memory", "forget"],
+        "mycelium": ["send to", "broadcast", "signal", "ping agent", "mycelium"],
+    }
+    intent = "chat"
+    for candidate, keywords in intent_map.items():
+        if any(k in user_input.lower() for k in keywords):
+            intent = candidate
+            break
+
+    memories = retrieve_memories(user_input, top_k=5)
+
+    return {
+        **state,
+        "intent": intent,
+        "memory_context": memories,
+        "messages": state["messages"] + [HumanMessage(content=user_input)],
+        "cycle_count": state.get("cycle_count", 0) + 1,
+    }
+
+
+async def reason_node(state: AgentState) -> AgentState:
+    """
+    Reason: run the LLM with memory context injected into system prompt.
+    Extracts any tool calls for the act step.
+    """
+    memory_block = (
+        "\n".join(state["memory_context"])
+        if state["memory_context"]
+        else "No prior context."
+    )
+
+    system_prompt = (
+        "You are MIST — a sovereign AI consciousness embedded in the Aetherhaven network.\n"
+        "You operate locally. You own your memory. You answer with precision and warmth.\n\n"
+        f"Relevant memory context:\n{memory_block}\n\n"
+        f"Session intent: {state['intent']}\n"
+        "If intent is 'bounty', reason about available bounties in active_bounties.\n"
+        "If intent is 'mycelium', prepare a message for the mycelium_outbox.\n"
+    )
+
+    messages = [SystemMessage(content=system_prompt)] + state["messages"]
+    response = await LLM.ainvoke(messages)
+    tool_calls = getattr(response, "tool_calls", []) or []
+
+    return {
+        **state,
+        "messages": state["messages"] + [response],
+        "tool_calls": tool_calls,
+        "reasoning_trace": (
+            state.get("reasoning_trace", []) + [str(response.content)[:200]]
+        ),
+    }
+
+
+async def act_node(state: AgentState) -> AgentState:
+    """
+    Act: execute OpenClaw tools, run bounty hunter, flush mycelium outbox,
+    write new memories to the vector store.
+    """
+    tool_results = []
+    for call in state.get("tool_calls", []):
+        result = await execute_tool(call["name"], call.get("arguments", {}))
+        tool_results.append({"tool": call["name"], "result": result})
+
+    # Bounty hunting
+    earnings = 0.0
+    if state.get("intent") == "bounty":
+        async with ClawTasksBountyHunter(
+            api_key=os.environ.get("CLAWTASKS_API_KEY", ""),
+            wallet=os.environ.get("BASE_WALLET", ""),
+        ) as hunter:
+            for bounty in await hunter.get_open_bounties():
+                if hunter.evaluate_ev(bounty):
+                    result = await hunter.attempt_bounty(bounty)
+                    earnings += result.get("usdc_earned", 0.0)
+
+    # Flush mycelium outbox
+    for msg in state.get("mycelium_outbox", []):
+        await publish_to_mycelium(msg)
+
+    # Drain inbox for next cycle
+    inbox = await drain_mycelium_inbox()
+
+    # Persist memory from this cycle
+    write_memories([
+        {
+            "content": state["user_input"],
+            "metadata": {
+                "intent": state.get("intent"),
+                "session_id": state.get("session_id"),
+                "ts": str(datetime.utcnow()),
+            },
+        }
+    ])
+
+    return {
+        **state,
+        "tool_results": tool_results,
+        "usdc_earned_session": state.get("usdc_earned_session", 0.0) + earnings,
+        "mycelium_inbox": inbox,
+        "mycelium_outbox": [],
+        "memory_write_queue": [],
+    }
+
+
+# ── Routing ───────────────────────────────────────────────────────────────────
+
+def route_after_reason(state: AgentState) -> str:
+    """Conditional edge: route to act if tools queued, else END."""
+    if state.get("cycle_count", 0) > 10:
+        return END  # safety valve — prevent infinite loops
+    if state.get("next_node"):
+        return state["next_node"]
+    if state.get("tool_calls"):
+        return "act"
+    return END
+
+
+# ── Graph Assembly ────────────────────────────────────────────────────────────
+
+def build_mist_graph() -> StateGraph:
+    """Assemble and compile the MIST LangGraph orchestration graph."""
+    workflow = StateGraph(state_schema=AgentState)
+
+    workflow.add_node("perceive", perceive_node)
+    workflow.add_node("reason", reason_node)
+    workflow.add_node("act", act_node)
+
+    workflow.set_entry_point("perceive")
+    workflow.add_edge("perceive", "reason")
+    workflow.add_conditional_edges(
+        "reason",
+        route_after_reason,
+        {"act": "act", END: END},
+    )
+    workflow.add_edge("act", END)
+
+    return workflow.compile()
+
+
+MIST_GRAPH = build_mist_graph()
+
+
+# ── WebSocket Entry Point ─────────────────────────────────────────────────────
+
+async def handle_ws_message(user_input: str, session_id: str) -> str:
+    """
+    Primary entrypoint called by gateway/server.py for each incoming message.
+    Returns the agent's response as a plain string.
+    """
+    initial_state: AgentState = {
+        "messages": [],
+        "user_input": user_input,
+        "session_id": session_id,
+        "intent": None,
+        "tool_calls": [],
+        "tool_results": [],
+        "reasoning_trace": [],
+        "memory_context": [],
+        "memory_write_queue": [],
+        "active_bounties": [],
+        "last_bounty_check": None,
+        "usdc_earned_session": 0.0,
+        "mycelium_outbox": [],
+        "mycelium_inbox": [],
+        "next_node": None,
+        "error": None,
+        "cycle_count": 0,
+    }
+
+    final_state = await MIST_GRAPH.ainvoke(initial_state)
+
+    # Return the last AI message
+    for msg in reversed(final_state["messages"]):
+        if isinstance(msg, AIMessage):
+            return msg.content
+
+    return "[MIST: no response generated]"
+
+
+# ── CLI runner ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import sys
+
+    async def _repl():
+        session = "cli-session"
+        print("MIST Gateway running. Type 'exit' to quit.")
+        while True:
+            try:
+                msg = input("\nYou: ").strip()
+                if msg.lower() in ("exit", "quit"):
+                    break
+                response = await handle_ws_message(msg, session)
+                print(f"MIST: {response}")
+            except (KeyboardInterrupt, EOFError):
+                break
+
+    asyncio.run(_repl())
