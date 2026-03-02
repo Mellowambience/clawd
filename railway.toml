@@ -1,25 +1,17 @@
-# Railway deployment config for MIST API server.
-# Deploy: Railway dashboard → New Project → Deploy from GitHub.
-# Free tier: 500 hours/month, $5 credit.
-#
-# Required env vars (set in Railway dashboard):
-#   GEMINI_API_KEY=your-gemini-api-key
-#   JWT_SECRET=any-random-string
-#   NODE_ENV=production
-#
-# After deploy, set EXPO_PUBLIC_MIST_API_BASE_URL in your
-# Expo env to the Railway URL.
+# Railway deployment config for MIST Python gateway
+# Required env vars in Railway dashboard:
+#   GEMINI_API_KEY, JWT_SECRET, NODE_ENV=production
 
 [build]
-builder = "nixpacks"
-buildCommand = "npm install"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "npx tsx server/_core/index.ts"
-healthcheckPath = "/api/health"
+startCommand = "uvicorn gateway.server:app --host 0.0.0.0 --port 18789"
+healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
 
 [service]
-internalPort = 3000
+internalPort = 18789

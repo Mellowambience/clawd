@@ -1,34 +1,59 @@
 """
-MIST Memory Layer — local-first, encrypted, portable.
-Uses Chroma for vector storage. Each instance owns its collection.
+MIST Memory Layer - local-first, portable.
+Uses Chroma for vector storage. Fully lazy-initialized.
 Export: python export_memory.py -> mist_memory_export.json
 """
-import chromadb
-from chromadb.config import Settings
+from pathlib import Path
+import logging
 
-_client = chromadb.Client(
-    Settings(
-        persist_directory=".mist_memory",
-        anonymized_telemetry=False,
-    )
-)
-_collection = _client.get_or_create_collection("mist_sovereign_memory")
+logger = logging.getLogger(__name__)
+_collection = None
+
+
+def _get_collection():
+    global _collection
+    if _collection is not None:
+        return _collection
+    try:
+        import chromadb
+        from chromadb.config import Settings
+        client = chromadb.Client(
+            Settings(
+                persist_directory=str(Path.home() / ".mist_memory"),
+                anonymized_telemetry=False,
+            )
+        )
+        _collection = client.get_or_create_collection("mist_sovereign_memory")
+        return _collection
+    except ImportError:
+        logger.warning("chromadb not installed - memory disabled. Fix: pip install chromadb")
+        return None
+    except Exception as e:
+        logger.warning(f"Memory store unavailable: {e}")
+        return None
 
 
 def retrieve_memories(query: str, top_k: int = 5) -> list[str]:
-    """Retrieve top-k semantically relevant memories for a query."""
-    results = _collection.query(query_texts=[query], n_results=top_k)
-    return results.get("documents", [[]])[0]
+    col = _get_collection()
+    if col is None:
+        return []
+    try:
+        return col.query(query_texts=[query], n_results=top_k).get("documents", [[]])[0]
+    except Exception as e:
+        logger.debug(f"Memory retrieve failed: {e}")
+        return []
 
 
 def write_memories(entries: list[dict]) -> None:
-    """
-    Persist a list of memory entries to the vector store.
-    Each entry: {"content": str, "metadata": dict}
-    """
+    col = _get_collection()
+    if col is None:
+        return
     for i, entry in enumerate(entries):
-        _collection.add(
-            documents=[entry["content"]],
-            metadatas=[entry.get("metadata", {})],
-            ids=[f"mem_{abs(hash(entry['content']))}_{i}"],
-        )
+        try:
+            col.add(
+                documents=[entry["content"]],
+                metadatas=[entry.get("metadata", {})],
+                ids=[f"mem_{abs(hash(entry['content']))}_{i}"],
+            )
+        except Exception as e:
+            logger.debug(f"Memory write failed: {e}")
