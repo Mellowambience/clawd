@@ -1,0 +1,217 @@
+# ============================================================
+# MOTHERSHIP LOCAL STACK — MIST NEXUS
+# Aetherhaven / clawd — Pillar 1: Local-First Architecture
+# ============================================================
+# Principle: LOCAL FIRST. CLOUD IS A MIRROR.
+# Run offline. No SaaS required for core operation.
+#
+# Usage:
+#   docker compose up           → start all services
+#   docker compose up -d        → start detached
+#   docker compose --profile sync up  → include optional Supabase sync bridge
+#
+# Port map:
+#   7777  → Unified API Gateway (MIST)
+#   6379  → Redis (internal only — not exposed by default)
+#   8080  → MIST Admin/VoidChat UI
+#
+# ============================================================
+
+version: "3.9"
+
+# ── Shared environment ──────────────────────────────────────
+x-env-common: &env-common
+  TZ: America/New_York
+  LOCAL_FIRST: "true"
+  MOTHERSHIP_VERSION: "0.1.0"
+
+# ── Named volumes ────────────────────────────────────────────
+volumes:
+  sqlite_data:
+    driver: local
+  redis_data:
+    driver: local
+  mist_workspace:
+    driver: local
+
+# ── Networks ─────────────────────────────────────────────────
+networks:
+  mothership:
+    driver: bridge
+
+# ============================================================
+# SERVICES
+# ============================================================
+services:
+
+  # ── MIST — The Brain ──────────────────────────────────────
+  # LangGraph orchestrator + Gemini cascade
+  # Unified API gateway on port 7777
+  # VoidChat + AMARA∴ runtime
+  mist:
+    build:
+      context: .
+      dockerfile: Dockerfile.mist
+    image: aetherhaven/mist:latest
+    container_name: mist-nexus
+    restart: unless-stopped
+    ports:
+      - "7777:7777"   # Unified API
+      - "8080:8080"   # Admin/VoidChat UI
+    volumes:
+      - mist_workspace:/app/workspace
+      - sqlite_data:/app/data
+      - ./config:/app/config:ro
+    environment:
+      <<: *env-common
+      # ── Model cascade (Gemini → Groq → Together → OpenRouter)
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      TOGETHER_API_KEY: ${TOGETHER_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      # ── Model routing
+      PRIMARY_MODEL: gemini-2.0-flash
+      FALLBACK_MODEL_1: llama-3.1-70b-versatile        # Groq
+      FALLBACK_MODEL_2: meta-llama/Meta-Llama-3.1-70B  # Together
+      FALLBACK_MODEL_3: openrouter/auto                # OpenRouter
+      # ── API
+      API_PORT: "7777"
+      API_BASE_URL: http://localhost:7777/api/v1
+      # ── Storage
+      SQLITE_PATH: /app/data/mist.db
+      REDIS_URL: redis://redis:6379/0
+      # ── Identity
+      MOTHERSHIP_HANDLE: AMARA
+      ETH_WALLET: "0x212d3a3D4a78EA78c54d54f37a9bE9e5e020Bf75"
+      # ── Features
+      VOIDCHAT_ENABLED: "true"
+      VOICE_INPUT_ENABLED: "false"    # enable after OS-specific Whisper config
+      AFK_MODE: "false"               # set true when Mars is on vacation
+      # ── Supabase sync (optional — only used when online + profile enabled)
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
+      SYNC_ENABLED: ${SYNC_ENABLED:-false}
+    depends_on:
+      redis:
+        condition: service_healthy
+      sqlite-init:
+        condition: service_completed_successfully
+    networks:
+      - mothership
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7777/api/v1/ecosystem/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── Redis — Local Queue ───────────────────────────────────
+  # Task queue, session cache, rate limit counters
+  # Falls back to in-memory queue if Redis is unavailable (MIST handles this)
+  redis:
+    image: redis:7-alpine
+    container_name: mothership-redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    environment:
+      <<: *env-common
+    networks:
+      - mothership
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── SQLite Init — Local-First Storage Bootstrap ───────────
+  # One-shot: creates schema on first run, no-op if DB exists
+  # Schemas: sessions, agents, vtuber_sessions, dna_profiles, api_keys, audit_log
+  sqlite-init:
+    image: nouchka/sqlite3:latest
+    container_name: sqlite-init
+    volumes:
+      - sqlite_data:/data
+      - ./sql:/sql:ro
+    command: >
+      sh -c "
+        if [ ! -f /data/mist.db ]; then
+          echo '⚙️  Initializing MIST local database...';
+          sqlite3 /data/mist.db < /sql/schema.sql;
+          echo '✅ Database initialized.';
+        else
+          echo '✅ Database already exists — skipping init.';
+        fi
+      "
+    networks:
+      - mothership
+
+  # ── Supabase Sync Bridge (OPTIONAL) ──────────────────────
+  # Enabled via: docker compose --profile sync up
+  # Syncs local SQLite → Supabase when online
+  # Cloud is a MIRROR. This service is optional by design.
+  supabase-sync:
+    profiles:
+      - sync
+    image: node:20-alpine
+    container_name: supabase-sync
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - sqlite_data:/data:ro
+      - ./sync:/app:ro
+    environment:
+      <<: *env-common
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      SQLITE_PATH: /data/mist.db
+      SYNC_INTERVAL_SECONDS: "300"    # sync every 5 minutes when online
+      SYNC_TABLES: sessions,vtuber_sessions,api_keys
+    command: node sync-bridge.js
+    depends_on:
+      - mist
+    networks:
+      - mothership
+
+  # ── Weather Cache ─────────────────────────────────────────
+  # Local weather data fetcher — refreshes hourly from NWS/Open-Meteo
+  # No external API key required (NWS is free, Open-Meteo is free)
+  weather-cache:
+    image: python:3.12-slim
+    container_name: weather-cache
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./agents/weather:/app:ro
+      - sqlite_data:/data
+    environment:
+      <<: *env-common
+      SQLITE_PATH: /data/mist.db
+      DEFAULT_LAT: "39.9526"          # Philadelphia, PA
+      DEFAULT_LON: "-75.1652"
+      REFRESH_INTERVAL_MINUTES: "60"
+      WEATHER_SOURCE: open-meteo      # free, no key required
+      NWS_FALLBACK: "true"
+    command: python weather_agent.py
+    depends_on:
+      sqlite-init:
+        condition: service_completed_successfully
+    networks:
+      - mothership
+
+# ============================================================
+# UNIFIED API CONTRACT (for reference — implemented in MIST)
+# Base: http://localhost:7777/api/v1
+#
+# GET  /now                     → local time + weather + active agent
+# GET  /ecosystem/status        → all services health
+# GET  /radio/now-playing       → current track
+# POST /radio/request           → queue track by voice/text
+# GET  /weather/local           → hyperlocal NWS/Open-Meteo forecast
+# GET  /weather/personalized    → behavior-enriched forecast
+# POST /command                 → universal command (text|voice|BLE packet)
+# GET  /vtuber/actors           → active AI actor roster
+# POST /vtuber/session/start    → begin 2hr paid session
+# GET  /research/{topic}        → multi-source research synthesis
+# ============================================================
