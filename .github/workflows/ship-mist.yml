@@ -1,6 +1,6 @@
 name: MIST Sovereign Ship
 # Triggered on push to main — deploys gateway to Railway, builds mobile via EAS
-# Required secrets:
+# Required secrets (set in repo Settings > Secrets > Actions):
 #   RAILWAY_TOKEN  — Railway > Project Settings > Tokens > Generate
 #   EAS_TOKEN      — expo.dev > Account Settings > Access Tokens
 #   GEMINI_API_KEY — Gemini API key (gateway only, never frontend)
@@ -14,6 +14,8 @@ jobs:
   backend:
     name: Gateway — test + deploy to Railway
     runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -39,7 +41,7 @@ jobs:
         run: docker build -f Dockerfile.mist -t mist-gateway .
 
       - name: Deploy to Railway
-        if: ${{ secrets.RAILWAY_TOKEN != '' }}
+        if: env.RAILWAY_TOKEN != ''
         uses: railwayapp/action@v1
         with:
           token: ${{ secrets.RAILWAY_TOKEN }}
@@ -47,6 +49,8 @@ jobs:
   mobile:
     name: Mobile — EAS build (iOS)
     runs-on: ubuntu-latest
+    env:
+      EAS_TOKEN: ${{ secrets.EAS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -59,18 +63,18 @@ jobs:
           if [ -f app/package.json ]; then
             cd app && npm ci
           else
-            echo "No app/ directory yet — skipping"
+            echo "No app/ directory yet — skipping mobile deps"
           fi
 
       - name: Setup Expo EAS
-        if: ${{ secrets.EAS_TOKEN != '' }}
+        if: env.EAS_TOKEN != ''
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EAS_TOKEN }}
 
       - name: EAS build — iOS production
-        if: ${{ secrets.EAS_TOKEN != '' }}
+        if: env.EAS_TOKEN != ''
         run: |
           if [ -f app/package.json ]; then
             cd app && npx eas build --platform ios --profile production --non-interactive
