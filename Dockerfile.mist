@@ -1,0 +1,37 @@
+# MIST Nexus — Dockerfile
+# Aetherhaven / clawd | Unified API Gateway
+# Base: Python 3.12-slim
+# Ports: 7777 (API) | 8080 (VoidChat UI placeholder)
+
+FROM python:3.12-slim
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Working directory
+WORKDIR /app
+
+# Install Python deps first (layer cache)
+COPY api/server/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source
+COPY api/server/ ./src/
+COPY sql/schema.sql ./sql/schema.sql
+
+# Data dir for SQLite
+RUN mkdir -p /app/data /app/workspace /app/config
+
+# Expose ports
+EXPOSE 7777
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:7777/api/v1/ecosystem/status || exit 1
+
+# Run
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "7777", "--workers", "1"]
