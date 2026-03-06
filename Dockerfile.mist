@@ -11,16 +11,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Working directory
 WORKDIR /app
 
-# Install Python deps first (layer cache)
+# Install Python deps (layer cache)
 COPY api/server/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source
+# Copy API server source → src/
 COPY api/server/ ./src/
-COPY sql/schema.sql ./sql/schema.sql
+
+# Copy SQL schema
+COPY sql/ ./sql/
 
 # Data dir for SQLite
 RUN mkdir -p /app/data /app/workspace /app/config

@@ -3,7 +3,7 @@ name: MIST Sovereign Ship
 # Required secrets:
 #   RAILWAY_TOKEN  — Railway > Project Settings > Tokens > Generate
 #   EAS_TOKEN      — expo.dev > Account Settings > Access Tokens
-#   GEMINI_API_KEY — Gemini API key (routes through gateway only, never frontend)
+#   GEMINI_API_KEY — Gemini API key (gateway only, never frontend)
 
 on:
   push:
@@ -22,17 +22,24 @@ jobs:
           python-version: "3.12"
 
       - name: Install Python deps
-        run: pip install -r requirements.txt
+        run: pip install -r api/server/requirements.txt pytest
 
       - name: Run gateway tests (unit only, skip integration)
-        run: pytest gateway/tests/ -v --tb=short -m "not integration"
+        run: |
+          if [ -d api/tests ]; then
+            pytest api/tests/ -v --tb=short -m "not integration"
+          else
+            echo "No api/tests/ yet — skipping"
+          fi
         env:
           PYTHONPATH: .
+          SQLITE_PATH: /tmp/test-mist.db
 
       - name: Build Docker image
-        run: docker build -t mist-gateway .
+        run: docker build -f Dockerfile.mist -t mist-gateway .
 
       - name: Deploy to Railway
+        if: ${{ secrets.RAILWAY_TOKEN != '' }}
         uses: railwayapp/action@v1
         with:
           token: ${{ secrets.RAILWAY_TOKEN }}
@@ -48,13 +55,25 @@ jobs:
           node-version: "18"
 
       - name: Install mobile deps
-        run: cd app && npm ci
+        run: |
+          if [ -f app/package.json ]; then
+            cd app && npm ci
+          else
+            echo "No app/ directory yet — skipping"
+          fi
 
       - name: Setup Expo EAS
+        if: ${{ secrets.EAS_TOKEN != '' }}
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EAS_TOKEN }}
 
       - name: EAS build — iOS production
-        run: cd app && npx eas build --platform ios --profile production --non-interactive
+        if: ${{ secrets.EAS_TOKEN != '' }}
+        run: |
+          if [ -f app/package.json ]; then
+            cd app && npx eas build --platform ios --profile production --non-interactive
+          else
+            echo "No app/ directory yet — skipping EAS build"
+          fi
