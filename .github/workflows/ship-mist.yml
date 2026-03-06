@@ -1,8 +1,11 @@
 name: MIST Sovereign Ship
-# Triggered on push to main — deploys gateway to Railway, builds mobile via EAS
-# Required secrets (set in repo Settings > Secrets > Actions):
-#   RAILWAY_TOKEN  — Railway > Project Settings > Tokens > Generate
-#   EAS_TOKEN      — expo.dev > Account Settings > Access Tokens
+# Triggered on push to main
+# Railway deploys automatically via its built-in GitHub integration
+# (push to main → Railway webhook → both elegant-essence + daring-respect redeploy)
+# This workflow handles: test validation + Docker image build verification
+#
+# Optional secrets (set in repo Settings > Secrets > Actions):
+#   EAS_TOKEN      — expo.dev > Account Settings > Access Tokens (mobile builds)
 #   GEMINI_API_KEY — Gemini API key (gateway only, never frontend)
 
 on:
@@ -12,10 +15,8 @@ on:
 
 jobs:
   backend:
-    name: Gateway — test + deploy to Railway
+    name: Gateway — test + docker build
     runs-on: ubuntu-latest
-    env:
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,14 +38,10 @@ jobs:
           PYTHONPATH: .
           SQLITE_PATH: /tmp/test-mist.db
 
-      - name: Build Docker image
+      - name: Build Docker image (verify Dockerfile.mist is valid)
         run: docker build -f Dockerfile.mist -t mist-gateway .
 
-      - name: Deploy to Railway
-        if: env.RAILWAY_TOKEN != ''
-        uses: railwayapp/action@v1
-        with:
-          token: ${{ secrets.RAILWAY_TOKEN }}
+      # Railway autodeploys on push via GitHub integration — no step needed here
 
   mobile:
     name: Mobile — EAS build (iOS)
@@ -63,7 +60,7 @@ jobs:
           if [ -f app/package.json ]; then
             cd app && npm ci
           else
-            echo "No app/ directory yet — skipping mobile deps"
+            echo "No app/ directory yet — skipping"
           fi
 
       - name: Setup Expo EAS
@@ -79,5 +76,5 @@ jobs:
           if [ -f app/package.json ]; then
             cd app && npx eas build --platform ios --profile production --non-interactive
           else
-            echo "No app/ directory yet — skipping EAS build"
+            echo "No app/ directory yet — skipping"
           fi
