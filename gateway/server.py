@@ -1,6 +1,6 @@
 """
 MIST Gateway Server — FastAPI + WebSocket entry point.
-Port: 18789 (sovereign default)
+Port: $PORT env var (Railway), fallback 18789 (local sovereign default)
 
 Endpoints:
   GET  /health              — liveness check
@@ -9,15 +9,18 @@ Endpoints:
   POST /mycelium/receive    — inter-agent mycelium inbox
 """
 import json
+import os
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 app = FastAPI(title="MIST Gateway", version="1.0")
 
+PORT = int(os.environ.get("PORT", 18789))
+
 
 @app.get("/health")
 async def health():
-    return {"status": "sovereign", "port": 18789}
+    return {"status": "sovereign", "port": PORT}
 
 
 @app.websocket("/ws")
@@ -58,4 +61,4 @@ async def mycelium_receive(body: dict):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=18789, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="info")
