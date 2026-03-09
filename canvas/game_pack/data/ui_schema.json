@@ -1,0 +1,42 @@
+{
+  "theme": "ghostline-mars",
+  "screens": [
+    {
+      "id": "main_menu",
+      "widgets": [
+        "start_button",
+        "run_history",
+        "lore_tip"
+      ]
+    },
+    {
+      "id": "battle",
+      "widgets": [
+        "player_status",
+        "enemy_status",
+        "move_grid",
+        "battle_log",
+        "threat_indicator"
+      ]
+    },
+    {
+      "id": "intermission",
+      "widgets": [
+        "roster_swap",
+        "heal_choice",
+        "next_champion_preview"
+      ]
+    }
+  ],
+  "hud": {
+    "always_visible": [
+      "hp_bar",
+      "energy_bar",
+      "shield_pill"
+    ],
+    "conditional": [
+      "critical_alert",
+      "burst_warning"
+    ]
+  }
+}

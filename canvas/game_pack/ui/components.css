@@ -1,0 +1,85 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Space+Mono:wght@400;700&display=swap");
+@import url("./tokens.css");
+
+.gh-root {
+  color: var(--gh-ink);
+  font-family: var(--gh-font-ui);
+  background:
+    radial-gradient(circle at 16% 12%, rgba(255, 195, 161, 0.22), transparent 46%),
+    radial-gradient(circle at 84% 8%, rgba(240, 83, 58, 0.25), transparent 42%),
+    linear-gradient(135deg, var(--gh-bg-0), var(--gh-bg-1) 45%, var(--gh-bg-2));
+}
+
+.gh-panel {
+  background: rgba(15, 5, 7, 0.72);
+  border: 1px solid var(--gh-line);
+  border-radius: var(--gh-radius-lg);
+  box-shadow: var(--gh-shadow);
+  backdrop-filter: blur(5px);
+}
+
+.gh-title {
+  margin: 0;
+  font-family: var(--gh-font-display);
+  letter-spacing: 0.05em;
+  color: #ffe7d5;
+}
+
+.gh-subtitle {
+  color: var(--gh-muted);
+  font-size: 0.92rem;
+}
+
+.gh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--gh-line);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+}
+
+.gh-pill.good { color: var(--gh-good); }
+.gh-pill.warn { color: var(--gh-warn); }
+.gh-pill.bad { color: var(--gh-bad); }
+
+.gh-btn {
+  border: 1px solid var(--gh-line);
+  border-radius: 12px;
+  background: linear-gradient(130deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  color: var(--gh-ink);
+  padding: 10px 12px;
+  font: inherit;
+  cursor: pointer;
+  transition: 180ms ease;
+}
+
+.gh-btn:hover {
+  border-color: rgba(255, 195, 161, 0.75);
+  transform: translateY(-1px);
+  background: linear-gradient(130deg, rgba(240, 83, 58, 0.22), rgba(255, 255, 255, 0.04));
+}
+
+.gh-bars {
+  display: grid;
+  gap: 8px;
+}
+
+.gh-bar {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.gh-bar > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.gh-bar.hp > span { background: linear-gradient(90deg, #f7d19d, #f0533a); }
+.gh-bar.en > span { background: linear-gradient(90deg, #a3f5d7, #66c9e2); }

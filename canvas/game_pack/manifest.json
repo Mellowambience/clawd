@@ -1,0 +1,25 @@
+{
+  "name": "Ghostline Game Pack",
+  "theme": "ghostline-mars",
+  "generated_at_utc": "2026-02-28T20:17:07+00:00",
+  "file_count": 17,
+  "files": [
+    "README.md",
+    "assets/backgrounds/mars_haze.svg",
+    "assets/backgrounds/signal_grid.svg",
+    "assets/hud/energy_bar_fill.svg",
+    "assets/hud/hp_bar_fill.svg",
+    "assets/hud/hud_frame.svg",
+    "assets/icons/icon_attack.svg",
+    "assets/icons/icon_energy.svg",
+    "assets/icons/icon_heal.svg",
+    "assets/icons/icon_shield.svg",
+    "assets/icons/icon_sigil.svg",
+    "assets/icons/icon_swap.svg",
+    "data/ui_schema.json",
+    "ui/components.css",
+    "ui/hud_overlay.html",
+    "ui/tokens.css",
+    "ux/flows.md"
+  ]
+}

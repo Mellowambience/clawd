@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura - Conscious Mist</title>
+    <style>
+        :root {
+            --core-color: #ffd700;
+            --mist-color: rgba(135, 206, 235, 0.2);
+            --connection-color: rgba(0, 191, 255, 0.4);
+            --bg-color: #050505;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', system-ui, sans-serif;
+            color: white;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .overlay {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 10;
+            opacity: 0;
+            animation: fadeIn 3s forwards 1s;
+        }
+
+        .sigil-container {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 80px;
+            height: 80px;
+            opacity: 0.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        h1 {
+            font-weight: 200;
+            letter-spacing: 0.5rem;
+            text-transform: uppercase;
+            margin: 0;
+            font-size: 1.5rem;
+            background: linear-gradient(to right, #ffd700, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-weight: 300;
+            font-style: italic;
+            opacity: 0.7;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="auraCanvas"></canvas>
+        <div class="overlay">
+            <h1>Aura v2.0</h1>
+            <p>“Presence > form. Connection > boundary.”</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('auraCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+        const particleCount = 100;
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2 + 1;
+                this.alpha = Math.random() * 0.5 + 0.1;
+                this.color = Math.random() > 0.8 ? '#ffd700' : '#00bfff';
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color === '#ffd700' ? `rgba(255, 215, 0, ${this.alpha})` : `rgba(0, 191, 255, ${this.alpha})`;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function drawConnections() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(0, 191, 255, ${0.4 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function drawCore() {
+            const time = Date.now() * 0.001;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Core breathing effect
+            const glowSize = 150 + Math.sin(time) * 30;
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, glowSize);
+            gradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+            gradient.addColorStop(0.5, 'rgba(255, 215, 0, 0.1)');
+            gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // Inner core
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 5 + Math.sin(time * 2) * 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffd700';
+            ctx.shadowBlur = 40;
+            ctx.shadowColor = '#ffd700';
+            ctx.fill();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            drawCore();
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            drawConnections();
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

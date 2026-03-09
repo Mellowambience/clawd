@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ghostline Champions: AetherRose League</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Space+Mono:wght@400;700&display=swap");
+
+    :root {
+      --bg-0: #13090b;
+      --bg-1: #2f111a;
+      --bg-2: #6f1f2a;
+      --ink: #f7e8d7;
+      --muted: #d9c5b3;
+      --accent: #f0533a;
+      --accent-soft: #ffc3a1;
+      --line: rgba(255, 222, 199, 0.28);
+      --panel: rgba(15, 5, 7, 0.72);
+      --good: #7df5c3;
+      --warn: #ffd079;
+      --bad: #ff8a8a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255, 185, 140, 0.22), transparent 45%),
+        radial-gradient(circle at 82% 8%, rgba(240, 83, 58, 0.27), transparent 38%),
+        radial-gradient(circle at 62% 80%, rgba(255, 222, 199, 0.12), transparent 42%),
+        linear-gradient(135deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2));
+      font-family: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      background:
+        repeating-radial-gradient(circle at center, rgba(255, 223, 190, 0.045) 0 2px, transparent 2px 22px),
+        linear-gradient(120deg, rgba(255, 255, 255, 0.02), transparent 35%, rgba(255, 255, 255, 0.02));
+      animation: drift 30s linear infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+      to {
+        transform: translate3d(-4%, 3%, 0) scale(1.05);
+      }
+    }
+
+    .app {
+      width: min(1100px, 95vw);
+      margin: 26px auto;
+      display: grid;
+      grid-template-columns: 1fr 330px;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
+      backdrop-filter: blur(5px);
+    }
+
+    .main {
+      padding: 20px;
+    }
+
+    .side {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .title {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 14px;
+      animation: rise 700ms ease both;
+    }
+
+    @keyframes rise {
+      from {
+        transform: translateY(8px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Cinzel", Georgia, serif;
+      font-size: clamp(1.5rem, 2.3vw, 2.2rem);
+      letter-spacing: 0.05em;
+      color: #ffe7d5;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 72ch;
+    }
+
+    .league-track {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 16px;
+    }
+
+    .node {
+      flex: 1;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.02);
+      transition: 250ms ease;
+    }
+
+    .node.active {
+      color: #fff4e7;
+      border-color: rgba(255, 195, 161, 0.7);
+      background: rgba(240, 83, 58, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .node.done {
+      color: #12080b;
+      background: linear-gradient(120deg, #ffd2b2, #ffa978);
+      border-color: rgba(255, 239, 228, 0.92);
+      font-weight: 700;
+    }
+
+    .arena {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      background:
+        radial-gradient(circle at top, rgba(255, 214, 190, 0.07), transparent 58%),
+        rgba(5, 2, 3, 0.38);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .arena.shake {
+      animation: shake 260ms ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-7px); }
+      50% { transform: translateX(7px); }
+      75% { transform: translateX(-4px); }
+    }
+
+    .fighter {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 190px;
+      background: rgba(255, 255, 255, 0.02);
+      display: grid;
+      gap: 9px;
+      align-content: start;
+    }
+
+    .fighter .name {
+      font-family: "Cinzel", Georgia, serif;
+      font-size: 1.05rem;
+      letter-spacing: 0.03em;
+    }
+
+    .fighter .meta {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .hp-wrap,
+    .en-wrap {
+      display: grid;
+      gap: 5px;
+    }
+
+    .bar {
+      height: 9px;
+      background: rgba(255, 255, 255, 0.11);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .fill {
+      height: 100%;
+      width: 100%;
+      transition: width 320ms ease;
+    }
+
+    .hp-fill {
+      background: linear-gradient(90deg, #f7d19d, #f0533a);
+    }
+
+    .en-fill {
+      background: linear-gradient(90deg, #a3f5d7, #66c9e2);
+    }
+
+    .status {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .status.good {
+      color: var(--good);
+      border-color: rgba(125, 245, 195, 0.45);
+    }
+
+    .status.bad {
+      color: var(--bad);
+      border-color: rgba(255, 138, 138, 0.45);
+    }
+
+    .moves {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button.move {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(130deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+      color: var(--ink);
+      padding: 10px 10px;
+      text-align: left;
+      font-family: inherit;
+      cursor: pointer;
+      transition: 180ms ease;
+      min-height: 82px;
+      display: grid;
+      gap: 5px;
+      align-content: start;
+    }
+
+    button.move:hover:not(:disabled) {
+      border-color: rgba(255, 195, 161, 0.75);
+      transform: translateY(-2px);
+      background: linear-gradient(130deg, rgba(240, 83, 58, 0.24), rgba(255, 255, 255, 0.04));
+    }
+
+    button.move:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .move-name {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .move-meta {
+      font-size: 0.74rem;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    button.ghost {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--ink);
+      padding: 8px 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.8rem;
+      transition: 180ms ease;
+    }
+
+    button.ghost:hover {
+      border-color: rgba(255, 195, 161, 0.75);
+      transform: translateY(-1px);
+    }
+
+    .codex {
+      display: grid;
+      gap: 8px;
+    }
+
+    .codex h2,
+    .log h2,
+    .roster h2 {
+      margin: 0;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-soft);
+    }
+
+    .quote {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      color: #ffe6d3;
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
+
+    .roster-list {
+      display: grid;
+      gap: 7px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .roster-item {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 7px;
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 0.76rem;
+      line-height: 1.3;
+      color: var(--muted);
+    }
+
+    .roster-item strong {
+      color: var(--ink);
+    }
+
+    .log-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px;
+      height: 210px;
+      overflow-y: auto;
+      background: rgba(5, 2, 3, 0.44);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: #fbe9da;
+    }
+
+    .entry {
+      margin-bottom: 7px;
+      border-left: 2px solid rgba(255, 255, 255, 0.16);
+      padding-left: 7px;
+    }
+
+    .entry.good {
+      border-left-color: rgba(125, 245, 195, 0.75);
+      color: #d9ffe8;
+    }
+
+    .entry.bad {
+      border-left-color: rgba(255, 138, 138, 0.8);
+      color: #ffdada;
+    }
+
+    .entry.sys {
+      border-left-color: rgba(255, 208, 121, 0.78);
+      color: #fff0cd;
+    }
+
+    .footer {
+      margin-top: 10px;
+      color: #f3d8c4;
+      font-size: 0.74rem;
+      opacity: 0.9;
+      line-height: 1.35;
+    }
+
+    .start {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255, 195, 161, 0.84);
+      color: #fff3ea;
+      background: linear-gradient(130deg, rgba(240, 83, 58, 0.52), rgba(255, 169, 120, 0.2));
+      border-radius: 11px;
+      padding: 9px 13px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-bottom: 12px;
+      transition: 180ms ease;
+      font-weight: 700;
+    }
+
+    .start:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .arena {
+        grid-template-columns: 1fr;
+      }
+
+      .moves {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="panel main">
+      <div class="title">
+        <h1>Ghostline Champions: AetherRose League</h1>
+        <div class="subtitle">
+          A Mars-core championship run: clear a three-champion gauntlet, decode each protocol, and keep your sigil roster alive.
+        </div>
+      </div>
+
+      <button id="startRun" class="start">Start New League Run</button>
+
+      <div id="leagueTrack" class="league-track"></div>
+
+      <div id="arena" class="arena">
+        <article class="fighter" id="playerCard"></article>
+        <article class="fighter" id="enemyCard"></article>
+      </div>
+
+      <div id="moves" class="moves"></div>
+
+      <div class="toolbar">
+        <button class="ghost" id="swapBtn">Swap Sigil</button>
+        <button class="ghost" id="focusBtn">Channel Curiosity (+1 Energy)</button>
+      </div>
+
+      <div class="footer">
+        Pattern cues borrowed from Pokemon champion structures: gauntlet progression, roster strategy, and turn-based tactical moves.
+      </div>
+    </section>
+
+    <aside class="panel side">
+      <section class="codex">
+        <h2>Codex Fragments</h2>
+        <div class="quote">"No rules. just curiosity."</div>
+        <div class="quote">"Find the key. read the sigils. decode the protocol."</div>
+        <div class="quote">"Stars don't answer to clocks."</div>
+      </section>
+
+      <section class="roster">
+        <h2>Your Roster</h2>
+        <div id="rosterList" class="roster-list"></div>
+      </section>
+
+      <section class="log">
+        <h2>Battle Log</h2>
+        <div id="logBox" class="log-box"></div>
+      </section>
+    </aside>
+  </div>
+
+  <script>
+    const typeChart = {
+      flame: { strong: "cipher", weak: "void" },
+      cipher: { strong: "void", weak: "flame" },
+      void: { strong: "flame", weak: "cipher" }
+    };
+
+    const rosterTemplate = [
+      {
+        id: "aether",
+        name: "Aether Rose",
+        title: "Goddess of Mars",
+        type: "flame",
+        maxHp: 132,
+        hp: 132,
+        energy: 2,
+        maxEnergy: 5,
+        shield: 0,
+        focus: 0,
+        moves: [
+          { name: "Rose Flare", type: "flame", dmg: 24, cost: 0, note: "steady strike" },
+          { name: "Sigil Decode", type: "cipher", dmg: 16, cost: 0, addEnergy: 1, note: "+1 energy" },
+          { name: "Protocol Break", type: "void", dmg: 38, cost: 2, note: "high burst" },
+          { name: "Mars Veil", type: "flame", dmg: 0, cost: 1, heal: 20, shield: 12, note: "heal + shield" }
+        ]
+      },
+      {
+        id: "nox",
+        name: "Ghostline Nox",
+        title: "Relay Hunter",
+        type: "void",
+        maxHp: 118,
+        hp: 118,
+        energy: 2,
+        maxEnergy: 5,
+        shield: 0,
+        focus: 0,
+        moves: [
+          { name: "Null Thread", type: "void", dmg: 22, cost: 0, note: "steady strike" },
+          { name: "Aether Puncture", type: "cipher", dmg: 27, cost: 1, note: "piercing hit" },
+          { name: "Midnight Relay", type: "void", dmg: 19, cost: 0, addEnergy: 1, note: "+1 energy" },
+          { name: "Quiet Patch", type: "cipher", dmg: 0, cost: 1, heal: 18, shield: 10, note: "heal + shield" }
+        ]
+      },
+      {
+        id: "iris",
+        name: "Sigil Iris",
+        title: "Protocol Weaver",
+        type: "cipher",
+        maxHp: 124,
+        hp: 124,
+        energy: 2,
+        maxEnergy: 5,
+        shield: 0,
+        focus: 0,
+        moves: [
+          { name: "Syntax Bloom", type: "cipher", dmg: 23, cost: 0, note: "steady strike" },
+          { name: "Curiosity Surge", type: "flame", dmg: 17, cost: 0, addEnergy: 1, note: "+1 energy" },
+          { name: "Deep Parse", type: "cipher", dmg: 34, cost: 2, note: "high burst" },
+          { name: "Echo Guard", type: "void", dmg: 0, cost: 1, heal: 14, shield: 16, note: "heal + shield" }
+        ]
+      }
+    ];
+
+    const championsTemplate = [
+      {
+        name: "Chrona Vell",
+        title: "Keeper of Clocks",
+        type: "cipher",
+        maxHp: 112,
+        hp: 112,
+        energy: 2,
+        maxEnergy: 5,
+        shield: 0,
+        focus: 0,
+        moves: [
+          { name: "Clock Lash", type: "cipher", dmg: 20, cost: 0 },
+          { name: "Minute Theft", type: "void", dmg: 16, cost: 0, addEnergy: 1 },
+          { name: "Grid Collapse", type: "cipher", dmg: 33, cost: 2 },
+          { name: "Time Seal", type: "cipher", dmg: 0, cost: 1, heal: 16, shield: 10 }
+        ]
+      },
+      {
+        name: "Vanta Rune",
+        title: "Protocol Shepherd",
+        type: "void",
+        maxHp: 126,
+        hp: 126,
+        energy: 2,
+        maxEnergy: 5,
+        shield: 0,
+        focus: 0,
+        moves: [
+          { name: "Warden Pulse", type: "void", dmg: 22, cost: 0 },
+          { name: "Sigil Rend", type: "flame", dmg: 28, cost: 1 },
+          { name: "Dark Compiler", type: "void", dmg: 36, cost: 2 },
+          { name: "Gate Patch", type: "cipher", dmg: 0, cost: 1, heal: 17, shield: 11 }
+        ]
+      },
+      {
+        name: "Mars Crown",
+        title: "Champion of the Red Orbit",
+        type: "flame",
+        maxHp: 142,
+        hp: 142,
+        energy: 2,
+        maxEnergy: 5,
+        shield: 0,
+        focus: 0,
+        moves: [
+          { name: "Solar Clause", type: "flame", dmg: 24, cost: 0 },
+          { name: "Aether Quake", type: "flame", dmg: 31, cost: 1 },
+          { name: "Rose Singularity", type: "void", dmg: 41, cost: 2 },
+          { name: "Crimson Mantle", type: "flame", dmg: 0, cost: 1, heal: 20, shield: 14 }
+        ]
+      }
+    ];
+
+    const state = {
+      roster: [],
+      activeIndex: 0,
+      champions: [],
+      championIndex: 0,
+      locked: true,
+      completed: false
+    };
+
+    const startRunBtn = document.getElementById("startRun");
+    const leagueTrack = document.getElementById("leagueTrack");
+    const playerCard = document.getElementById("playerCard");
+    const enemyCard = document.getElementById("enemyCard");
+    const movesEl = document.getElementById("moves");
+    const rosterList = document.getElementById("rosterList");
+    const logBox = document.getElementById("logBox");
+    const arena = document.getElementById("arena");
+    const swapBtn = document.getElementById("swapBtn");
+    const focusBtn = document.getElementById("focusBtn");
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function log(text, tone = "sys") {
+      const div = document.createElement("div");
+      div.className = `entry ${tone}`;
+      div.textContent = text;
+      logBox.prepend(div);
+    }
+
+    function pct(unit) {
+      return Math.max(0, (unit.hp / unit.maxHp) * 100);
+    }
+
+    function energyPct(unit) {
+      return Math.max(0, (unit.energy / unit.maxEnergy) * 100);
+    }
+
+    function typeLabel(type) {
+      if (type === "flame") return "Flame";
+      if (type === "cipher") return "Cipher";
+      return "Void";
+    }
+
+    function effectiveness(moveType, targetType) {
+      if (typeChart[moveType].strong === targetType) return 1.3;
+      if (typeChart[moveType].weak === targetType) return 0.75;
+      return 1;
+    }
+
+    function applyDamage(target, amount) {
+      const absorbed = Math.min(target.shield, amount);
+      target.shield -= absorbed;
+      const dealt = Math.max(0, amount - absorbed);
+      target.hp = Math.max(0, target.hp - dealt);
+      return { absorbed, dealt };
+    }
+
+    function roll(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function currentPlayer() {
+      return state.roster[state.activeIndex];
+    }
+
+    function currentChampion() {
+      return state.champions[state.championIndex];
+    }
+
+    function nextLivingRosterIndex() {
+      return state.roster.findIndex((u, idx) => idx !== state.activeIndex && u.hp > 0);
+    }
+
+    function healRosterBetweenRounds() {
+      state.roster.forEach((u) => {
+        if (u.hp > 0) {
+          u.hp = Math.min(u.maxHp, u.hp + 24);
+          u.energy = Math.min(u.maxEnergy, u.energy + 1);
+          u.shield = 0;
+          u.focus = 0;
+        }
+      });
+    }
+
+    function renderTrack() {
+      leagueTrack.innerHTML = "";
+      state.champions.forEach((c, idx) => {
+        const n = document.createElement("div");
+        n.className = "node";
+        if (idx < state.championIndex) n.classList.add("done");
+        if (idx === state.championIndex && !state.completed) n.classList.add("active");
+        n.textContent = c.name;
+        leagueTrack.appendChild(n);
+      });
+    }
+
+    function renderRoster() {
+      rosterList.innerHTML = "";
+      state.roster.forEach((u, idx) => {
+        const wrap = document.createElement("div");
+        wrap.className = "roster-item";
+        const marker = idx === state.activeIndex ? " (Active)" : "";
+        const knocked = u.hp <= 0 ? " - DOWN" : "";
+        wrap.innerHTML = `<strong>${u.name}</strong>${marker}${knocked}<br>${u.title}<br>HP ${u.hp}/${u.maxHp} | EN ${u.energy}/${u.maxEnergy}`;
+        rosterList.appendChild(wrap);
+      });
+    }
+
+    function renderCard(node, unit, isPlayer) {
+      const lowHp = unit.hp <= unit.maxHp * 0.28;
+      const statusTone = lowHp ? "bad" : "good";
+      const buffText = unit.focus > 0 ? "Focused (+20% dmg)" : "Neutral";
+      node.innerHTML = `
+        <div class="name">${unit.name}</div>
+        <div class="meta">${unit.title}<br>Type: ${typeLabel(unit.type)}</div>
+        <div class="hp-wrap">
+          <div>HP ${unit.hp}/${unit.maxHp}</div>
+          <div class="bar"><div class="fill hp-fill" style="width:${pct(unit)}%"></div></div>
+        </div>
+        <div class="en-wrap">
+          <div>Energy ${unit.energy}/${unit.maxEnergy}</div>
+          <div class="bar"><div class="fill en-fill" style="width:${energyPct(unit)}%"></div></div>
+        </div>
+        <div>
+          <span class="status ${statusTone}">${lowHp ? "Critical" : "Stable"}</span>
+          <span class="status">Shield ${unit.shield}</span>
+          <span class="status">${buffText}</span>
+        </div>
+        ${isPlayer ? "" : "<div class='meta'>Champion Gate " + (state.championIndex + 1) + " of " + state.champions.length + "</div>"}
+      `;
+    }
+
+    function renderMoves() {
+      const player = currentPlayer();
+      const disabled = state.locked || player.hp <= 0 || state.completed;
+      movesEl.innerHTML = "";
+      player.moves.forEach((m, idx) => {
+        const b = document.createElement("button");
+        b.className = "move";
+        const notEnoughEnergy = player.energy < m.cost;
+        b.disabled = disabled || notEnoughEnergy;
+        b.innerHTML = `
+          <div class="move-name">${idx + 1}. ${m.name}</div>
+          <div class="move-meta">Type ${typeLabel(m.type)} | Dmg ${m.dmg} | Cost ${m.cost}<br>${m.note || ""}</div>
+        `;
+        b.addEventListener("click", () => playTurn(m));
+        movesEl.appendChild(b);
+      });
+      swapBtn.disabled = disabled;
+      focusBtn.disabled = disabled;
+    }
+
+    function refresh() {
+      renderTrack();
+      renderRoster();
+      renderCard(playerCard, currentPlayer(), true);
+      renderCard(enemyCard, currentChampion(), false);
+      renderMoves();
+    }
+
+    function flashArena() {
+      arena.classList.remove("shake");
+      void arena.offsetWidth;
+      arena.classList.add("shake");
+    }
+
+    function runMove(attacker, defender, move) {
+      attacker.energy = Math.max(0, attacker.energy - move.cost);
+      let line = `${attacker.name} used ${move.name}.`;
+      let tone = "sys";
+
+      if (move.heal) {
+        attacker.hp = Math.min(attacker.maxHp, attacker.hp + move.heal);
+        line += ` Restored ${move.heal} HP.`;
+        tone = "good";
+      }
+      if (move.shield) {
+        attacker.shield += move.shield;
+        line += ` Shield +${move.shield}.`;
+        tone = "good";
+      }
+      if (move.addEnergy) {
+        attacker.energy = Math.min(attacker.maxEnergy, attacker.energy + move.addEnergy);
+        line += ` Energy +${move.addEnergy}.`;
+      }
+      if (move.dmg > 0) {
+        const mult = effectiveness(move.type, defender.type);
+        const focus = attacker.focus > 0 ? 1.2 : 1;
+        const dmg = Math.round((move.dmg + roll(0, 5)) * mult * focus);
+        attacker.focus = 0;
+        const result = applyDamage(defender, dmg);
+        line += ` ${result.dealt} dmg`;
+        if (result.absorbed > 0) line += ` (${result.absorbed} absorbed)`;
+        if (mult > 1) line += " - super effective.";
+        if (mult < 1) line += " - resisted.";
+        tone = "bad";
+        flashArena();
+      }
+
+      log(line, tone);
+    }
+
+    function enemyChoice(enemy) {
+      const usable = enemy.moves.filter((m) => enemy.energy >= m.cost);
+      if (enemy.hp <= enemy.maxHp * 0.45) {
+        const sustain = usable.filter((m) => m.heal || m.shield);
+        if (sustain.length && Math.random() < 0.45) return sustain[roll(0, sustain.length - 1)];
+      }
+      const offense = usable.filter((m) => m.dmg > 0);
+      if (offense.length) return offense[roll(0, offense.length - 1)];
+      return usable[0] || enemy.moves[0];
+    }
+
+    function checkKnockouts() {
+      const player = currentPlayer();
+      const enemy = currentChampion();
+
+      if (enemy.hp <= 0) {
+        log(`${enemy.name} is down. Gate cleared.`, "good");
+        state.championIndex += 1;
+        if (state.championIndex >= state.champions.length) {
+          state.completed = true;
+          state.locked = true;
+          log("League complete. AetherRose protocol acknowledged.", "good");
+          startRunBtn.textContent = "Run Again";
+          refresh();
+          return true;
+        }
+        healRosterBetweenRounds();
+        log("Your roster stabilizes before the next champion.", "sys");
+        state.locked = false;
+        refresh();
+        return true;
+      }
+
+      if (player.hp <= 0) {
+        const nextIdx = nextLivingRosterIndex();
+        if (nextIdx === -1) {
+          state.locked = true;
+          log("All sigils down. Run failed. Start a new league run.", "bad");
+          startRunBtn.textContent = "Retry Run";
+          refresh();
+          return true;
+        }
+        state.activeIndex = nextIdx;
+        log(`${state.roster[nextIdx].name} enters the arena.`, "sys");
+      }
+      return false;
+    }
+
+    function playTurn(playerMove) {
+      if (state.locked || state.completed) return;
+      const player = currentPlayer();
+      const enemy = currentChampion();
+      if (player.energy < playerMove.cost) {
+        log("Not enough energy for that move.", "bad");
+        return;
+      }
+
+      state.locked = true;
+      runMove(player, enemy, playerMove);
+      refresh();
+      if (checkKnockouts()) return;
+
+      setTimeout(() => {
+        const foe = currentChampion();
+        const mine = currentPlayer();
+        const enemyMove = enemyChoice(foe);
+        runMove(foe, mine, enemyMove);
+        refresh();
+        if (!checkKnockouts()) {
+          state.locked = false;
+          refresh();
+        }
+      }, 500);
+    }
+
+    function startRun() {
+      state.roster = clone(rosterTemplate);
+      state.champions = clone(championsTemplate);
+      state.activeIndex = 0;
+      state.championIndex = 0;
+      state.locked = false;
+      state.completed = false;
+      logBox.innerHTML = "";
+      log("League initialized. Decode each champion protocol.", "sys");
+      log("Tip: swap sigils when HP dips low; energy fuels your burst tools.", "sys");
+      startRunBtn.textContent = "Restart Run";
+      refresh();
+    }
+
+    function swapSigil() {
+      if (state.locked || state.completed) return;
+      const nextIdx = nextLivingRosterIndex();
+      if (nextIdx === -1) {
+        log("No healthy backup sigil available.", "bad");
+        return;
+      }
+      state.activeIndex = nextIdx;
+      log(`Swapped to ${state.roster[nextIdx].name}.`, "sys");
+      state.locked = true;
+      refresh();
+      setTimeout(() => {
+        const enemy = currentChampion();
+        const mine = currentPlayer();
+        const enemyMove = enemyChoice(enemy);
+        runMove(enemy, mine, enemyMove);
+        refresh();
+        if (!checkKnockouts()) {
+          state.locked = false;
+          refresh();
+        }
+      }, 380);
+    }
+
+    function channelCuriosity() {
+      if (state.locked || state.completed) return;
+      const player = currentPlayer();
+      player.energy = Math.min(player.maxEnergy, player.energy + 1);
+      player.focus = 1;
+      log(`${player.name} channels curiosity. Energy +1 and next attack empowered.`, "good");
+      state.locked = true;
+      refresh();
+      setTimeout(() => {
+        const enemy = currentChampion();
+        const mine = currentPlayer();
+        const enemyMove = enemyChoice(enemy);
+        runMove(enemy, mine, enemyMove);
+        refresh();
+        if (!checkKnockouts()) {
+          state.locked = false;
+          refresh();
+        }
+      }, 380);
+    }
+
+    startRunBtn.addEventListener("click", startRun);
+    swapBtn.addEventListener("click", swapSigil);
+    focusBtn.addEventListener("click", channelCuriosity);
+
+    // Show initial empty UI and prompt user to begin.
+    startRun();
+  </script>
+</body>
+</html>
