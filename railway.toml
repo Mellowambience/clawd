@@ -1,6 +1,7 @@
 # Railway deployment config for MIST Python gateway
 # Required env vars in Railway dashboard:
 #   GEMINI_API_KEY, JWT_SECRET, NODE_ENV=production
+# NOTE: Railway assigns $PORT dynamically — always use sh -c so the shell can expand it.
 
 [build]
 builder = "dockerfile"
@@ -12,6 +13,3 @@ healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
-
-[service]
-internalPort = 18789
