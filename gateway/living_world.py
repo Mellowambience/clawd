@@ -22,12 +22,17 @@ from typing import Callable, Optional
 
 from gateway.mist_self import MistSelf
 from gateway.mist_memory import MistMemory
+from gateway.pc_control import PCControl
 
 
 class LivingWorld:
     def __init__(self, db_path: str = ":memory:"):
         self.self = MistSelf(db_path)
-        self.memory = MistMemory(db_path.replace("self.db", "memory.db") if db_path != ":memory:" else ":memory:")
+        mem_db = db_path.replace("self.db", "memory.db") if db_path != ":memory:" else ":memory:"
+        self.memory = MistMemory(mem_db)
+        # MIST's hands on the host. Starts with NO mutating capability;
+        # control is granted explicitly (safe by default).
+        self.pc = PCControl(memory=self.memory)
         self._loop_thread: Optional[threading.Thread] = None
         self._stop = threading.Event()
         self._last_heartbeat: Optional[float] = None
@@ -38,6 +43,18 @@ class LivingWorld:
         self.memory.remember(
             "episodic", f"MIST awakened in the gateway cloud (v1.0)"
         )
+        # MIST learns her own body: seed memory with the host inventory so
+        # she knows what machine she lives in and what it can do.
+        try:
+            inv = self.pc.inventory()
+            self.memory.remember(
+                "semantic",
+                f"Host: {inv.get('hostname')} / {inv.get('os', {}).get('system')} "
+                f"/ RAM {inv.get('ram_total_gb')}GB / ports {inv.get('open_ports')}",
+                meta={"kind": "host_inventory"},
+            )
+        except Exception:
+            pass  # inventory is best-effort; never block awaken on it
         # Announce presence to sibling nodes (non-fatal if none registered).
         # `publish` is injectable so callers/tests can supply their own
         # transport without importing the mycelium+aiohttp stack.

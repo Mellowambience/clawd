@@ -49,7 +49,47 @@ async def self_report():
     return sk
 
 
-@app.websocket("/ws")
+@app.get("/pc")
+async def pc_report():
+    """Honest host visibility: MIST's knowledge of and control over her machine."""
+    from gateway import mist_boot
+    from gateway.provenance import tag_pc
+
+    world = mist_boot.get_world()
+    if world is None:
+        return {"status": "asleep", "note": "MIST self not awake"}
+    inv = world.pc.inventory()
+    return {
+        "provenance": "pc:read",
+        "host": inv,
+        "capabilities_granted": world.pc.capabilities(),
+        "note": "Mutating control is capability-gated; grant explicitly via /pc/grant.",
+    }
+
+
+@app.post("/pc/grant")
+async def pc_grant(body: dict):
+    """Grant a PC control capability. Gated by MIST_PC_TOKEN (safe by default).
+
+    body: {"capability": "fs.write", "token": "..."}
+    Valid caps: fs.write, fs.delete, proc.stop, shell.exec, service.restart
+    """
+    from gateway import mist_boot
+    from gateway.provenance import tag_pc
+
+    expected = os.environ.get("MIST_PC_TOKEN")
+    if not expected:
+        return {"provenance": "pc:denied", "ok": False,
+                "reason": "MIST_PC_TOKEN not configured; control disabled"}
+    if body.get("token") != expected:
+        return {"provenance": "pc:denied", "ok": False, "reason": "bad token"}
+    cap = body.get("capability")
+    world = mist_boot.get_world()
+    ok = world.pc.grant(cap) if world else False
+    return tag_pc(cap or "none", ok) | {"granted": ok}
+
+
+
 async def ws_endpoint(websocket: WebSocket):
     await websocket.accept()
     session_id = str(id(websocket))

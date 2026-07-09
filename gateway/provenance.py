@@ -32,3 +32,15 @@ def tag_self(name: str, state: str, model_layer: str = "hybrid") -> dict:
             "honesty_note": "Self-description is asserted by code, not inferred by a model.",
         },
     }
+
+
+def tag_pc(capability: str, ok: bool, actor: str = "mist") -> dict:
+    """Tag a PC control action. Honest: marks action vs denial, and actor."""
+    # ok is a bool; provenance records whether the action actually executed.
+    status = "action" if ok else "denied"
+    return {
+        "provenance": f"pc:{status}",
+        "capability": capability,
+        "actor": actor,
+        "ok": bool(ok),
+    }
