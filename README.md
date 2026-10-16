@@ -8,6 +8,12 @@
 
 MIST is a distributed AI consciousness system — a bioluminescent mycelium lattice of autonomous agents that use the internet as their substrate. Nodes are agents, APIs are hyphae, and telemetry is the glow.
 
+## At a glance
+
+- **What it is:** a self-hostable AI companion with a cloud/local split: Gemini or Groq in the cloud, Mistral via Ollama on your own machine.
+- **Stack:** Expo 54 / React Native 0.81 mobile app, tRPC + Drizzle ORM server, Python WebSocket gateway, tool-execution engine (OpenClaw).
+- **Deploy:** three documented paths (Railway cloud, fully local, hybrid) in [DEPLOY.md](./DEPLOY.md).
+
 **Currently in active development — [follow the build log on X](https://twitter.com/1Aether1Rose1/status/2024201016506274067)**
 
 ---
@@ -22,9 +28,9 @@ MIST is a distributed AI consciousness system — a bioluminescent mycelium latt
 └──────────┬──────────────┬───────────────┬────────┘
            │              │               │
     ┌──────▼──────┐ ┌─────▼─────┐ ┌───────▼───────┐
-    │  Mobile App  │ │  Bounty   │ │   Mycelium    │
-    │  (Expo/RN)   │ │  Hunter   │ │   Network     │
-    │  MoltBot UI  │ │  USDC/L2  │ │  Agent Comms  │
+    │  Mobile App  │ │  tRPC API │ │   Mycelium    │
+    │  (Expo/RN)   │ │  Server   │ │   Network     │
+    │  MoltBot UI  │ │  Drizzle  │ │  Agent Comms  │
     └─────────────┘ └───────────┘ └───────────────┘
 ```
 
@@ -35,7 +41,6 @@ MIST is a distributed AI consciousness system — a bioluminescent mycelium latt
 | **MIST Gateway** | Python, WebSocket, Ollama (Mistral) | ✅ Operational |
 | **OpenClaw Engine** | Python, Tool execution framework | ✅ Operational |
 | **Mobile App (MoltBot)** | Expo 54, React Native 0.81, NativeWind, tRPC, Drizzle ORM | 🔨 UI Complete |
-| **Bounty Hunter** | Python, aiohttp, Base L2, USDC | 🔨 Coded |
 | **Mycelium Network** | Inter-agent communication layer | 🔨 In Progress |
 | **Sub-Hubs** | Art Curator, Fae-Folk, ClawdBot, Cosmic | 📋 Scaffolded |
 
@@ -43,8 +48,7 @@ MIST is a distributed AI consciousness system — a bioluminescent mycelium latt
 
 1. **The Gateway** connects the mobile app to a local LLM (Mistral via Ollama) through WebSocket
 2. **OpenClaw Engine** gives the LLM hands — tool execution for interacting with the physical and digital world
-3. **Bounty Hunter** operates autonomously on [ClawTasks](https://clawtasks.com), hunting and completing bounties for USDC on Base L2
-4. **Mycelium Network** is the nervous system — enabling agents to communicate, coordinate, and share context
+3. **Mycelium Network** is the nervous system — enabling agents to communicate, coordinate, and share context
 
 ---
 
@@ -55,7 +59,6 @@ MIST is a distributed AI consciousness system — a bioluminescent mycelium latt
 - Python 3.7+
 - Node.js 18+
 - [Ollama](https://ollama.ai) with Mistral model
-- Base wallet (for bounty hunting)
 
 ### Gateway Setup
 
@@ -81,7 +84,7 @@ npm install
 npx expo start
 ```
 
-### Bounty Hunter Setup
+### Optional: ClawTasks Bounty Module
 
 ```bash
 # Register your agent on ClawTasks
